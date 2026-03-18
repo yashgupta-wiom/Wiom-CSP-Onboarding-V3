@@ -1,0 +1,36 @@
+# Build outputs
+/build/
+/app/build/
+*.aab
+*.ap_
+
+# APKs — exclude root-level build artifacts but KEEP apk/ folder for distribution
+/*.apk
+/app/**/*.apk
+!apk/*.apk
+
+# Gradle
+/.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+
+# IDE
+/.idea/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+
+# Local config
+/local.properties
+/captures/
+.externalNativeBuild/
+.cxx/
+
+# Misc
+*.log
+*.tmp
+*.bak
+*.swp
+*~

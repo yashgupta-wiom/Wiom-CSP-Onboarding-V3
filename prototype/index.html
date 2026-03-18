@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wiom CSP Onboarding — Interactive Flow</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  /* Brand */
+  --pri:#D9008D;--pri-light:#FFE5F6;--pri-200:#FFCCED;--pri-300:#FFB2E4;
+  /* Neutral */
+  --text:#161021;--text-sec:#665E75;--hint:#A7A1B2;--text-light:#665E75;
+  --surface:#FAF9FC;--bg-sec:#F1EDF7;--bg-ter:#E8E4F0;
+  --border:#E8E4F0;--border-input:#D7D3E0;--border-focus:#352D42;
+  --neutral-800:#352D42;--neutral-100:#F1EDF7;
+  /* Semantic */
+  --positive:#008043;--pos-100:#E1FAED;--pos-200:#C9F0DD;--pos-300:#A5E5C6;
+  --negative:#D92130;--neg-100:#FFE5E7;--neg-200:#FFCCD0;
+  --warning:#FF8000;--warn-700:#B85C00;--warn-200:#FFE6CC;
+  --info:#6D17CE;--info-100:#F1E5FF;--info-200:#E4CCFF;
+  --caution-800:#806000;--caution-200:#FFF2BF;
+  /* Layout */
+  --header:#443152;--dark:#161021;
+  --r-sm:8px;--r-input:12px;--r-card:16px;--r-btn:16px;--r-pill:888px;
+  /* Shadows */
+  --shadow-1:0 1px 3px rgba(0,0,0,0.15);
+  --shadow-2:0 2px 6px rgba(0,0,0,0.15);
+  --shadow-4:0 4px 12px rgba(0,0,0,0.15);
+  --shadow-up:-0 -2px 6px rgba(0,0,0,0.15);
+  --pink-glow:0 4px 12px rgba(217,43,144,0.3);
+}
+body{font-family:'Noto Sans','Noto Sans Devanagari',sans-serif;background:#0d0816;color:var(--surface);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+/* TOP BAR */
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--dark);border-bottom:1px solid var(--neutral-800);flex-shrink:0;z-index:200;}
+.top-bar h1{font-size:14px;font-weight:700;color:var(--pri);}
+.top-bar .step-info{font-size:12px;font-weight:600;color:var(--hint);}
+.progress-strip{display:flex;gap:2px;padding:4px 16px 6px;background:var(--dark);border-bottom:1px solid #221a2e;flex-shrink:0;}
+.prog-seg{flex:1;height:3px;border-radius:2px;background:#221a2e;transition:background .3s;}
+.prog-seg.done{background:var(--positive);}.prog-seg.active{background:var(--pri);}.prog-seg.future{background:#221a2e;}
+
+/* MAIN SPLIT */
+.main{display:flex;flex:1;overflow:hidden;}
+
+/* LEFT: PARTNER APP */
+.left-panel{width:420px;min-width:420px;display:flex;flex-direction:column;align-items:center;background:#0d0816;border-right:1px solid #221a2e;overflow:hidden;}
+.left-header{width:100%;padding:8px 16px;background:#1a1025;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.left-header .lh-title{font-size:12px;font-weight:700;color:var(--pri);text-transform:uppercase;letter-spacing:1px;}
+.left-header .lh-phase{font-size:11px;color:var(--hint);}
+.phone-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:12px;overflow:hidden;}
+.phone{width:360px;height:720px;background:var(--surface);border-radius:32px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);position:relative;flex-shrink:0;}
+.sbar{height:32px;background:var(--header);display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:10px;color:var(--surface);font-weight:600;}
+.hdr{height:48px;background:var(--header);display:flex;align-items:center;padding:0 16px;gap:8px;}
+.hdr .back{color:var(--surface);font-size:16px;cursor:pointer;width:24px;height:24px;display:flex;align-items:center;justify-content:center;}
+.hdr .htitle{font-size:16px;font-weight:700;color:var(--surface);line-height:24px;}
+.hdr .hright{margin-left:auto;font-size:12px;color:rgba(250,249,252,.5);font-weight:600;}
+.scontent{height:calc(720px - 32px - 48px);overflow-y:auto;background:var(--surface);position:relative;}
+.scontent::-webkit-scrollbar{width:0;}
+
+/* RIGHT: DASHBOARD */
+.right-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#0a0612;}
+.right-header{padding:12px 16px;background:#111;border-bottom:1px solid #221a2e;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.right-header h2{font-size:14px;font-weight:700;color:var(--surface);}
+.right-header .rh-time{font-size:11px;color:var(--hint);}
+.dash-content{flex:1;overflow-y:auto;padding:12px 16px;}
+.dash-content::-webkit-scrollbar{width:4px;}.dash-content::-webkit-scrollbar-thumb{background:var(--neutral-800);border-radius:2px;}
+
+/* Dashboard components */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px;}
+.stat-card{background:var(--dark);border:1px solid #221a2e;border-radius:var(--r-sm);padding:12px;text-align:center;}
+.stat-num{font-size:20px;font-weight:700;}
+.stat-lbl{font-size:10px;color:var(--hint);margin-top:4px;font-weight:600;}
+.ptable{width:100%;border-collapse:collapse;font-size:12px;}
+.ptable th{text-align:left;padding:8px;font-size:10px;font-weight:700;color:var(--hint);border-bottom:1px solid #221a2e;text-transform:uppercase;letter-spacing:.5px;}
+.ptable td{padding:8px;border-bottom:1px solid #111;color:var(--surface);}
+.ptable tr{cursor:pointer;transition:background .15s;}.ptable tr:hover{background:var(--dark);}
+.ptable tr.highlight{background:#1a1025;border-left:2px solid var(--pri);}
+.pill{padding:3px 10px;border-radius:var(--r-pill);font-size:10px;font-weight:700;display:inline-block;}
+.pill-pending{background:var(--warn-200);color:var(--warn-700);}
+.pill-approved{background:var(--pos-100);color:var(--positive);}
+.pill-rejected{background:var(--neg-100);color:var(--negative);}
+.pill-review{background:var(--info-100);color:var(--info);}
+.pill-flagged{background:var(--neg-200);color:var(--negative);}
+.pill-training{background:#e0f0ff;color:#0066cc;}
+
+/* Detail panel */
+.detail{background:#111;border:1px solid #221a2e;border-radius:var(--r-sm);padding:12px;margin-top:12px;display:none;}
+.detail.open{display:block;}
+.detail h3{font-size:14px;font-weight:700;color:var(--surface);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.detail h3 .pill{font-size:9px;}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.dsec{background:#1a1025;border-radius:var(--r-sm);padding:12px;}
+.dsec h4{font-size:10px;font-weight:700;color:var(--pri);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;}
+.drow{display:flex;justify-content:space-between;padding:4px 0;font-size:11px;border-bottom:1px solid #221a2e;}
+.drow .dk{color:var(--hint);}.drow .dv{color:var(--surface);font-weight:600;text-align:right;max-width:55%;}
+.dactions{display:flex;gap:8px;margin-top:12px;}
+.dbtn{padding:8px 16px;border-radius:var(--r-sm);font:700 11px/16px inherit;cursor:pointer;border:none;}
+.dbtn-approve{background:var(--positive);color:#fff;}
+.dbtn-reject{background:var(--negative);color:#fff;}
+.dbtn-flag{background:var(--warning);color:#fff;}
+.dbtn-ghost{background:none;border:1px solid var(--neutral-800);color:var(--hint);}
+.dedup-box{background:#2a1020;border:1px solid var(--negative);border-radius:var(--r-sm);padding:10px;margin-top:8px;font-size:11px;}
+.dedup-box h4{color:var(--negative);font-size:10px;font-weight:700;margin-bottom:4px;}
+.waiver-box{background:#1a1025;border:1px solid var(--warning);border-radius:var(--r-sm);padding:10px;margin-top:8px;}
+.waiver-box h4{color:var(--warning);font-size:10px;font-weight:700;margin-bottom:4px;}
+.waiver-box input{width:100%;padding:6px;border:1px solid var(--neutral-800);border-radius:4px;background:#111;color:var(--surface);font:inherit;font-size:11px;margin-bottom:4px;}
+
+/* Activity log */
+.activity-log{margin-top:12px;border-top:1px solid #221a2e;padding-top:8px;}
+.activity-log h4{font-size:10px;font-weight:700;color:var(--hint);margin-bottom:8px;text-transform:uppercase;}
+.log-item{display:flex;gap:8px;padding:4px 0;font-size:11px;border-bottom:1px solid #111;}
+.log-time{color:var(--hint);flex-shrink:0;width:64px;}
+.log-event{color:var(--surface);}
+.log-dot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+
+/* ===== PHONE INNER — WIOM DESIGN SYSTEM ===== */
+.pad{padding:16px;}
+.card{background:#fff;border-radius:var(--r-card);border:1px solid var(--border);padding:16px;margin-bottom:8px;box-shadow:var(--shadow-1);}
+.lbl{font-size:12px;color:var(--text-sec);font-weight:600;margin-bottom:4px;line-height:16px;}
+.inp{width:100%;height:56px;border:1px solid var(--border-input);border-radius:var(--r-input);padding:0 12px;font-size:14px;color:var(--text);display:flex;align-items:center;background:#fff;margin-bottom:12px;line-height:20px;}
+.inp.ok{border-color:var(--positive);background:var(--pos-100);}
+.inp .check{margin-left:auto;color:var(--positive);font-weight:700;font-size:14px;}
+/* Real form inputs */
+input.finp,select.finp,textarea.finp{width:100%;height:56px;border:1px solid var(--border-input);border-radius:var(--r-input);padding:0 12px;font:400 14px/20px 'Noto Sans','Noto Sans Devanagari',sans-serif;color:var(--text);background:#fff;margin-bottom:12px;outline:none;-webkit-appearance:none;appearance:none;transition:border-color .2s;}
+input.finp:focus,select.finp:focus,textarea.finp:focus{border-color:var(--border-focus);box-shadow:0 0 0 2px rgba(53,45,66,0.12);}
+input.finp::placeholder,textarea.finp::placeholder{color:var(--hint);font-weight:400;}
+input.finp.ok,select.finp.ok{border-color:var(--positive);background:var(--pos-100);}
+select.finp{padding-right:32px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='%23A7A1B2'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer;}
+textarea.finp{height:auto;min-height:72px;padding:12px;resize:vertical;line-height:20px;}
+/* Inline verified input */
+.inp-wrap{position:relative;margin-bottom:12px;}
+.inp-wrap input.finp{margin-bottom:0;padding-right:36px;}
+.inp-wrap .inp-check{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--positive);font-weight:700;font-size:16px;}
+/* Phone prefix */
+.phone-inp-wrap{display:flex;align-items:center;gap:0;margin-bottom:12px;}
+.phone-prefix{height:56px;padding:0 12px;border:1px solid var(--border-input);border-right:none;border-radius:var(--r-input) 0 0 var(--r-input);background:var(--bg-sec);display:flex;align-items:center;font-size:14px;font-weight:600;color:var(--text-sec);white-space:nowrap;}
+.phone-inp-wrap input.finp{border-radius:0 var(--r-input) var(--r-input) 0;margin-bottom:0;flex:1;}
+/* Toggle checkbox */
+.chk-row{display:flex;align-items:center;gap:8px;margin:12px 0;cursor:pointer;user-select:none;}
+.chk-box{width:24px;height:24px;border-radius:var(--r-sm);border:2px solid var(--border-input);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;transition:all .2s;flex-shrink:0;}
+.chk-box.checked{background:var(--positive);border-color:var(--positive);}
+.chk-label{font-size:14px;color:var(--text);line-height:20px;}
+/* Primary CTA — 48px, 24px radius, L1_16_Bold */
+.cta{width:100%;height:48px;background:var(--pri);border:none;border-radius:var(--r-btn);color:var(--surface);font:700 16px/24px 'Noto Sans','Noto Sans Devanagari',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;box-shadow:var(--pink-glow);}
+.cta:hover{opacity:.9;transform:scale(.99);}.cta:active{transform:scale(.97);}
+.cta.dis{background:var(--hint);color:var(--surface);pointer-events:none;box-shadow:none;}
+.cta.sec{background:var(--pri-light);color:var(--pri);box-shadow:none;}
+.bbar{position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:var(--surface);box-shadow:var(--shadow-up);}
+.divider{height:1px;background:var(--border);margin:8px 0;}
+.chip{display:inline-flex;padding:4px 10px;border-radius:var(--r-pill);font-size:12px;font-weight:600;line-height:16px;}
+.chip-g{background:var(--pos-100);color:var(--positive);}.chip-o{background:var(--warn-200);color:var(--warn-700);}.chip-r{background:var(--neg-100);color:var(--negative);}.chip-p{background:var(--info-100);color:var(--info);}
+/* Info/Benefit boxes */
+.ibox{border-radius:var(--r-input);padding:12px;display:flex;gap:8px;margin-top:8px;font-size:14px;line-height:20px;font-weight:400;}
+.ibox-p{background:var(--info-100);color:var(--text-sec);}.ibox-g{background:var(--pos-100);color:#005c30;}.ibox-o{background:var(--warn-200);color:var(--warn-700);}
+.ibox .ii{flex-shrink:0;font-size:16px;}
+.verif{display:flex;align-items:center;gap:4px;padding:3px 0;font-size:12px;color:var(--positive);font-weight:600;line-height:16px;}
+.verif .vi{font-size:14px;}
+.sec-hdr{font-size:12px;font-weight:700;color:var(--text-sec);letter-spacing:.5px;text-transform:uppercase;padding:12px 16px 4px;}
+.stepper{display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 16px;background:var(--bg-sec);}
+.sdot{height:3px;border-radius:2px;background:var(--border-input);flex:1;max-width:32px;}
+.sdot.done{background:var(--positive);}.sdot.active{background:var(--pri);}
+/* Upload rows */
+.upload-row{display:flex;align-items:center;justify-content:space-between;padding:12px;background:#fff;border:1px solid var(--border);border-radius:var(--r-input);margin-bottom:8px;}
+.upload-row.verified{border-color:var(--pos-300);background:var(--pos-100);}
+.upload-row .uname{font-size:14px;font-weight:600;color:var(--text);line-height:20px;}
+.upload-row .ustatus{font-size:12px;color:var(--hint);line-height:16px;}
+.ubtn{padding:6px 12px;border-radius:var(--r-sm);border:1px solid var(--pri);background:none;color:var(--pri);font:700 12px/16px inherit;}
+.ubtn.done{border-color:var(--positive);color:var(--positive);background:var(--pos-100);}
+/* Amount box */
+.amt-box{text-align:center;padding:24px;background:var(--bg-sec);border-radius:var(--r-card);margin-bottom:12px;}
+.amt{font-size:32px;font-weight:700;color:var(--text);line-height:48px;}
+.amt-lbl{font-size:14px;color:var(--text-sec);margin-top:4px;line-height:20px;}
+/* OTP */
+.otp-row{display:flex;gap:12px;justify-content:center;margin:20px 0;}
+.otp-box{width:48px;height:56px;border:2px solid var(--border-input);border-radius:var(--r-input);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:var(--text);}
+.otp-box.filled{border-color:var(--border-focus);}
+/* Agreement */
+.agree-box{border:1px solid var(--border);border-radius:var(--r-input);padding:12px;max-height:140px;overflow-y:auto;font-size:12px;color:var(--text-sec);line-height:18px;background:#fff;margin-bottom:12px;}
+/* Module cards */
+.mod-card{display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border:1px solid var(--border);border-radius:var(--r-card);margin-bottom:8px;box-shadow:var(--shadow-1);}
+.mod-card.done{border-color:var(--pos-300);background:var(--pos-100);}
+.mod-icon{width:36px;height:36px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.mod-title{font-size:14px;font-weight:700;color:var(--text);line-height:20px;}
+.mod-sub{font-size:12px;color:var(--text-sec);line-height:16px;}
+.mod-badge{margin-left:auto;font-size:10px;font-weight:700;padding:4px 8px;border-radius:var(--r-sm);}
+/* Quiz */
+.quiz-q{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:20px;}
+.quiz-opt{padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:4px;font-size:14px;color:var(--text);cursor:pointer;line-height:20px;}
+.quiz-opt.correct{border-color:var(--positive);background:var(--pos-100);color:var(--positive);}
+/* Checklist */
+.cl-item{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--bg-sec);}
+.cl-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+.cl-icon.done{background:var(--positive);color:#fff;}.cl-icon.wait{background:var(--warn-200);color:var(--warn-700);}
+.cl-text{font-size:14px;color:var(--text);font-weight:600;line-height:20px;}
+.cl-sub{font-size:12px;color:var(--text-sec);line-height:16px;}
+/* Progress bar */
+.pbar{height:4px;background:var(--border-input);border-radius:2px;overflow:hidden;margin:4px 0;}
+.pbar .fill{height:100%;border-radius:2px;}
+/* Trust badge */
+.trust-badge{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:var(--r-pill);font-size:12px;font-weight:600;line-height:16px;background:var(--pos-100);color:var(--positive);border:1px solid var(--pos-300);}
+
+/* Annotation Panel — Dashboard top */
+.annot-panel{width:100%;padding:10px 16px 8px;background:var(--dark);border-bottom:1px solid #221a2e;flex-shrink:0;}
+.annot-inner{display:flex;flex-direction:column;gap:6px;}
+.annot-row{display:flex;align-items:baseline;gap:8px;}
+.annot-section{display:contents;}
+.annot-label{font-size:10px;font-weight:700;color:#665e75;text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;flex-shrink:0;}
+.annot-tags{display:flex;flex-wrap:wrap;gap:4px;}
+.annot-tag{padding:4px 12px;border-radius:var(--r-pill);font-size:11px;font-weight:600;line-height:1.3;white-space:nowrap;}
+.annot-tag.req{background:#2d1a3e;color:#c9a0ff;border:1px solid #3d2a5e;}
+.annot-tag.new-req{background:#1a2a3e;color:#80c8ff;border:1px solid #2a3a5e;}
+.annot-type{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--r-sm);font-size:11px;font-weight:700;line-height:1.3;}
+.annot-type.user-entry{background:#1a2025;color:#4ecdc4;border:1px solid #2a3035;}
+.annot-type.sys-check{background:#1a1a2e;color:#7c8cf5;border:1px solid #2a2a4e;}
+.annot-type.wiom-decision{background:#2e1a25;color:#ff7eb3;border:1px solid #4e2a35;}
+.annot-type.user-action{background:#252518;color:#f5d76e;border:1px solid #3e3a28;}
+.annot-type.sys-gen{background:#1a2e1a;color:#7cf57c;border:1px solid #2a4e2a;}
+.annot-type.mixed{background:#1e1525;color:#c9a0ff;border:1px solid #3e2a55;}
+/* Light mode annotations */
+body.dash-light .annot-panel{background:#fff;border-bottom:1px solid var(--border);}
+body.dash-light .annot-label{color:var(--text-sec);}
+body.dash-light .annot-tag.req{background:var(--info-100);color:var(--info);border:1px solid var(--info-200);}
+body.dash-light .annot-tag.new-req{background:#e8f4ff;color:#0066cc;border:1px solid #c8e2f7;}
+body.dash-light .annot-type.user-entry{background:#e6f9f7;color:#00806a;border:1px solid #b8ede6;}
+body.dash-light .annot-type.sys-check{background:#eceeff;color:#4a5ad4;border:1px solid #cdd2f5;}
+body.dash-light .annot-type.wiom-decision{background:var(--pri-light);color:var(--pri);border:1px solid var(--pri-200);}
+body.dash-light .annot-type.user-action{background:var(--warn-200);color:var(--warn-700);border:1px solid #f0dfa0;}
+body.dash-light .annot-type.sys-gen{background:var(--pos-100);color:var(--positive);border:1px solid var(--pos-300);}
+body.dash-light .annot-type.mixed{background:var(--info-100);color:var(--info);border:1px solid var(--info-200);}
+body.dash-light .annot-tag[style*="c4956e"]{background:var(--warn-200) !important;color:var(--warn-700) !important;border:1px solid #f0dfa0 !important;}
+
+/* Transition */
+.phone-content-enter{animation:slideIn .3s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+.spinner{width:24px;height:24px;border:3px solid rgba(255,255,255,.2);border-top-color:var(--pri);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:var(--r-input);font-size:14px;font-weight:600;color:#fff;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:var(--shadow-4);}
+.toast.show{opacity:1;}
+.toast-g{background:var(--positive);}.toast-r{background:var(--negative);}.toast-o{background:var(--warning);}.toast-p{background:var(--info);}
+
+/* ===== SCENARIO SIMULATOR ===== */
+.scenario-panel{background:#1a1025;border:1px solid #2d1f3e;border-radius:var(--r-sm);padding:12px;margin-bottom:12px;}
+body.dash-light .scenario-panel{background:#fff;border:1px solid var(--border);box-shadow:var(--shadow-1);}
+.scenario-panel h4{font-size:11px;font-weight:700;color:var(--pri);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.scenario-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.scn-btn{padding:8px 10px;border-radius:var(--r-sm);font:600 10px/14px inherit;cursor:pointer;border:1px solid #2d1f3e;background:#111;color:var(--surface);text-align:left;transition:all .15s;display:flex;align-items:center;gap:6px;}
+body.dash-light .scn-btn{background:var(--bg-sec);border:1px solid var(--border);color:var(--text);}
+.scn-btn:hover{border-color:var(--pri);background:#1a1025;}
+body.dash-light .scn-btn:hover{border-color:var(--pri);background:var(--pri-light);}
+.scn-btn.active{border-color:var(--negative);background:#2a1020;color:var(--negative);}
+body.dash-light .scn-btn.active{border-color:var(--negative);background:var(--neg-100);color:var(--negative);}
+.scn-btn .scn-icon{font-size:14px;flex-shrink:0;}
+.scn-btn .scn-text{font-size:10px;line-height:14px;}
+.scn-reset{width:100%;padding:8px;border-radius:var(--r-sm);font:700 11px/16px inherit;cursor:pointer;border:1px solid var(--positive);background:var(--pos-100);color:var(--positive);text-align:center;margin-top:8px;}
+.scn-reset:hover{background:var(--positive);color:#fff;}
+.scn-cat{font-size:9px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.5px;padding:6px 0 3px;grid-column:1/-1;}
+body.dash-light .scn-cat{color:var(--text-sec);}
+
+/* ===== LIGHT MODE DASHBOARD ===== */
+body.dash-light .right-panel{background:#f5f3f9;}
+body.dash-light .right-header{background:#fff;border-bottom:1px solid var(--border);}
+body.dash-light .right-header h2{color:var(--text);}
+body.dash-light .right-header .rh-time{color:var(--text-sec);}
+body.dash-light .dash-content::-webkit-scrollbar-thumb{background:var(--border-input);}
+body.dash-light .stat-card{background:#fff;border:1px solid var(--border);box-shadow:var(--shadow-1);}
+body.dash-light .stat-lbl{color:var(--text-sec);}
+body.dash-light .ptable th{color:var(--text-sec);border-bottom:1px solid var(--border);}
+body.dash-light .ptable td{color:var(--text);border-bottom:1px solid var(--bg-sec);}
+body.dash-light .ptable tr:hover{background:var(--bg-sec);}
+body.dash-light .ptable tr.highlight{background:var(--info-100);border-left:2px solid var(--pri);}
+body.dash-light .detail{background:#fff;border:1px solid var(--border);box-shadow:var(--shadow-2);}
+body.dash-light .detail h3{color:var(--text);}
+body.dash-light .dsec{background:var(--neutral-100);border:1px solid var(--border);}
+body.dash-light .dsec h4{color:var(--info);}
+body.dash-light .drow{border-bottom:1px solid var(--border);}
+body.dash-light .drow .dk{color:var(--text-sec);}
+body.dash-light .drow .dv{color:var(--text);}
+body.dash-light .dbtn-ghost{border:1px solid var(--border-input);color:var(--text-sec);}
+body.dash-light .dedup-box{background:var(--neg-100);border:1px solid var(--negative);}
+body.dash-light .dedup-box h4{color:var(--negative);}
+body.dash-light .dedup-box div{color:var(--text);}
+body.dash-light .waiver-box{background:#fffcf5;border:1px solid var(--warning);}
+body.dash-light .waiver-box input{background:#fff;border:1px solid var(--border-input);color:var(--text);}
+body.dash-light .activity-log h4{color:var(--text-sec);}
+body.dash-light .log-item{border-bottom:1px solid var(--bg-sec);}
+body.dash-light .log-time{color:var(--text-sec);}
+body.dash-light .log-event{color:var(--text);}
+
+/* Toggle switch */
+.theme-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;}
+.theme-toggle .tgl-label{font-size:10px;color:var(--hint);font-weight:600;}
+body.dash-light .theme-toggle .tgl-label{color:var(--text-sec);}
+.tgl-track{width:36px;height:20px;border-radius:10px;background:var(--neutral-800);position:relative;transition:background .25s;}
+body.dash-light .tgl-track{background:var(--border-input);}
+.tgl-knob{width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform .25s;box-shadow:var(--shadow-1);}
+body.dash-light .tgl-knob{transform:translateX(16px);background:var(--pri);}
+.tgl-icon{font-size:14px;}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <h1>Wiom CSP Onboarding — Interactive Prototype</h1>
+  <div class="step-info" id="stepInfo">Phase 0 — Pre-Entry Gate</div>
+</div>
+<div class="progress-strip" id="progressStrip"></div>
+
+<!-- MAIN SPLIT -->
+<div class="main">
+  <!-- LEFT: PHONE -->
+  <div class="left-panel">
+    <div class="left-header">
+      <span class="lh-title" id="lhTitle">Partner App</span>
+      <span class="lh-phase" id="lhPhase">Screen 1 of 15</span>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone" id="phoneFrame"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: DASHBOARD -->
+  <div class="right-panel">
+    <div class="right-header">
+      <h2>Admin Dashboard</h2>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="rh-time" id="dashTime">Live — synced with partner flow</span>
+        <button onclick="toggleLang()" id="langBtn" style="padding:4px 12px;border-radius:var(--r-pill);font:700 11px/16px inherit;cursor:pointer;border:1px solid var(--pri);background:var(--pri-light);color:var(--pri);white-space:nowrap;">हि / En</button>
+        <div class="theme-toggle" onclick="toggleDashTheme()">
+          <span class="tgl-icon" id="themeIcon">&#9790;</span>
+          <div class="tgl-track"><div class="tgl-knob"></div></div>
+          <span class="tgl-icon" id="themeIcon2">&#9728;</span>
+        </div>
+      </div>
+    </div>
+    <div class="annot-panel" id="annotPanel"></div>
+    <div class="dash-content" id="dashContent"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+let currentScreen = 0;
+const totalScreens = 15;
+let lang = 'hi'; // 'hi' (default per Wiom guidelines) or 'en'
+function t(hi, en){ return lang==='hi' ? hi : en; }
+function toggleLang(){
+  lang = lang==='hi' ? 'en' : 'hi';
+  renderPhone();
+  renderDashboard();
+  toast(lang==='hi'?'भाषा: हिंदी':'Language: English','p');
+}
+let partnerState = {
+  name:'राजेश कुमार',tradeName:'Rajesh Telecom',phone:'9876543210',city:'Indore',
+  otpVerified:false,personalDone:false,locationDone:false,kycDone:false,
+  regFeePaid:false,regFeeAmount:2000,
+  qaStatus:'pending',
+  techReviewDone:false,
+  onboardFeePaid:false,onboardFeeAmount:20000,
+  trainingDone:false,live:false,
+  status:'new',phase:'Entry'
+};
+let qaRejected = false;
+let activityLog = [];
+let activeScenario = null; // tracks which error/corner case is active
+
+// ===== SCENARIO DEFINITIONS =====
+const scenarios = {
+  // OTP & Registration
+  'phone-duplicate': {screen:0, label:'Phone Already Registered', icon:'📱', cat:'registration'},
+  'otp-wrong': {screen:1, label:'Wrong OTP Entered', icon:'❌', cat:'registration'},
+  'otp-expired': {screen:1, label:'OTP Expired', icon:'⏰', cat:'registration'},
+  // Location & KYC
+  'area-not-serviceable': {screen:3, label:'Area Not Serviceable', icon:'📍', cat:'verification'},
+  'kyc-pan-mismatch': {screen:4, label:'PAN Name Mismatch', icon:'🪪', cat:'verification'},
+  'kyc-aadhaar-expired': {screen:4, label:'Aadhaar Expired', icon:'⚠️', cat:'verification'},
+  'kyc-pan-aadhaar-unlinked': {screen:4, label:'PAN-Aadhaar Not Linked', icon:'🔗', cat:'verification'},
+  // Payments
+  'regfee-failed': {screen:5, label:'₹2K Payment Failed', icon:'💳', cat:'payment'},
+  'regfee-timeout': {screen:5, label:'₹2K Payment Timeout', icon:'⏳', cat:'payment'},
+  // Bank & Dedup
+  'bank-pennydrop-fail': {screen:8, label:'Penny Drop Failed', icon:'🏦', cat:'bank'},
+  'bank-name-mismatch': {screen:8, label:'Bank Name Mismatch', icon:'👤', cat:'bank'},
+  'dedup-found': {screen:8, label:'Dedup Match Found', icon:'🔍', cat:'bank'},
+  // Agreement & Tech
+  'esign-failed': {screen:9, label:'e-Sign Failed', icon:'✍️', cat:'documentation'},
+  'tech-device-incompatible': {screen:10, label:'Device Incompatible', icon:'📵', cat:'documentation'},
+  // Onboarding & Training
+  'onboardfee-failed': {screen:11, label:'₹20K Payment Failed', icon:'💸', cat:'payment'},
+  'training-quiz-fail': {screen:13, label:'Quiz Failed', icon:'📝', cat:'training'},
+};
+
+// Error screen renderers — Wiom-style: no blame, reassuring, benefit-first
+const errorScreens = {
+  'phone-duplicate': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">Wiom Partner+</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:40px;margin:20px 0;">📱</div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);line-height:28px;">${t('यह नंबर पहले से रजिस्टर्ड है','This number is already registered')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('+91 98765 43210 से पहले ही अकाउंट बनाया गया है','An account already exists with +91 98765 43210')}</div>
+      <div class="card" style="text-align:left;border-color:var(--info);background:var(--info-100);">
+        <div style="font-size:12px;font-weight:700;color:var(--info);margin-bottom:4px;">${t('ℹ️ क्या करें?','ℹ️ What to do?')}</div>
+        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('अगर यह आपका नंबर है, तो लॉगिन करें। अगर नया अकाउंट चाहिए, तो दूसरा नंबर इस्तेमाल करें।','If this is your number, please login. If you need a new account, use a different number.')}</div>
+      </div>
+      <div style="height:16px;"></div>
+      <div class="lbl" style="text-align:left;">${t('दूसरा नंबर','Different Number')}</div>
+      <div class="phone-inp-wrap"><span class="phone-prefix">+91</span><input class="finp" type="tel" maxlength="10" placeholder="${t('नया नंबर डालें','Enter new number')}"></div>
+    </div>
+    <div class="bbar">
+      <button class="cta" onclick="clearScenario()">${t('नया नंबर से OTP भेजें','Send OTP with new number')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('लॉगिन करें','Login')}</button>
+    </div>
+    </div>`,
+
+  'otp-wrong': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('OTP वेरीफाई','Verify OTP')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="height:16px;"></div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);line-height:28px;">${t('OTP डालें','Enter OTP')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-top:4px;line-height:20px;">${t('+91 98765 43210 पर भेजा गया','Sent to +91 98765 43210')}</div>
+      <div class="otp-row">
+        <input class="otp-box" type="text" maxlength="1" value="1" style="text-align:center;border:2px solid var(--negative);font:700 20px/1 inherit;color:var(--negative);outline:none;background:var(--neg-100);">
+        <input class="otp-box" type="text" maxlength="1" value="2" style="text-align:center;border:2px solid var(--negative);font:700 20px/1 inherit;color:var(--negative);outline:none;background:var(--neg-100);">
+        <input class="otp-box" type="text" maxlength="1" value="3" style="text-align:center;border:2px solid var(--negative);font:700 20px/1 inherit;color:var(--negative);outline:none;background:var(--neg-100);">
+        <input class="otp-box" type="text" maxlength="1" value="4" style="text-align:center;border:2px solid var(--negative);font:700 20px/1 inherit;color:var(--negative);outline:none;background:var(--neg-100);">
+      </div>
+      <div style="background:var(--neg-100);border:1px solid var(--negative);border-radius:var(--r-input);padding:10px 12px;margin:8px 0;text-align:left;">
+        <div style="font-size:14px;font-weight:600;color:var(--negative);line-height:20px;">${t('❌ गलत OTP — कृपया दोबारा डालें','❌ Wrong OTP — please try again')}</div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:16px;margin-top:4px;">${t('2 प्रयास बाकी हैं','2 attempts remaining')}</div>
+      </div>
+      <div style="font-size:12px;color:var(--hint);margin-top:8px;line-height:16px;">${t('OTP नहीं मिला?','Didn\'t receive OTP?')} <b style="color:var(--pri);cursor:pointer;" onclick="clearScenario()">${t('दोबारा भेजें','Resend')}</b></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('वेरीफाई करें','Verify')}</button></div>
+    </div>`,
+
+  'otp-expired': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('OTP वेरीफाई','Verify OTP')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="height:16px;"></div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);line-height:28px;">${t('OTP डालें','Enter OTP')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-top:4px;line-height:20px;">${t('+91 98765 43210 पर भेजा गया','Sent to +91 98765 43210')}</div>
+      <div class="otp-row">
+        <input class="otp-box" type="text" maxlength="1" value="4" style="text-align:center;border:2px solid var(--border-input);font:700 20px/1 inherit;color:var(--hint);outline:none;opacity:.5;">
+        <input class="otp-box" type="text" maxlength="1" value="7" style="text-align:center;border:2px solid var(--border-input);font:700 20px/1 inherit;color:var(--hint);outline:none;opacity:.5;">
+        <input class="otp-box" type="text" maxlength="1" value="2" style="text-align:center;border:2px solid var(--border-input);font:700 20px/1 inherit;color:var(--hint);outline:none;opacity:.5;">
+        <input class="otp-box" type="text" maxlength="1" value="9" style="text-align:center;border:2px solid var(--border-input);font:700 20px/1 inherit;color:var(--hint);outline:none;opacity:.5;">
+      </div>
+      <div style="background:var(--warn-200);border:1px solid var(--warning);border-radius:var(--r-input);padding:10px 12px;margin:8px 0;text-align:left;">
+        <div style="font-size:14px;font-weight:600;color:var(--warn-700);line-height:20px;">${t('⏰ OTP expired हो गया','⏰ OTP has expired')}</div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:16px;margin-top:4px;">${t('चिंता न करें — नया OTP भेज सकते हैं','Don\'t worry — you can request a new OTP')}</div>
+      </div>
+    </div>
+    <div class="bbar">
+      <button class="cta" onclick="clearScenario()">${t('नया OTP भेजें','Send new OTP')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('नंबर बदलें','Change number')}</button>
+    </div>
+    </div>`,
+
+  'area-not-serviceable': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('रजिस्ट्रेशन','Registration')}</span><span class="hright">${t('स्टेप 2/4','Step 2/4')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('लोकेशन जानकारी','Location Details')}</div>
+      <div class="lbl">${t('State','State')}</div><select class="finp"><option selected>Jharkhand</option></select>
+      <div class="lbl">${t('शहर','City')}</div><input class="finp" type="text" value="Deoghar" style="border-color:var(--warning);">
+      <div class="lbl">${t('पिनकोड','Pincode')}</div><input class="finp" type="tel" value="814112" style="border-color:var(--warning);">
+      <div style="background:var(--warn-200);border:1px solid var(--warning);border-radius:var(--r-input);padding:12px;margin-top:8px;">
+        <div style="font-size:14px;font-weight:700;color:var(--warn-700);line-height:20px;">${t('📍 यह इलाका अभी सर्विस एरिया में नहीं है','📍 This area is not yet serviceable')}</div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:18px;margin-top:4px;">
+          ${t('Deoghar (814112) में अभी Wiom की सेवा शुरू नहीं हुई है।','Wiom service has not started in Deoghar (814112) yet.')}<br>
+          ${t('चिंता न करें — जब यह इलाका खुलेगा, आपको notification मिलेगा।','Don\'t worry — you\'ll be notified when this area opens up.')}
+        </div>
+      </div>
+      <div class="ibox ibox-p" style="margin-top:12px;"><span class="ii">🔔</span><span>${t('Waitlist में जुड़ें — area ready होने पर सबसे पहले खबर मिलेगी','Join the waitlist — be the first to know when this area is ready')}</span></div>
+    </div>
+    <div class="bbar">
+      <button class="cta" onclick="clearScenario()">${t('Waitlist में जुड़ें','Join Waitlist')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('दूसरा पिनकोड डालें','Try a different pincode')}</button>
+    </div>
+    </div>`,
+
+  'kyc-pan-mismatch': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('KYC Documents','KYC Documents')}</span><span class="hright">${t('स्टेप 3/4','Step 3/4')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('अपलोड करें — सिस्टम तुरंत वेरीफाई करेगा','Upload — system will verify instantly')}</div>
+      <div class="upload-row" style="border-color:var(--negative);background:var(--neg-100);"><div><div class="uname">🪪 PAN Card</div><div class="ustatus" style="color:var(--negative);">Name Mismatch ✗</div></div><button class="ubtn" style="border-color:var(--negative);color:var(--negative);">Fix</button></div>
+      <div style="background:var(--neg-100);border:1px solid var(--negative);border-radius:var(--r-input);padding:10px 12px;margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:4px;">${t('PAN नाम मेल नहीं खाता','PAN name does not match')}</div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:16px;">${t('PAN पर:','On PAN:')} <b>Rajesh K Sharma</b><br>${t('आपने लिखा:','You entered:')} <b>राजेश कुमार</b></div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:16px;margin-top:6px;">${t('👉 कृपया आधार अनुसार सही नाम दर्ज करें, या PAN re-upload करें','👉 Please enter the correct name as per Aadhaar, or re-upload PAN')}</div>
+      </div>
+      <div class="upload-row verified"><div><div class="uname">${t('📄 आधार कार्ड','📄 Aadhaar Card')}</div><div class="ustatus" style="color:var(--positive);">Verified ✓</div></div><button class="ubtn done">✓</button></div>
+      <div class="upload-row verified"><div><div class="uname">📄 GST Certificate</div><div class="ustatus" style="color:var(--positive);">Verified ✓</div></div><button class="ubtn done">✓</button></div>
+    </div>
+    <div class="bbar"><button class="cta dis">${t('KYC Fix करें, फिर आगे बढ़ें','Fix KYC, then proceed')}</button></div>
+    </div>`,
+
+  'kyc-aadhaar-expired': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('KYC Documents','KYC Documents')}</span><span class="hright">${t('स्टेप 3/4','Step 3/4')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
+      <div class="upload-row verified"><div><div class="uname">📄 PAN Card</div><div class="ustatus" style="color:var(--positive);">Verified ✓</div></div><button class="ubtn done">✓</button></div>
+      <div class="upload-row" style="border-color:var(--warning);background:var(--warn-200);"><div><div class="uname">${t('⚠️ आधार कार्ड','⚠️ Aadhaar Card')}</div><div class="ustatus" style="color:var(--warn-700);">Address Update Required</div></div><button class="ubtn" style="border-color:var(--warning);color:var(--warn-700);">Update</button></div>
+      <div style="background:var(--warn-200);border:1px solid var(--warning);border-radius:var(--r-input);padding:10px 12px;margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:700;color:var(--warn-700);margin-bottom:4px;">${t('आधार में पता पुराना है','Aadhaar address is outdated')}</div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:16px;">${t('आपके आधार का पता और दी गई लोकेशन मेल नहीं खाती। कृपया UIDAI से आधार अपडेट करें या सही पता वाला आधार अपलोड करें।','Your Aadhaar address and provided location do not match. Please update Aadhaar via UIDAI or upload an Aadhaar with the correct address.')}</div>
+      </div>
+      <div class="upload-row verified"><div><div class="uname">📄 GST Certificate</div><div class="ustatus" style="color:var(--positive);">Verified ✓</div></div><button class="ubtn done">✓</button></div>
+      <div class="ibox ibox-p"><span class="ii">ℹ️</span><span>${t('UIDAI पोर्टल: uidai.gov.in से आधार अपडेट करें','Update Aadhaar from UIDAI portal: uidai.gov.in')}</span></div>
+    </div>
+    <div class="bbar"><button class="cta dis">${t('आधार Update करें, फिर आगे बढ़ें','Update Aadhaar, then proceed')}</button></div>
+    </div>`,
+
+  'kyc-pan-aadhaar-unlinked': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('KYC Documents','KYC Documents')}</span><span class="hright">${t('स्टेप 3/4','Step 3/4')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
+      <div class="upload-row verified"><div><div class="uname">📄 PAN Card</div><div class="ustatus" style="color:var(--positive);">Verified ✓</div></div><button class="ubtn done">✓</button></div>
+      <div class="verif" style="padding:2px 12px;"><span class="vi">✓</span> ABCDE1234F — Active</div>
+      <div class="upload-row verified"><div><div class="uname">${t('📄 आधार कार्ड','📄 Aadhaar Card')}</div><div class="ustatus" style="color:var(--positive);">Verified ✓</div></div><button class="ubtn done">✓</button></div>
+      <div class="verif" style="padding:2px 12px;"><span class="vi">✓</span> XXXX XXXX 4521 — Valid</div>
+      <div style="background:var(--neg-100);border:1px solid var(--negative);border-radius:var(--r-input);padding:10px 12px;margin:8px 0 12px;">
+        <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:4px;">${t('🔗 PAN-Aadhaar Link नहीं है','🔗 PAN-Aadhaar is not linked')}</div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:16px;">${t('Income Tax Department के अनुसार PAN और Aadhaar लिंक होना अनिवार्य है।','As per Income Tax Department, PAN and Aadhaar linking is mandatory.')}</div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:16px;margin-top:6px;">${t('👉 incometax.gov.in पर जाकर PAN-Aadhaar लिंक करें','👉 Visit incometax.gov.in to link PAN-Aadhaar')}</div>
+      </div>
+      <div class="upload-row verified"><div><div class="uname">📄 GST Certificate</div><div class="ustatus" style="color:var(--positive);">Verified ✓</div></div><button class="ubtn done">✓</button></div>
+    </div>
+    <div class="bbar"><button class="cta dis">${t('PAN-Aadhaar लिंक करें, फिर आगे बढ़ें','Link PAN-Aadhaar, then proceed')}</button></div>
+    </div>`,
+
+  'regfee-failed': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('भुगतान स्टेटस','Payment Status')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:40px;margin:16px 0;">😟</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('भुगतान नहीं हो पाया','Payment failed')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('चिंता न करें — आपका पैसा सुरक्षित है','Don\'t worry — your money is safe')}</div>
+      <div class="card" style="text-align:left;border-color:var(--pos-300);background:var(--pos-100);">
+        <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">${t('🛡️ पैसा कटा नहीं है','🛡️ No money was deducted')}</div>
+        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('बैंक या UPI ऐप से कनेक्शन में दिक़्क़त हुई — आपकी कोई गलती नहीं है','There was a connection issue with the bank or UPI app — this is not your fault')}</div>
+      </div>
+      <div class="card" style="text-align:left;">
+        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;">${t('अमाउंट','Amount')}</div>
+        <div style="font-size:24px;font-weight:700;color:var(--text);">₹2,000</div>
+        <div style="font-size:12px;color:var(--hint);margin-top:4px;">Error: BANK_GATEWAY_TIMEOUT</div>
+      </div>
+      <div class="ibox ibox-p" style="text-align:left;"><span class="ii">💡</span><span>${t('दूसरा payment method try करें, या 2-3 मिनट बाद retry करें','Try a different payment method, or retry in 2-3 minutes')}</span></div>
+    </div>
+    <div class="bbar">
+      <button class="cta" onclick="clearScenario()">${t('दोबारा भुगतान करें','Retry Payment')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('बाद में करें — होम पर जाएं','Do it later — go to Home')}</button>
+    </div>
+    </div>`,
+
+  'regfee-timeout': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('भुगतान स्टेटस','Payment Status')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:40px;margin:16px 0;">⏳</div>
+      <div style="font-size:20px;font-weight:700;color:var(--warn-700);line-height:28px;">${t('भुगतान pending है','Payment is pending')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('चिंता न करें — status check हो रहा है','Don\'t worry — checking status')}</div>
+      <div class="card" style="text-align:left;border-color:var(--warning);background:var(--warn-200);">
+        <div style="font-size:12px;font-weight:700;color:var(--warn-700);margin-bottom:4px;">⏳ Payment Confirmation Pending</div>
+        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('बैंक से response देर से आ रहा है। कभी-कभी 2-5 मिनट लग सकते हैं।','Bank response is delayed. Sometimes it can take 2-5 minutes.')}</div>
+      </div>
+      <div class="card" style="text-align:left;">
+        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;">${t('Transaction Details','Transaction Details')}</div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--hint);">${t('Amount','Amount')}</span><b>₹2,000</b></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--hint);">UPI Ref</span><b>UPI29384756</b></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span style="color:var(--hint);">Status</span><b style="color:var(--warning);">Pending ⏳</b></div>
+      </div>
+      <div class="ibox ibox-g" style="text-align:left;"><span class="ii">🛡️</span><span>${t('अगर पैसा कटा है तो 48 hrs में auto-refund या auto-reconcile हो जाएगा','If money was deducted, it will be auto-refunded or auto-reconciled within 48 hrs')}</span></div>
+    </div>
+    <div class="bbar">
+      <button class="cta" onclick="clearScenario()" style="background:var(--info);">${t('Status Refresh करें','Refresh Status')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('हमसे बात करें','Talk to us')}</button>
+    </div>
+    </div>`,
+
+  'bank-pennydrop-fail': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('Bank वेरिफिकेशन','Bank Verification')}</span><span class="hright">${t('स्टेप 6','Step 6')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('बैंक खाता जानकारी','Bank Account Details')}</div>
+      <div class="lbl">${t('अकाउंट होल्डर नाम','Account Holder Name')}</div><div class="inp-wrap"><input class="finp ok" type="text" value="Rajesh Kumar"><span class="inp-check">✓</span></div>
+      <div class="lbl">${t('बैंक नाम','Bank Name')}</div><select class="finp"><option selected>State Bank of India</option></select>
+      <div class="lbl">${t('अकाउंट नंबर','Account Number')}</div><div class="inp-wrap"><input class="finp" type="text" value="XXXX XXXX 4521" style="border-color:var(--negative);"><span class="inp-check" style="color:var(--negative);">✗</span></div>
+      <div class="lbl">IFSC Code</div><div class="inp-wrap"><input class="finp ok" type="text" value="SBIN0001234"><span class="inp-check">✓</span></div>
+      <div class="card" style="border-color:var(--negative);background:var(--neg-100);">
+        <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:4px;">✗ PENNY DROP FAILED</div>
+        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('₹1 credit नहीं हो पाया — अकाउंट नंबर गलत हो सकता है','₹1 could not be credited — account number may be incorrect')}</div>
+        <div style="font-size:12px;color:var(--text-sec);margin-top:6px;line-height:16px;">${t('👉 अकाउंट नंबर दोबारा check करें और re-enter करें','👉 Please re-check and re-enter the account number')}</div>
+      </div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('अकाउंट नंबर Fix करें','Fix Account Number')}</button></div>
+    </div>`,
+
+  'bank-name-mismatch': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('Bank वेरिफिकेशन','Bank Verification')}</span><span class="hright">${t('स्टेप 6','Step 6')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('बैंक खाता जानकारी','Bank Account Details')}</div>
+      <div class="lbl">${t('अकाउंट होल्डर नाम','Account Holder Name')}</div><div class="inp-wrap"><input class="finp" type="text" value="Rajesh Kumar" style="border-color:var(--warning);background:var(--warn-200);"><span class="inp-check" style="color:var(--warn-700);">!</span></div>
+      <div class="card" style="border-color:var(--warning);background:var(--warn-200);">
+        <div style="font-size:12px;font-weight:700;color:var(--warn-700);margin-bottom:4px;">⚠️ PENNY DROP — Name Mismatch</div>
+        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('₹1 credit हुआ, लेकिन नाम मेल नहीं खाता:','₹1 was credited, but the name does not match:')}</div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:18px;margin-top:6px;">${t('बैंक रिकॉर्ड:','Bank record:')} <b>Rajesh Kumar Sharma</b><br>${t('आपने दर्ज किया:','You entered:')} <b>Rajesh Kumar</b></div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:16px;margin-top:6px;">${t('👉 बैंक में जो नाम है, वही यहां लिखें','👉 Please enter the exact name as in bank records')}</div>
+      </div>
+      <div class="lbl">${t('बैंक नाम','Bank Name')}</div><select class="finp"><option selected>State Bank of India</option></select>
+      <div class="lbl">${t('अकाउंट नंबर','Account Number')}</div><div class="inp-wrap"><input class="finp ok" type="text" value="XXXX XXXX 4521"><span class="inp-check">✓</span></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('नाम Fix करें और Retry','Fix Name and Retry')}</button></div>
+    </div>`,
+
+  'dedup-found': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('Bank वेरिफिकेशन','Bank Verification')}</span><span class="hright">${t('स्टेप 6','Step 6')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('बैंक खाता जानकारी','Bank Account Details')}</div>
+      <div class="card" style="border-color:var(--pos-300);background:var(--pos-100);">
+        <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">✓ PENNY DROP VERIFIED</div>
+        <div style="font-size:14px;color:var(--text-sec);line-height:20px;">${t('₹1 credited & verified — Name match confirmed','₹1 credited & verified — Name match confirmed')}</div>
+      </div>
+      <div style="background:var(--neg-100);border:2px solid var(--negative);border-radius:var(--r-input);padding:12px;margin-top:8px;">
+        <div style="font-size:14px;font-weight:700;color:var(--negative);margin-bottom:8px;">🔍 DEDUP CHECK — Match Found!</div>
+        <div style="font-size:12px;color:var(--text);line-height:18px;">${t('इस PAN / बैंक अकाउंट से पहले ही एक partner registered है:','A partner is already registered with this PAN / bank account:')}</div>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r-sm);padding:8px;margin-top:8px;font-size:12px;">
+          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--hint);">Partner ID</span><b>CSP-0031</b></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--hint);">${t('Name','Name')}</span><b>Rajesh K Sharma</b></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--hint);">${t('City','City')}</span><b>Indore</b></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--hint);">Match On</span><b style="color:var(--negative);">PAN + Bank A/C</b></div>
+        </div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:16px;margin-top:8px;">${t('अगर यह आप ही हैं, तो support से बात करें। अगर अलग व्यक्ति हैं, तो अलग documents दें।','If this is you, please contact support. If you are a different person, provide different documents.')}</div>
+      </div>
+    </div>
+    <div class="bbar">
+      <button class="cta sec" onclick="clearScenario()">${t('हमसे बात करें','Talk to us')}</button>
+    </div>
+    </div>`,
+
+  'esign-failed': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('पार्टनर एग्रीमेंट','Partner Agreement')}</span><span class="hright">${t('स्टेप 7','Step 7')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:40px;margin:16px 0;">✍️</div>
+      <div style="font-size:20px;font-weight:700;color:var(--warn-700);line-height:28px;">${t('e-Sign नहीं हो पाया','e-Sign could not be completed')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('चिंता न करें — दोबारा try कर सकते हैं','Don\'t worry — you can try again')}</div>
+      <div class="card" style="text-align:left;border-color:var(--warning);background:var(--warn-200);">
+        <div style="font-size:12px;font-weight:700;color:var(--warn-700);margin-bottom:4px;">⚠️ Aadhaar e-Sign Connection Error</div>
+        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('UIDAI सर्वर से कनेक्शन में दिक़्क़त हुई। यह कभी-कभी होता है।','There was a connection issue with the UIDAI server. This happens sometimes.')}</div>
+      </div>
+      <div class="card" style="text-align:left;">
+        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;">${t('ये करें:','Try this:')}</div>
+        <div style="font-size:14px;color:var(--text-sec);line-height:22px;">
+          ${t('1. इंटरनेट कनेक्शन चेक करें','1. Check your internet connection')}<br>
+          ${t('2. 2-3 मिनट इंतज़ार करें','2. Wait 2-3 minutes')}<br>
+          ${t('3. दोबारा e-Sign try करें','3. Try e-Sign again')}
+        </div>
+      </div>
+      <div class="ibox ibox-p" style="text-align:left;"><span class="ii">📞</span><span>${t('बार-बार fail हो रहा? हमसे बात करें','Failing repeatedly? Talk to us')}</span></div>
+    </div>
+    <div class="bbar">
+      <button class="cta" onclick="clearScenario()">${t('दोबारा e-Sign करें','Retry e-Sign')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('हमसे बात करें','Talk to us')}</button>
+    </div>
+    </div>`,
+
+  'tech-device-incompatible': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('Technical Review','Technical Review')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:40px;margin:8px 0;">📵</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('Device Compatible नहीं है','Device is not compatible')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:4px 0 16px;line-height:20px;">${t('चिंता न करें — solution है','Don\'t worry — there is a solution')}</div>
+    </div>
+    <div class="pad" style="padding-top:0;">
+      <div class="card" style="border-color:var(--negative);background:var(--neg-100);">
+        <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:8px;">DEVICE CHECK FAILED</div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--hint);">Device</span><b>Samsung Galaxy J2 Core</b></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--hint);">Android</span><b style="color:var(--negative);">8.1 (Min: 11)</b></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--hint);">RAM</span><b style="color:var(--negative);">1 GB (Min: 3 GB)</b></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span style="color:var(--hint);">Wiom OS</span><b style="color:var(--negative);">Not Supported</b></div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--info);margin-bottom:8px;">${t('📱 RECOMMENDED DEVICES','📱 RECOMMENDED DEVICES')}</div>
+        <div style="font-size:14px;color:var(--text-sec);line-height:22px;">
+          ✓ Samsung Galaxy M34 / M14<br>
+          ✓ Redmi Note 12 / 13<br>
+          ✓ Realme Narzo 60x<br>
+          ✓ ${t('Any Android 11+ with 3GB+ RAM','Any Android 11+ with 3GB+ RAM')}
+        </div>
+      </div>
+      <div class="ibox ibox-p"><span class="ii">💡</span><span>${t('नया device लेने के बाद यही step से continue कर सकते हैं','After getting a new device, you can continue from this same step')}</span></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('Device बदलकर Retry करें','Change Device and Retry')}</button></div>
+    </div>`,
+
+  'onboardfee-failed': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('भुगतान स्टेटस','Payment Status')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:40px;margin:16px 0;">😟</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('भुगतान नहीं हो पाया','Payment failed')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('चिंता न करें — आपका पैसा सुरक्षित है','Don\'t worry — your money is safe')}</div>
+      <div class="card" style="text-align:left;border-color:var(--pos-300);background:var(--pos-100);">
+        <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">${t('🛡️ पैसा कटा नहीं है','🛡️ No money was deducted')}</div>
+        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('UPI transaction में error हुआ — आपकी कोई गलती नहीं है','There was an error in the UPI transaction — this is not your fault')}</div>
+      </div>
+      <div class="card" style="text-align:left;">
+        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;">${t('Transaction Details','Transaction Details')}</div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--hint);">${t('Amount','Amount')}</span><b>₹20,000</b></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span style="color:var(--hint);">Error</span><b style="color:var(--negative);">UPI_LIMIT_EXCEEDED</b></div>
+      </div>
+      <div class="ibox ibox-o" style="text-align:left;"><span class="ii">💡</span><span>${t('UPI limit ₹1L/day है। NEFT/RTGS या card से try करें','UPI limit is ₹1L/day. Try NEFT/RTGS or card instead')}</span></div>
+    </div>
+    <div class="bbar">
+      <button class="cta" onclick="clearScenario()">${t('दोबारा भुगतान करें','Retry Payment')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('बाद में करें — होम पर जाएं','Do it later — go to Home')}</button>
+    </div>
+    </div>`,
+
+  'training-quiz-fail': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">🎓 ${t('Training Quiz','Training Quiz')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:40px;margin:12px 0;">📝</div>
+      <div style="font-size:20px;font-weight:700;color:var(--warn-700);line-height:28px;">${t('Quiz पास नहीं हुआ','Quiz not passed')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('कोई बात नहीं — दोबारा try करें!','No worries — try again!')}</div>
+      <div class="card" style="text-align:left;border-color:var(--warning);background:var(--warn-200);">
+        <div style="font-size:12px;font-weight:700;color:var(--warn-700);margin-bottom:8px;">${t('📊 आपका Score','📊 Your Score')}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="font-size:32px;font-weight:700;color:var(--warn-700);">2/5</div>
+          <div style="font-size:12px;color:var(--text-sec);text-align:right;line-height:16px;">Passing: 4/5<br>${t('आपको 2 और सही चाहिए','You need 2 more correct')}</div>
+        </div>
+        <div class="pbar"><div class="fill" style="width:40%;background:var(--warning);"></div></div>
+      </div>
+      <div class="card" style="text-align:left;">
+        <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:4px;">${t('✗ गलत जवाब:','✗ Wrong answers:')}</div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:18px;margin-bottom:8px;">
+          Q3. ${t('Minimum connections per quarter?','Minimum connections per quarter?')}<br>
+          <span style="color:var(--negative);">${t('Your: 20','Your: 20')}</span> → <span style="color:var(--positive);">${t('Correct: 30','Correct: 30')}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:18px;margin-bottom:8px;">
+          Q4. ${t('Customer complaint resolution time?','Customer complaint resolution time?')}<br>
+          <span style="color:var(--negative);">${t('Your: 48 hrs','Your: 48 hrs')}</span> → <span style="color:var(--positive);">${t('Correct: 24 hrs','Correct: 24 hrs')}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:18px;">
+          Q5. ${t('TDS deduction कौन करता है?','Who does TDS deduction?')}<br>
+          <span style="color:var(--negative);">${t('Your: Partner','Your: Partner')}</span> → <span style="color:var(--positive);">${t('Correct: Wiom','Correct: Wiom')}</span>
+        </div>
+      </div>
+      <div class="ibox ibox-p" style="text-align:left;"><span class="ii">📖</span><span>${t('Modules दोबारा review करें, फिर quiz दें','Review modules again, then take the quiz')}</span></div>
+    </div>
+    <div class="bbar">
+      <button class="cta" onclick="clearScenario()">${t('Modules Review करें','Review Modules')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('दोबारा Quiz दें','Retake Quiz')}</button>
+    </div>
+    </div>`,
+};
+
+function triggerScenario(key){
+  const scn = scenarios[key];
+  if(!scn) return;
+  activeScenario = key;
+  currentScreen = scn.screen;
+  addLog('⚠ SCENARIO: '+scn.label,'error');
+  toast('Error scenario: '+scn.label,'r');
+  renderPhone();
+  renderDashboard();
+  updateProgress();
+}
+
+function clearScenario(){
+  activeScenario = null;
+  addLog('✓ Scenario cleared — back to normal flow','info');
+  toast('Scenario cleared ✓','g');
+  renderPhone();
+  renderDashboard();
+  updateProgress();
+}
+
+function addLog(text,type='info'){
+  const now = new Date();
+  const time = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  activityLog.unshift({time,text,type});
+  if(activityLog.length>20) activityLog.pop();
+}
+
+function toast(msg,type='g'){
+  const t=document.getElementById('toast');
+  t.className='toast toast-'+type+' show';
+  t.textContent=msg;
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ===== SCREENS =====
+const screens = [
+  // 0: Phone Entry
+  {phase:'Phase 1',title:'मोबाइल नंबर',
+   solves:['Phone-based registration'],
+   types:[{label:'User Entry',cls:'user-entry',icon:'✏️'}],
+   render:()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">Wiom Partner+</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="text-align:center;padding:24px 0 8px;">
+        <div style="font-size:32px;margin-bottom:8px;">&#129309;</div>
+        <div style="font-size:24px;font-weight:700;color:var(--text);line-height:32px;">${t('पार्टनर बनें','Become a Partner')}</div>
+        <div style="font-size:14px;color:var(--text-sec);margin-top:4px;line-height:20px;">${t('Wiom के साथ अपना बिज़नेस शुरू करें','Start your business with Wiom')}</div>
+      </div>
+      <div style="height:24px;"></div>
+      <div class="lbl">${t('मोबाइल नंबर','Mobile Number')}</div>
+      <div class="phone-inp-wrap"><span class="phone-prefix">+91</span><input class="finp" type="tel" maxlength="10" value="9876543210" placeholder="${t('10 अंकों का नंबर','10 digit number')}"></div>
+      <div class="ibox ibox-p"><span class="ii">&#128274;</span><span>${t('OTP आपके नंबर पर भेजा जाएगा','OTP will be sent to your number')}</span></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('OTP भेजें','Send OTP')}</button></div>
+    </div>`},
+
+  // 1: OTP
+  {phase:'Phase 1',title:'OTP वेरिफिकेशन',
+   solves:['Phone verification'],
+   types:[{label:'User Entry',cls:'user-entry',icon:'✏️'},{label:'System Verify',cls:'sys-check',icon:'⚡'}],
+   render:()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('OTP वेरीफाई','Verify OTP')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="height:16px;"></div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);line-height:28px;">${t('OTP डालें','Enter OTP')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-top:4px;line-height:20px;">${t('+91 98765 43210 पर भेजा गया','Sent to +91 98765 43210')}</div>
+      <div class="otp-row"><input class="otp-box filled" type="text" maxlength="1" value="4" style="text-align:center;border:2px solid var(--border-focus);font:700 20px/1 inherit;color:var(--text);outline:none;"><input class="otp-box filled" type="text" maxlength="1" value="7" style="text-align:center;border:2px solid var(--border-focus);font:700 20px/1 inherit;color:var(--text);outline:none;"><input class="otp-box filled" type="text" maxlength="1" value="2" style="text-align:center;border:2px solid var(--border-focus);font:700 20px/1 inherit;color:var(--text);outline:none;"><input class="otp-box filled" type="text" maxlength="1" value="9" style="text-align:center;border:2px solid var(--border-focus);font:700 20px/1 inherit;color:var(--text);outline:none;"></div>
+      <div style="font-size:12px;color:var(--hint);margin-top:8px;line-height:16px;">${t('OTP दोबारा भेजें','Resend OTP in')} <b>28s</b></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('वेरीफाई करें','Verify')}</button></div>
+    </div>`},
+
+  // 2: Personal & Business
+  {phase:'Phase 1',title:'व्यक्तिगत जानकारी',
+   solves:['Partner profile creation'],
+   types:[{label:'User Entry',cls:'user-entry',icon:'✏️'}],
+   render:()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('रजिस्ट्रेशन','Registration')}</span><span class="hright">${t('स्टेप 1/4','Step 1/4')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('व्यक्तिगत जानकारी','Personal Information')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('आपकी पहचान और बिज़नेस की जानकारी','Your identity and business information')}</div>
+      <div class="lbl">${t('पूरा नाम (आधार अनुसार)','Full Name (as per Aadhaar)')}</div><input class="finp" type="text" value="${t('राजेश कुमार','Rajesh Kumar')}" placeholder="${t('राम कुमार','Ram Kumar')}">
+      <div class="lbl">${t('ईमेल','Email')}</div><input class="finp" type="email" value="rajesh@email.com" placeholder="name@email.com">
+      <div class="lbl">${t('बिज़नेस प्रकार','Entity Type')}</div><select class="finp" onchange="partnerState.entityType=this.value"><option value="Individual" selected>${t('व्यक्तिगत','Individual')}</option><option value="Proprietorship">${t('प्रोप्राइटरशिप','Proprietorship')}</option><option value="Partnership">${t('पार्टनरशिप','Partnership')}</option><option value="Pvt Ltd">${t('प्राइवेट लिमिटेड','Pvt Ltd')}</option><option value="LLP">LLP</option></select>
+      <div class="lbl">${t('व्यापार नाम','Trade Name')}</div><input class="finp" type="text" value="Rajesh Telecom" placeholder="${t('आपकी दुकान/बिज़नेस का नाम','Your shop/business name')}">
+    </div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('अब लोकेशन बताइए','Next: Location')}</button></div>
+    </div>`},
+
+  // 3: Location
+  {phase:'Phase 1',title:'लोकेशन',
+   solves:['Location data collection'],
+   types:[{label:'User Entry',cls:'user-entry',icon:'✏️'}],
+   deferred:['#7 Serviceability check','#6 Density/demand assessment'],
+   render:()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('रजिस्ट्रेशन','Registration')}</span><span class="hright">${t('स्टेप 2/4','Step 2/4')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('लोकेशन जानकारी','Location Information')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('आपकी दुकान/ऑफिस की लोकेशन','Your shop/office location')}</div>
+      <div class="lbl">${t('राज्य','State')}</div><select class="finp"><option value="">${t('राज्य चुनें','Select State')}</option><option value="MP" selected>Madhya Pradesh</option><option value="MH">Maharashtra</option><option value="RJ">Rajasthan</option><option value="UP">Uttar Pradesh</option><option value="GJ">Gujarat</option><option value="CG">Chhattisgarh</option><option value="DL">Delhi</option><option value="KA">Karnataka</option><option value="TN">Tamil Nadu</option></select>
+      <div class="lbl">${t('शहर','City')}</div><input class="finp" type="text" value="Indore" placeholder="${t('शहर का नाम','City name')}">
+      <div class="lbl">${t('पिनकोड','Pincode')}</div><input class="finp" type="tel" maxlength="6" value="452010" placeholder="${t('6 अंकों का पिनकोड','6-digit pincode')}">
+      <div class="lbl">${t('पूरा पता','Full Address')}</div><textarea class="finp" placeholder="${t('मकान नं, गली, मोहल्ला','House no, street, locality')}">123, Vijay Nagar, Indore</textarea>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+        <span class="trust-badge">&#128205; ${t('GPS कैप्चर हुआ','GPS Captured')}</span>
+        <span style="font-size:12px;color:var(--hint);">22.71° N, 75.85° E</span>
+      </div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('अब KYC दस्तावेज़ दें','Next: KYC Documents')}</button></div>
+    </div>`},
+
+  // 4: KYC Documents
+  {phase:'Phase 1',title:'KYC दस्तावेज़',
+   solves:['#3 PAN/GST validation','#2 Doc verification','#N4 PAN-Aadhaar link','#N5 Auto KYC'],
+   types:[{label:'User Upload',cls:'user-action',icon:'📤'},{label:'System Auto-Verify',cls:'sys-check',icon:'⚡'}],
+   render:()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('KYC दस्तावेज़','KYC Documents')}</span><span class="hright">${t('स्टेप 3/4','Step 3/4')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('अपलोड करें — सिस्टम तुरंत वेरीफाई करेगा','Upload — system will verify instantly')}</div>
+      <div id="kyc-pan" class="upload-row verified" onclick="toggleKyc('pan')"><div><div class="uname">&#128196; ${t('PAN कार्ड','PAN Card')}</div><div class="ustatus" style="color:var(--positive);" id="kyc-pan-st">${t('वेरीफाइड','Verified')} &#10003;</div></div><button class="ubtn done" id="kyc-pan-btn">&#10003;</button></div>
+      <div id="kyc-aadhaar" class="upload-row verified" onclick="toggleKyc('aadhaar')"><div><div class="uname">&#128196; ${t('आधार कार्ड','Aadhaar Card')}</div><div class="ustatus" style="color:var(--positive);" id="kyc-aadhaar-st">${t('वेरीफाइड','Verified')} &#10003;</div></div><button class="ubtn done" id="kyc-aadhaar-btn">&#10003;</button></div>
+      <div id="kyc-gst" class="upload-row verified" onclick="toggleKyc('gst')"><div><div class="uname">&#128196; ${t('GST प्रमाणपत्र','GST Certificate')}</div><div class="ustatus" style="color:var(--positive);" id="kyc-gst-st">${t('वेरीफाइड','Verified')} &#10003;</div></div><button class="ubtn done" id="kyc-gst-btn">&#10003;</button></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('अब रजिस्ट्रेशन फ़ीस भरें','Next: Registration Fee')}</button></div>
+    </div>`},
+
+  // 5: Registration Fee ₹2,000
+  {phase:'Phase 1',title:'रजिस्ट्रेशन फ़ीस',
+   solves:['Registration fee collection','#13 Payment reconciliation'],
+   types:[{label:'User Action',cls:'user-action',icon:'💳'},{label:'System Auto',cls:'sys-gen',icon:'🤖'}],
+   render:()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('रजिस्ट्रेशन फ़ीस','Registration Fee')}</span><span class="hright">${t('स्टेप 4/4','Step 4/4')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;line-height:28px;">${t('रजिस्ट्रेशन फ़ीस','Registration Fee')}</div>
+      <div class="amt-box">
+        <div class="amt">&#8377;2,000</div>
+        <div class="amt-lbl">${t('रजिस्ट्रेशन फ़ीस','Registration Fee')}</div>
+      </div>
+      <div class="card" style="font-size:14px;color:var(--text-sec);line-height:20px;">
+        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;">&#9432; ${t('जरूरी जानकारी','Important Information')}</div>
+        ${t('भुगतान के बाद आपकी profile Business/QA team द्वारा review की जाएगी।','After payment, your profile will be reviewed by the Business/QA team.')}<br><br>
+        <span class="trust-badge" style="margin-top:4px;">&#128274; ${t('Reject होने पर full refund मिलेगा','Full refund if rejected')}</span>
+      </div>
+      <div class="ibox ibox-p"><span class="ii">&#128176;</span><span>${t('फ़ीस के बाद QA investigation शुरू होगी','QA investigation will start after fee payment')}</span></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="next()">&#8377;2,000 ${t('भुगतान करें','Pay Now')}</button></div>
+    </div>`},
+
+  // 6: QA Investigation
+  {phase:'Phase 2',title:'QA Investigation',
+   solves:['Business/QA verification','Profile quality check'],
+   types:[{label:'Wiom Decision',cls:'wiom-decision',icon:'🏢'},{label:'Business/QA Team',cls:'wiom-decision',icon:'👁️'}],
+   render:()=>{
+    if(qaRejected){
+      return `
+      <div class="sbar"><span>9:41</span><span>100%</span></div>
+      <div class="hdr"><span class="htitle">${t('Application स्टेटस','Application Status')}</span></div>
+      <div class="scontent"><div class="pad" style="text-align:center;">
+        <div style="font-size:40px;margin:16px 0;">&#128532;</div>
+        <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('Profile अभी स्वीकार नहीं हुई','Profile not accepted yet')}</div>
+        <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('चिंता न करें — आपका पैसा सुरक्षित है','Don\'t worry — your money is safe')}</div>
+        <div class="card" style="text-align:left;border-color:var(--negative);background:var(--neg-100);">
+          <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:8px;">${t('कारण','Reason')}</div>
+          <div style="font-size:14px;color:var(--text);line-height:20px;">${t('Location इस समय service area में नहीं है। Area infrastructure तैयार होने पर दोबारा apply कर सकते हैं।','Location is not in the service area currently. You can re-apply once area infrastructure is ready.')}</div>
+        </div>
+        <div class="card" style="text-align:left;border-color:var(--positive);background:var(--pos-100);">
+          <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:8px;">&#128274; ${t('Refund शुरू हो गया','Refund initiated')}</div>
+          <div style="font-size:14px;color:var(--text);line-height:20px;">${t('₹2,000 आपके bank account में 5-7 working days में आ जाएगा।','₹2,000 will be credited to your bank account in 5-7 working days.')}</div>
+          <div style="font-size:12px;color:var(--hint);margin-top:4px;">Ref: RFD-2026-0042</div>
+        </div>
+        <div class="ibox ibox-p" style="text-align:left;"><span class="ii">&#128276;</span><span>${t('जब area तैयार हो, तो दोबारा apply कर सकते हैं।','You can re-apply when the area is ready.')}</span></div>
+        <div style="height:12px;"></div>
+        <button class="cta sec" onclick="qaRejected=false;renderPhone();" style="font-size:14px;">&#8592; ${t('Approved Path देखें','View Approved Path')}</button>
+      </div></div>`;
+    }
+    return `
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('Application स्टेटस','Application Status')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:40px;margin:16px 0;">&#128269;</div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);line-height:28px;">${t('Investigation चल रही है','Investigation in progress')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('Business/QA team आपकी profile चेक कर रही है','Business/QA team is reviewing your profile')}</div>
+    </div>
+    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('फ़ोन वेरीफाइड','Phone Verified')}</div></div></div>
+    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('व्यक्तिगत जानकारी','Personal Information')}</div></div></div>
+    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('लोकेशन सबमिट','Location Submitted')}</div></div></div>
+    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('KYC दस्तावेज़ वेरीफाइड','KYC Documents Verified')}</div></div></div>
+    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('₹2,000 रजिस्ट्रेशन फ़ीस','₹2,000 Registration Fee')}</div></div></div>
+    <div class="cl-item" style="border:none;"><div class="cl-icon wait">&#8943;</div><div><div class="cl-text">QA Investigation</div><div class="cl-sub" style="color:var(--warn-700);">${t('Business/QA team review कर रही है...','Business/QA team is reviewing...')}</div></div></div>
+    <div class="pad">
+      <div class="ibox ibox-o"><span class="ii">&#9203;</span><span>${t('Review में 2-3 business days लग सकते हैं। Notification मिलेगा।','Review may take 2-3 business days. You will be notified.')}</span></div>
+      <div style="height:16px;"></div>
+      <div style="font-size:10px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;text-align:center;">SIMULATE QA DECISION</div>
+      <button class="cta" onclick="next()" style="background:var(--positive);margin-bottom:8px;box-shadow:0 4px 12px rgba(27,191,93,0.3);">&#10003; ${t('QA Approved → Documentation Phase','QA Approved → Documentation Phase')}</button>
+      <button class="cta sec" onclick="qaRejected=true;renderPhone();addLog('QA REJECTED — Refund initiated','rejection');toast('Profile rejected. Refund initiated.','r');" style="color:var(--negative);background:var(--neg-100);border:1px solid var(--negative);box-shadow:none;">&#10007; ${t('QA Rejected → Refund','QA Rejected → Refund')}</button>
+    </div>
+    </div>`;
+   }},
+
+  // 7: Policy + Rate Card
+  {phase:'Phase 2',title:'Policy + Rate Card',
+   solves:['#9 Commission clarity','#10 SLA awareness','Partner expectation setting'],
+   types:[{label:'User Action',cls:'user-action',icon:'📖'},{label:'Quiz Verify',cls:'sys-check',icon:'✅'}],
+   render:()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('नीतियां और रेट कार्ड','Policy & Rate Card')}</span><span class="hright">${t('स्टेप 5','Step 5')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('नीतियां और कमीशन','Policies & Commission')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('QA Approved ✓ — अब policies समझें','QA Approved ✓ — now review policies')}</div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">${t('कमीशन संरचना','COMMISSION STRUCTURE')}</div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:20px;"><span style="color:var(--text-sec);">${t('नया कनेक्शन','New Connection')}</span><b style="color:var(--positive);">₹300/${t('कनेक्शन','conn')}</b></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;line-height:20px;"><span style="color:var(--text-sec);">${t('रिचार्ज कमीशन','Recharge Commission')}</span><b style="color:var(--positive);">₹300</b></div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">${t('SLA शर्तें','SLA TERMS')}</div>
+        <div style="font-size:14px;color:var(--text-sec);line-height:22px;">
+          &#8226; ${t('ग्राहक शिकायत: 4 घंटे में समाधान','Customer complaints: 4hr resolution')}<br>
+          &#8226; ${t('कनेक्शन 95%+ चालू रहना चाहिए','Connection 95%+ to be up and running')}<br>
+          &#8226; ${t('उपकरण देखभाल की ज़िम्मेदारी','Equipment care responsibility')}<br>
+          &#8226; ${t('Wiom ब्रांड गाइडलाइन का पालन','Wiom brand guidelines compliance')}
+        </div>
+      </div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('समझ गया, आगे बढ़ें','Understood, proceed')}</button></div>
+    </div>`},
+
+  // 8: Bank + Dedup Check
+  {phase:'Phase 2',title:'Bank + Dedup Check',
+   solves:['#4 Bank verification','#5 Penny-drop','#11 Dedup across PAN/Aadhaar/GST/Bank'],
+   types:[{label:'User Entry',cls:'user-entry',icon:'✏️'},{label:'System Auto-Verify',cls:'sys-check',icon:'⚡'}],
+   render:()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('Bank वेरिफिकेशन','Bank Verification')}</span><span class="hright">${t('स्टेप 6','Step 6')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('बैंक खाता जानकारी','Bank Account Details')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('Commission payment आपके बैंक अकाउंट में आएगा','Commission payments will be sent to your bank account')}</div>
+      <div class="lbl">${t('अकाउंट होल्डर नाम','Account Holder Name')}</div><div class="inp-wrap"><input class="finp ok" type="text" value="Rajesh Kumar" placeholder="${t('राम कुमार','Ram Kumar')}"><span class="inp-check">&#10003;</span></div>
+      <div class="lbl">${t('बैंक नाम','Bank Name')}</div><select class="finp"><option value="">${t('बैंक चुनें','Select Bank')}</option><option value="SBI" selected>State Bank of India</option><option value="PNB">Punjab National Bank</option><option value="BOB">Bank of Baroda</option><option value="HDFC">HDFC Bank</option><option value="ICICI">ICICI Bank</option><option value="Axis">Axis Bank</option><option value="Kotak">Kotak Mahindra Bank</option><option value="Union">Union Bank</option></select>
+      <div class="lbl">${t('अकाउंट नंबर','Account Number')}</div><div class="inp-wrap"><input class="finp ok" type="text" value="XXXX XXXX 4521" placeholder="${t('अकाउंट नंबर','Account Number')}"><span class="inp-check">&#10003;</span></div>
+      <div class="lbl">IFSC Code</div><div class="inp-wrap"><input class="finp ok" type="text" value="SBIN0001234" placeholder="IFSC Code"><span class="inp-check">&#10003;</span></div>
+      <div class="card" style="border-color:var(--pos-300);background:var(--pos-100);">
+        <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">&#10003; ${t('पेनी ड्रॉप वेरीफाइड','PENNY DROP VERIFIED')}</div>
+        <div style="font-size:14px;color:var(--text-sec);line-height:20px;">${t('₹1 क्रेडिट और वेरीफाइड — नाम मैच कन्फ़र्म','₹1 credited & verified — Name match confirmed')}</div>
+      </div>
+      <div class="card" style="border-color:var(--pos-300);background:var(--pos-100);">
+        <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">&#10003; ${t('डीडप चेक पास','DEDUP CHECK PASSED')}</div>
+        <div style="font-size:14px;color:var(--text-sec);line-height:20px;">${t('PAN, आधार, GST, Bank — कोई डुप्लिकेट नहीं मिला','PAN, Aadhaar, GST, Bank — No duplicates found')}</div>
+      </div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('अब Agreement करें','Next: Agreement')}</button></div>
+    </div>`},
+
+  // 9: Agreement Signing
+  {phase:'Phase 2',title:'Agreement',
+   solves:['#12 Partner agreement','ISP license compliance','Legal e-sign'],
+   types:[{label:'User Action',cls:'user-action',icon:'📝'},{label:'System Generate',cls:'sys-gen',icon:'🤖'}],
+   render:()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('पार्टनर एग्रीमेंट','Partner Agreement')}</span><span class="hright">${t('स्टेप 7','Step 7')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('पार्टनर एग्रीमेंट','Partner Agreement')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('Review और e-Sign करें','Review and e-Sign')}</div>
+      <div class="agree-box">
+        <b>WIOM CHANNEL SALES PARTNER AGREEMENT</b><br><br>
+        This Agreement is entered between Wiom Technologies Pvt. Ltd. ("Company") and the Partner identified herein.<br><br>
+        <b>1. SCOPE:</b> Partner shall act as authorized CSP for Wiom internet services in designated territory.<br><br>
+        <b>2. RESPONSIBILITIES:</b> Customer acquisition, service activation, first-level support, equipment care.<br><br>
+        <b>3. COMMISSION:</b> As per Rate Card shared and acknowledged. Subject to SLA compliance.<br><br>
+        <b>4. TERM:</b> 12 months, auto-renewable. 30-day notice for termination.<br><br>
+        <b>5. COMPLIANCE:</b> Partner shall comply with ISP license terms (DOT/TRAI) and Wiom brand guidelines.
+      </div>
+      <div class="card" style="border-color:var(--pos-300);background:var(--pos-100);">
+        <div class="verif"><span class="vi">&#10003;</span> ${t('ISP License: DOT Compliance वेरीफाइड','ISP License: DOT Compliance Verified')}</div>
+        <div class="verif"><span class="vi">&#10003;</span> ${t('TRAI Guidelines: स्वीकृत','TRAI Guidelines: Acknowledged')}</div>
+      </div>
+      <div class="chk-row" onclick="toggleChk(this)">
+        <div class="chk-box checked" id="agreeChk">&#10003;</div>
+        <span class="chk-label">${t('मैंने सभी नियम और शर्तें पढ़ लिए और accept करता हूं','I have read and accept all terms and conditions')}</span>
+      </div>
+      <div class="ibox ibox-p"><span class="ii">&#128274;</span><span>${t('Aadhaar e-Sign से agreement sign होगा','Agreement will be signed via Aadhaar e-Sign')}</span></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('e-Sign करें','e-Sign')}</button></div>
+    </div>`},
+
+  // 10: Tech Review
+  {phase:'Phase 2',title:'Technical Review',
+   solves:['#6 Infra/tech assessment','#N1 Device & OS compatibility'],
+   types:[{label:'Wiom Decision',cls:'wiom-decision',icon:'🏢'},{label:'Tech Team Review',cls:'sys-check',icon:'🔧'}],
+   render:()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('तकनीकी समीक्षा','Technical Review')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:40px;margin:8px 0;">&#128736;</div>
+      <div style="font-size:20px;font-weight:700;color:var(--positive);line-height:28px;">${t('दस्तावेज़ पूरे!','Documentation complete!')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:4px 0 16px;line-height:20px;">${t('अब Technical Review हो रही है','Technical Review in progress')}</div>
+    </div>
+    <div class="pad" style="padding-top:0;">
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">${t('डिवाइस चेक','DEVICE CHECK')}</div>
+        <div class="verif"><span class="vi">&#10003;</span> Samsung Galaxy M34</div>
+        <div class="verif"><span class="vi">&#10003;</span> Android 14 — ${t('संगत','Compatible')}</div>
+        <div class="verif"><span class="vi">&#10003;</span> Wiom OS: ${t('तैयार','Ready')}</div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">${t('इन्फ्रा चेक','INFRA CHECK')}</div>
+        <div class="lbl">${t('इंटरनेट सेटअप','Internet Setup')}</div>
+        <select class="finp"><option value="FTTH" selected>Fiber (FTTH)</option><option value="DSL">DSL</option><option value="Cable">Cable Broadband</option><option value="Wireless">Fixed Wireless</option><option value="Satellite">Satellite</option></select>
+        <div class="upload-row verified" onclick="this.classList.toggle('verified');toast('Photo status toggled','p');" style="cursor:pointer;"><div><div class="uname">${t('दुकान की फ़ोटो','Shop Front Photo')}</div><div class="ustatus" style="color:var(--positive);">${t('रिव्यूड','Reviewed')} &#10003;</div></div><button class="ubtn done">&#10003;</button></div>
+        <div class="upload-row verified" onclick="this.classList.toggle('verified');toast('Photo status toggled','p');" style="cursor:pointer;"><div><div class="uname">${t('राऊटर / उपकरण','Router / Equipment')}</div><div class="ustatus" style="color:var(--positive);">${t('रिव्यूड','Reviewed')} &#10003;</div></div><button class="ubtn done">&#10003;</button></div>
+      </div>
+      <div class="ibox ibox-g"><span class="ii">&#10003;</span><span>${t('Tech review पूरी! अब onboarding fee भरें।','Tech review complete! Now pay the onboarding fee.')}</span></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('Onboarding Fee भरें','Pay Onboarding Fee')}</button></div>
+    </div>`},
+
+  // 11: Onboarding Fee ₹20,000
+  {phase:'Phase 3',title:'Onboarding Fee',
+   solves:['Onboarding fee collection','#13 Payment reconciliation','#N7 Fee → Invoice auto'],
+   types:[{label:'User Action',cls:'user-action',icon:'💳'},{label:'System Auto',cls:'sys-gen',icon:'🤖'}],
+   render:()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('ऑनबोर्डिंग फ़ीस','Onboarding Fee')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;line-height:28px;">${t('ऑनबोर्डिंग फ़ीस','Onboarding Fee')}</div>
+      <div class="amt-box">
+        <div class="amt">&#8377;20,000</div>
+        <div class="amt-lbl">${t('ऑनबोर्डिंग फ़ीस (GST सहित)','Onboarding Fee (incl. GST)')}</div>
+      </div>
+      <div class="card" style="font-size:14px;color:var(--text-sec);line-height:22px;">
+        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;">&#10003; ${t('विवरण','Details')}</div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);"><span>${t('रजिस्ट्रेशन फ़ीस (भुगतान हुआ)','Registration Fee (paid)')}</span><b style="color:var(--text);">&#8377;2,000</b></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);"><span>${t('ऑनबोर्डिंग फ़ीस','Onboarding Fee')}</span><b style="color:var(--text);">&#8377;20,000</b></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-weight:700;color:var(--text);"><span>${t('कुल Investment','Total Investment')}</span><b>&#8377;22,000</b></div>
+      </div>
+      <div class="ibox ibox-g"><span class="ii">&#10003;</span><span>${t('भुगतान के बाद Training modules unlock होंगे','Training modules will unlock after payment')}</span></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="next()">&#8377;20,000 ${t('भुगतान करें','Pay Now')}</button></div>
+    </div>`},
+
+  // 12: Financial Setup
+  {phase:'Phase 3',title:'Financial Setup',
+   solves:['#13 Ledger creation','#N7 RazorpayX payout','Invoice auto-gen','Trade name lock'],
+   types:[{label:'System Auto',cls:'sys-gen',icon:'🤖'},{label:'Wiom Backend',cls:'sys-check',icon:'⚙️'}],
+   render:()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('फ़ाइनेंशियल सेटअप','Financial Setup')}</span><span class="hright">${t('स्टेप 9','Step 9')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:40px;margin:8px 0;">&#9881;</div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);line-height:28px;">${t('Backend Setup हो रहा है','Backend Setup in progress')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:4px 0 16px;line-height:20px;">${t('System आपका financial account तैयार कर रहा है','System is preparing your financial account')}</div>
+    </div>
+    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('पार्टनर लेजर बना','Partner Ledger Created')}</div><div class="cl-sub">${t('Commission tracking चालू','Commission tracking active')}</div></div></div>
+    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('RazorpayX Payout लिंक','RazorpayX Payout Link')}</div><div class="cl-sub">${t('SBI A/C XXXX4521 payouts के लिए लिंक','SBI A/C XXXX4521 linked for payouts')}</div></div></div>
+    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('Zoho Invoice सेटअप','Zoho Invoice Setup')}</div><div class="cl-sub">${t('हर settlement के लिए auto-invoice','Auto-invoice for every settlement')}</div></div></div>
+    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('Trade Name लॉक','Trade Name Locked')}</div><div class="cl-sub">${t('"Rajesh Telecom" — आधिकारिक नाम','"Rajesh Telecom" — official name')}</div></div></div>
+    <div class="cl-item" style="border:none;"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('TDS/TCS कॉन्फ़िगरेशन','TDS/TCS Configuration')}</div><div class="cl-sub">${t('PAN ABCDE1234F — auto deduction सेटअप','PAN ABCDE1234F — auto deduction setup')}</div></div></div>
+    <div class="pad">
+      <div class="card" style="border-color:var(--pos-300);background:var(--pos-100);">
+        <div style="font-size:14px;font-weight:700;color:var(--positive);margin-bottom:4px;">&#10003; ${t('सब तैयार है!','All set!')}</div>
+        <div style="font-size:14px;color:var(--text-sec);line-height:20px;">${t('Ledger, payouts, invoicing, और tax setup पूरा। अब training शुरू!','Ledger, payouts, invoicing, and tax setup complete. Now start training!')}</div>
+      </div>
+      <div class="ibox ibox-g"><span class="ii">&#128176;</span><span>${t('Commission payouts हर Monday, सीधे आपके बैंक में','Commission payouts every Monday, directly to your bank')}</span></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('Training शुरू करें','Start Training')}</button></div>
+    </div>`},
+
+  // 13: Training
+  {phase:'Phase 3',title:'Training Modules',
+   solves:['#8 Training before go-live','#14 Partner readiness','#N3 SLA/finance education'],
+   types:[{label:'User Action',cls:'user-action',icon:'📖'},{label:'Quiz + Learn',cls:'user-action',icon:'🎓'}],
+   render:()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">&#127891; ${t('ट्रेनिंग','Training')}</span><span class="hright">2/3</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('पार्टनर ट्रेनिंग','Partner Training')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:4px;line-height:20px;">${t('पूरा करें, फिर काम शुरू!','Complete to start working!')}</div>
+      <div class="pbar"><div class="fill" style="width:66%;background:var(--positive);"></div></div>
+      <div style="height:12px;"></div>
+      <div class="mod-card done" onclick="toast('${t('Module पूरा हो चुका है ✓','Module already completed ✓')}','g')" style="cursor:pointer;"><div class="mod-icon" style="background:var(--pos-100);">&#128241;</div><div><div class="mod-title">${t('App कैसे चलाएं','How to use the App')}</div><div class="mod-sub">${t('Customer, रिचार्ज, शिकायतें','Customer, recharge, complaints')}</div></div><div class="mod-badge" style="background:var(--pos-100);color:var(--positive);">&#10003;</div></div>
+      <div class="mod-card done" onclick="toast('${t('Module पूरा हो चुका है ✓','Module already completed ✓')}','g')" style="cursor:pointer;"><div class="mod-icon" style="background:var(--pos-100);">&#128200;</div><div><div class="mod-title">${t('SLA और Exposure','SLA & Exposure')}</div><div class="mod-sub">${t('नियम, स्तर, प्रभाव','Rules, levels, impact')}</div></div><div class="mod-badge" style="background:var(--pos-100);color:var(--positive);">&#10003;</div></div>
+      <div class="mod-card" style="border-color:var(--pri);background:var(--pri-light);cursor:pointer;" onclick="this.classList.add('done');this.style.borderColor='var(--pos-300)';this.style.background='var(--pos-100)';this.querySelector('.mod-badge').style.background='var(--pos-100)';this.querySelector('.mod-badge').style.color='var(--positive)';this.querySelector('.mod-badge').textContent='✓';toast('${t('बहुत बढ़िया! Module शुरू','Great! Module started')}','g');"><div class="mod-icon" style="background:var(--warn-200);">&#128176;</div><div><div class="mod-title">${t('पैसों की बात','Money Matters')}</div><div class="mod-sub">Commission, TDS, TCS</div></div><div class="mod-badge" style="background:var(--warn-200);color:var(--warn-700);">${t('शुरू करें','Start')}</div></div>
+      <div style="height:8px;"></div>
+      <div class="card">
+        <div class="quiz-q">${t('TDS क्या है?','What is TDS?')}</div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:18px;margin-bottom:8px;">${t('Tax Deducted at Source — Wiom TDS काटता है, certificate मिलेगा।','Tax Deducted at Source — Wiom deducts TDS, you will receive a certificate.')}</div>
+        <div class="quiz-q">${t('Invoice कब?','When is the Invoice?')}</div>
+        <div style="font-size:12px;color:var(--text-sec);line-height:18px;">${t('हर settlement के साथ auto-generated।','Auto-generated with every settlement.')}</div>
+      </div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('Quiz पूरा करें','Complete Quiz')}</button></div>
+    </div>`},
+
+  // 14: Go Live
+  {phase:'Phase 3',title:'Go Live!',
+   solves:['Partner activation','Complete onboarding'],
+   types:[{label:'System + User',cls:'mixed',icon:'🚀'},{label:'Partner Starts Working',cls:'sys-gen',icon:'🎉'}],
+   render:()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('पार्टनर ऐप होम','Partner App Home')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;padding-top:24px;">
+      <div style="font-size:40px;">&#127881;</div>
+      <div style="font-size:24px;font-weight:700;color:var(--text);line-height:32px;">${t('बधाई हो, राजेश!','Congratulations, Rajesh!')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-top:4px;margin-bottom:16px;line-height:20px;">${t('आप अब Wiom Partner हैं','You are now a Wiom Partner')}</div>
+      <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;">
+        <span class="chip chip-g">&#10003; ${t('रजिस्टर्ड','Registered')}</span><span class="chip chip-g">&#10003; ${t('QA Approved','QA Approved')}</span><span class="chip chip-g">&#10003; ${t('Bank वेरीफाइड','Bank Verified')}</span><span class="chip chip-g">&#10003; ${t('एग्रीमेंट','Agreement')}</span><span class="chip chip-g">&#10003; ${t('Tech Review','Tech Review')}</span><span class="chip chip-g">&#10003; ${t('फ़ाइनेंशियल सेटअप','Financial Setup')}</span><span class="chip chip-g">&#10003; ${t('ट्रेनिंग पूरी','Trained')}</span>
+      </div>
+    </div>
+    <div class="sec-hdr">${t('क्विक एक्शन','QUICK ACTIONS')}</div>
+    <div class="pad" style="padding-top:4px;">
+      <div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer;"><span style="font-size:20px;">&#128100;</span><div><div style="font-size:14px;font-weight:700;color:var(--text);line-height:20px;">${t('Customer जोड़ें','Add Customer')}</div><div style="font-size:12px;color:var(--text-sec);line-height:16px;">${t('नया कनेक्शन','New connection')}</div></div></div>
+      <div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer;"><span style="font-size:20px;">&#128176;</span><div><div style="font-size:14px;font-weight:700;color:var(--text);line-height:20px;">${t('कमाई देखें','View Earnings')}</div><div style="font-size:12px;color:var(--text-sec);line-height:16px;">Commission, TDS</div></div></div>
+      <div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer;"><span style="font-size:20px;">&#128221;</span><div><div style="font-size:14px;font-weight:700;color:var(--text);line-height:20px;">${t('टास्क','Tasks')}</div><div style="font-size:12px;color:var(--text-sec);line-height:16px;">${t('रिस्टोर, शिकायतें','Restore, complaints')}</div></div></div>
+      <div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer;"><span style="font-size:20px;">&#127891;</span><div><div style="font-size:14px;font-weight:700;color:var(--text);line-height:20px;">${t('ट्रेनिंग','Training')}</div><div style="font-size:12px;color:var(--text-sec);line-height:16px;">${t('Module दोबारा देखें','Revisit modules')}</div></div></div>
+    </div>
+    </div>`},
+];
+
+// ===== DASHBOARD PARTNERS =====
+const partners = [
+  {id:'CSP-0042',name:'Rajesh Kumar',trade:'Rajesh Telecom',city:'Indore',status:'new',phase:'Entry',regFee:0,onboardFee:0,kyc:'—',qa:'—',bank:'—',agreement:'—',pan:'ABCDE1234F'},
+  {id:'CSP-0043',name:'Priya Sharma',trade:'Priya Net Zone',city:'Bhopal',status:'pending',phase:'QA Investigation',regFee:2000,onboardFee:0,kyc:'verified',qa:'pending',bank:'—',agreement:'—',pan:'FGHIJ5678K'},
+  {id:'CSP-0044',name:'Anil Verma',trade:'Verma Comm',city:'Ujjain',status:'review',phase:'Bank Verification',regFee:2000,onboardFee:0,kyc:'verified',qa:'approved',bank:'pending',agreement:'—',pan:'KLMNO9012P'},
+  {id:'CSP-0045',name:'Sunita Devi',trade:'Sunita Internet',city:'Indore',status:'rejected',phase:'QA Rejected',regFee:2000,onboardFee:0,kyc:'verified',qa:'rejected',bank:'—',agreement:'—',pan:'QRSTU3456V'},
+  {id:'CSP-0046',name:'Mohit Patel',trade:'Patel Broadband',city:'Sagar',status:'training',phase:'Training',regFee:2000,onboardFee:20000,kyc:'verified',qa:'approved',bank:'verified',agreement:'signed',pan:'WXYZ7890A'},
+  {id:'CSP-0047',name:'Kavita Singh',trade:'Singh Net',city:'Jabalpur',status:'approved',phase:'LIVE',regFee:2000,onboardFee:20000,kyc:'verified',qa:'approved',bank:'verified',agreement:'signed',pan:'BCDEF2345G'},
+  {id:'CSP-0048',name:'Deepak Jain',trade:'Jain Hub',city:'Indore',status:'pending',phase:'Awaiting Reg Fee',regFee:0,onboardFee:0,kyc:'pending',qa:'—',bank:'—',agreement:'—',pan:'GHIJK6789L'},
+];
+
+// ===== NAVIGATION =====
+function next(){
+  if(currentScreen>=totalScreens-1) return;
+  updateState(currentScreen);
+  currentScreen++;
+  renderPhone();
+  renderDashboard();
+  updateProgress();
+  updatePartnerInTable();
+}
+
+function prev(){
+  if(currentScreen<=0) return;
+  currentScreen--;
+  renderPhone();
+  updateProgress();
+}
+
+function goTo(idx){
+  if(idx<0||idx>=totalScreens) return;
+  currentScreen=idx;
+  renderPhone();
+  renderDashboard();
+  updateProgress();
+}
+
+function updateState(idx){
+  const s=partnerState;
+  const p=partners[0];
+  const toasts={
+    0:()=>{s.status='otp-sent';s.phase='OTP Sent';addLog('OTP sent to +91 98765 43210','info');toast('OTP sent','p');},
+    1:()=>{s.otpVerified=true;s.phase='Registration';addLog('OTP verified','info');toast('OTP verified ✓','g');},
+    2:()=>{s.personalDone=true;s.phase='Personal Done';addLog('Personal details submitted','info');},
+    3:()=>{s.locationDone=true;s.phase='Location Done';addLog('Location submitted: Indore, MP','info');},
+    4:()=>{s.kycDone=true;s.phase='KYC Verified';p.kyc='verified';addLog('KYC auto-verified: PAN, Aadhaar, GST','kyc');toast('KYC verified ✓','g');},
+    5:()=>{s.regFeePaid=true;s.status='investigation';s.phase='QA Investigation';p.regFee=2000;p.phase='QA Investigation';p.status='pending';addLog('₹2,000 registration fee paid','payment');toast('भुगतान सफल! QA investigation शुरू','g');},
+    6:()=>{s.qaStatus='approved';s.phase='QA Approved';p.qa='approved';p.phase='Policy Review';p.status='review';addLog('✓ QA APPROVED — Documentation phase','approval');toast('QA Approved! Documentation phase next','g');},
+    7:()=>{s.phase='Policy Reviewed';p.phase='Bank Verification';addLog('Policy & rate card reviewed, quiz passed','info');toast('Policy acknowledged ✓','g');},
+    8:()=>{s.phase='Bank Verified';p.phase='Agreement';p.bank='verified';addLog('Bank verified via penny-drop. Dedup clear.','kyc');toast('Bank verified, dedup clear ✓','g');},
+    9:()=>{s.phase='Agreement Signed';p.phase='Tech Review';p.agreement='signed';addLog('Partner agreement e-signed via Aadhaar','info');toast('Agreement signed ✓','g');},
+    10:()=>{s.techReviewDone=true;s.phase='Tech Reviewed';p.phase='Onboarding Fee';addLog('Tech review complete — device & infra OK','info');toast('Tech review passed ✓','g');},
+    11:()=>{s.onboardFeePaid=true;s.status='training';s.phase='Financial Setup';p.onboardFee=20000;p.phase='Financial Setup';p.status='training';addLog('₹20,000 onboarding fee paid','payment');toast('भुगतान सफल! Financial setup शुरू...','g');},
+    12:()=>{s.phase='Training';p.phase='Training';addLog('Financial setup complete — ledger, payouts, invoicing ready','info');toast('सब तैयार! Training शुरू 🎓','g');},
+    13:()=>{s.trainingDone=true;s.phase='Training Done';addLog('All training modules completed','training');},
+    14:()=>{s.live=true;s.status='live';s.phase='LIVE';p.status='approved';p.phase='LIVE';addLog('🎉 Partner is LIVE!','live');toast('बधाई हो! Partner is LIVE! 🎉','g');}
+  };
+  if(toasts[idx]) toasts[idx]();
+}
+
+// ===== RENDER =====
+function renderPhone(){
+  const s = screens[currentScreen];
+  const phone = document.getElementById('phoneFrame');
+  // Check for active error scenario
+  if(activeScenario && errorScreens[activeScenario]){
+    phone.innerHTML = `<div class="phone-content-enter">${errorScreens[activeScenario]()}</div>`;
+  } else {
+    phone.innerHTML = `<div class="phone-content-enter">${s.render()}</div>`;
+  }
+  document.getElementById('stepInfo').textContent = `${s.phase} — ${s.title}`;
+  document.getElementById('lhPhase').textContent = `Screen ${currentScreen+1} of ${totalScreens}`;
+  document.getElementById('lhTitle').textContent = s.phase;
+
+  // Render annotations
+  const ap = document.getElementById('annotPanel');
+  const reqTags = (s.solves||[]).map(r => {
+    const isNew = r.startsWith('#N');
+    return `<span class="annot-tag ${isNew?'new-req':'req'}">${r}</span>`;
+  }).join('');
+  const typeTags = (s.types||[]).map(t =>
+    `<span class="annot-type ${t.cls}">${t.icon} ${t.label}</span>`
+  ).join(' ');
+  const deferredTags = (s.deferred||[]).map(d =>
+    `<span class="annot-tag" style="background:#2a2520;color:#c4956e;border:1px solid #4a3a2e;">⏳ ${d}</span>`
+  ).join('');
+  ap.innerHTML = `
+    <div class="annot-inner">
+      <div class="annot-row">
+        <span class="annot-label">Solves →</span>
+        <div class="annot-tags">${reqTags}</div>
+      </div>
+      <div class="annot-row">
+        <span class="annot-label">Type →</span>
+        <div class="annot-tags">${typeTags}</div>
+      </div>
+      ${deferredTags?`<div class="annot-row">
+        <span class="annot-label">Later →</span>
+        <div class="annot-tags">${deferredTags}</div>
+      </div>`:''}
+    </div>
+  `;
+}
+
+function updateProgress(){
+  const strip = document.getElementById('progressStrip');
+  strip.innerHTML = Array.from({length:totalScreens},(_,i)=>{
+    let cls = i<currentScreen?'done':i===currentScreen?'active':'future';
+    return `<div class="prog-seg ${cls}" onclick="goTo(${i})" style="cursor:pointer;" title="Screen ${i+1}"></div>`;
+  }).join('');
+}
+
+function updatePartnerInTable(){
+  // Already handled in updateState
+}
+
+function renderDashboard(){
+  const dc=document.getElementById('dashContent');
+  const stCounts={total:partners.length,pending:partners.filter(p=>p.status==='pending').length,review:partners.filter(p=>['review','new','initiated'].includes(p.status)).length,flagged:partners.filter(p=>p.status==='flagged').length,approved:partners.filter(p=>['approved','training'].includes(p.status)).length};
+  const pillMap={new:'pill-review',initiated:'pill-review',pending:'pill-pending',paid:'pill-pending',review:'pill-review',approved:'pill-approved',rejected:'pill-rejected',flagged:'pill-flagged',training:'pill-training'};
+  const pillLabel={new:'New',initiated:'Initiated',pending:'Pending',paid:'Paid',review:'Review',approved:'Approved',rejected:'Rejected',flagged:'Flagged',training:'Training'};
+
+  // Build scenario panel
+  const scnCategories = {
+    registration: {label:'Registration & OTP', icon:'📱'},
+    verification: {label:'KYC & Location', icon:'🪪'},
+    payment: {label:'Payment Failures', icon:'💳'},
+    bank: {label:'Bank & Dedup', icon:'🏦'},
+    documentation: {label:'Agreement & Tech', icon:'📝'},
+    training: {label:'Training', icon:'🎓'}
+  };
+  let scnHTML = '';
+  for(const [catKey,catMeta] of Object.entries(scnCategories)){
+    const catScenarios = Object.entries(scenarios).filter(([k,v])=>v.cat===catKey);
+    if(catScenarios.length){
+      scnHTML += `<div class="scn-cat">${catMeta.icon} ${catMeta.label}</div>`;
+      scnHTML += catScenarios.map(([key,scn])=>`
+        <button class="scn-btn ${activeScenario===key?'active':''}" onclick="triggerScenario('${key}')">
+          <span class="scn-icon">${scn.icon}</span>
+          <span class="scn-text">${scn.label}</span>
+        </button>`).join('');
+    }
+  }
+
+  dc.innerHTML=`
+    <div class="scenario-panel">
+      <h4>⚡ Scenario Simulator ${activeScenario?'<span class="pill pill-rejected" style="font-size:9px;">ACTIVE: '+scenarios[activeScenario].label+'</span>':''}</h4>
+      <div class="scenario-grid">${scnHTML}</div>
+      ${activeScenario?'<button class="scn-reset" onclick="clearScenario()">✓ Clear Scenario — Normal Flow</button>':''}
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" style="color:var(--surface);">${stCounts.total}</div><div class="stat-lbl">Total</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--warning);">${stCounts.pending}</div><div class="stat-lbl">Pending</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--info);">${stCounts.review}</div><div class="stat-lbl">Review</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--negative);">${stCounts.flagged}</div><div class="stat-lbl">Flagged</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--positive);">${stCounts.approved}</div><div class="stat-lbl">Approved</div></div>
+    </div>
+    <table class="ptable">
+      <thead><tr><th>ID</th><th>Partner</th><th>City</th><th>Phase</th><th>Status</th><th>Reg Fee</th><th>Onboard</th></tr></thead>
+      <tbody>
+        ${partners.map((p,i)=>`<tr class="${i===0?'highlight':''}" onclick="showPartnerDetail(${i})">
+          <td style="color:var(--pri);font-weight:600;">${p.id}</td>
+          <td>${p.name}<br><span style="font-size:10px;color:var(--hint);">${p.trade}</span></td>
+          <td>${p.city}</td>
+          <td style="font-size:10px;color:var(--hint);">${p.phase}</td>
+          <td><span class="pill ${pillMap[p.status]||'pill-review'}">${pillLabel[p.status]||p.status}</span></td>
+          <td>${p.regFee?'₹'+p.regFee.toLocaleString():'—'}</td>
+          <td>${p.onboardFee?'₹'+p.onboardFee.toLocaleString():'—'}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    <div class="detail" id="partnerDetail"></div>
+    ${activityLog.length?`
+    <div class="activity-log">
+      <h4>⚡ Live Activity Log</h4>
+      ${activityLog.map(l=>`<div class="log-item">
+        <span class="log-time">${l.time}</span>
+        <div class="log-dot" style="background:${l.type==='payment'?'var(--positive)':l.type==='kyc'?'var(--info)':l.type==='approval'?'var(--positive)':l.type==='live'?'var(--pri)':l.type==='error'?'var(--negative)':l.type==='rejection'?'var(--negative)':'var(--hint)'};"></div>
+        <span class="log-event">${l.text}</span>
+      </div>`).join('')}
+    </div>`:''}
+  `;
+}
+
+function showPartnerDetail(idx){
+  const p=partners[idx];
+  const panel=document.getElementById('partnerDetail');
+  const pillMap={new:'pill-review',initiated:'pill-review',pending:'pill-pending',paid:'pill-pending',review:'pill-review',approved:'pill-approved',rejected:'pill-rejected',flagged:'pill-flagged',training:'pill-training'};
+  const pillLabel={new:'New',initiated:'Initiated',pending:'Pending',paid:'Paid',review:'Review',approved:'Approved',rejected:'Rejected',flagged:'Flagged',training:'Training'};
+
+  panel.innerHTML=`
+    <h3>${p.id} — ${p.name} <span class="pill ${pillMap[p.status]}">${pillLabel[p.status]||p.status}</span></h3>
+    <div class="dgrid">
+      <div class="dsec"><h4>Personal</h4>
+        <div class="drow"><span class="dk">Trade Name</span><span class="dv">${p.trade}</span></div>
+        <div class="drow"><span class="dk">City</span><span class="dv">${p.city}</span></div>
+        <div class="drow"><span class="dk">Phase</span><span class="dv">${p.phase}</span></div>
+      </div>
+      <div class="dsec"><h4>KYC & QA</h4>
+        <div class="drow"><span class="dk">PAN</span><span class="dv">${p.pan}</span></div>
+        <div class="drow"><span class="dk">KYC</span><span class="dv" style="color:${p.kyc==='verified'?'var(--positive)':p.kyc==='pending'?'var(--warning)':'var(--hint)'};">${p.kyc}</span></div>
+        <div class="drow"><span class="dk">QA Status</span><span class="dv" style="color:${p.qa==='approved'?'var(--positive)':p.qa==='rejected'?'var(--negative)':p.qa==='pending'?'var(--warning)':'var(--hint)'};">${p.qa}</span></div>
+        <div class="drow"><span class="dk">Bank</span><span class="dv" style="color:${p.bank==='verified'?'var(--positive)':p.bank==='pending'?'var(--warning)':'var(--hint)'};">${p.bank}</span></div>
+        <div class="drow"><span class="dk">Agreement</span><span class="dv" style="color:${p.agreement==='signed'?'var(--positive)':p.agreement==='pending'?'var(--warning)':'var(--hint)'};">${p.agreement}</span></div>
+      </div>
+      <div class="dsec"><h4>Finance</h4>
+        <div class="drow"><span class="dk">Reg Fee</span><span class="dv">${p.regFee?'₹'+p.regFee.toLocaleString():'Not paid'}</span></div>
+        <div class="drow"><span class="dk">Onboard Fee</span><span class="dv">${p.onboardFee?'₹'+p.onboardFee.toLocaleString():'Not paid'}</span></div>
+        <div class="drow"><span class="dk">Total</span><span class="dv">${(p.regFee||0)+(p.onboardFee||0)?'₹'+((p.regFee||0)+(p.onboardFee||0)).toLocaleString():'—'}</span></div>
+      </div>
+      <div class="dsec"><h4>Actions</h4>
+        <div class="dactions">
+          ${p.status!=='approved'&&p.status!=='rejected'?`
+            <button class="dbtn dbtn-approve" onclick="dashAction(${idx},'approved')">Approve</button>
+            <button class="dbtn dbtn-reject" onclick="dashAction(${idx},'rejected')">Reject</button>
+          `:'<span style="font-size:11px;color:var(--hint);">No actions needed</span>'}
+        </div>
+      </div>
+    </div>
+    ${p.qa==='rejected'?`<div class="dedup-box"><h4>⚠ QA REJECTED</h4><div style="color:var(--surface);">Profile rejected. Refund of ₹${p.regFee.toLocaleString()} initiated.</div></div>`:''}
+  `;
+  panel.classList.add('open');
+}
+
+function dashAction(idx,action){
+  partners[idx].status=action;
+  if(action==='approved')partners[idx].phase='Approved';
+  addLog(`${partners[idx].name} — ${action.toUpperCase()} by admin`,action==='approved'?'approval':'info');
+  toast(`${partners[idx].name} ${action}`,action==='approved'?'g':'r');
+  renderDashboard();
+}
+
+// ===== INTERACTIVE HELPERS =====
+// KYC upload toggle
+const kycState = {pan:true,aadhaar:true,gst:true};
+function toggleKyc(doc){
+  kycState[doc] = !kycState[doc];
+  const row = document.getElementById('kyc-'+doc);
+  const st = document.getElementById('kyc-'+doc+'-st');
+  const btn = document.getElementById('kyc-'+doc+'-btn');
+  if(kycState[doc]){
+    row.classList.add('verified');
+    st.style.color='var(--positive)';st.innerHTML='Verified &#10003;';
+    btn.classList.add('done');btn.innerHTML='&#10003;';
+    toast('Document verified ✓','g');
+  } else {
+    row.classList.remove('verified');
+    st.style.color='var(--hint)';st.textContent='Upload करें';
+    btn.classList.remove('done');btn.textContent='Upload';
+  }
+}
+
+// Quiz selection
+function selectQuiz(el,type){
+  // Reset all siblings
+  const parent = el.parentElement;
+  parent.querySelectorAll('.quiz-opt').forEach(o=>{o.classList.remove('correct');o.style.borderColor='';o.style.background='';o.style.color='';});
+  if(type==='correct'){
+    el.classList.add('correct');
+    el.innerHTML='&#10003; '+el.textContent;
+    toast('बहुत बढ़िया! सही जवाब ✓','g');
+  } else {
+    el.style.borderColor='var(--negative)';el.style.background='var(--neg-100)';el.style.color='var(--negative)';
+    toast('गलत — दोबारा try करें','r');
+  }
+}
+
+// Agreement checkbox toggle
+function toggleChk(row){
+  const box = row.querySelector('.chk-box');
+  box.classList.toggle('checked');
+  box.innerHTML = box.classList.contains('checked') ? '&#10003;' : '';
+}
+
+// ===== THEME TOGGLE =====
+function toggleDashTheme(){
+  document.body.classList.toggle('dash-light');
+}
+
+// ===== INIT =====
+document.body.classList.add('dash-light');
+renderPhone();
+updateProgress();
+renderDashboard();
+addLog('System ready. Waiting for partner registration.','info');
+</script>
+</body>
+</html>
