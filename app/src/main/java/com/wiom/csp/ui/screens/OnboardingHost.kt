@@ -22,77 +22,7 @@ fun OnboardingHost() {
     val screen = OnboardingState.currentScreen
     val meta = OnboardingState.screenMetas[screen]
 
-    Column(modifier = Modifier.fillMaxSize().background(WiomDark)) {
-        // Top bar with language toggle
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(WiomDark)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                "Wiom CSP Onboarding",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = WiomPrimary,
-            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Text(
-                    "${meta.phase} — ${t(meta.titleHi, meta.titleEn)}",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = WiomHint,
-                )
-                // Language toggle
-                Button(
-                    onClick = { Lang.toggle() },
-                    modifier = Modifier.height(28.dp),
-                    shape = RoundedCornerShape(888.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = WiomPrimaryLight,
-                        contentColor = WiomPrimary,
-                    ),
-                    contentPadding = PaddingValues(horizontal = 12.dp),
-                ) {
-                    Text(
-                        "हि / En",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-            }
-        }
-
-        // Progress strip
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(WiomDark)
-                .padding(horizontal = 16.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            repeat(OnboardingState.TOTAL_SCREENS) { i ->
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(3.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(
-                            when {
-                                i < screen -> WiomPositive
-                                i == screen -> WiomPrimary
-                                else -> WiomNeutral800.copy(alpha = 0.3f)
-                            }
-                        )
-                )
-            }
-        }
-
+    Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
         // Screen content
         AnimatedContent(
             targetState = screen,

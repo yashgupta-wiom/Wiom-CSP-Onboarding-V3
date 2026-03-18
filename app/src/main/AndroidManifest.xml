@@ -13,16 +13,30 @@
         android:label="Wiom Partner+"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        android:enableOnBackInvokedCallback="true">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".DashboardReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="com.wiom.csp.SCENARIO"/>
+                <action android:name="com.wiom.csp.NAVIGATE"/>
+                <action android:name="com.wiom.csp.LANG"/>
+                <action android:name="com.wiom.csp.RESET"/>
+                <action android:name="com.wiom.csp.FILL"/>
+                <action android:name="com.wiom.csp.QA"/>
+                <action android:name="com.wiom.csp.TRAINING"/>
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
