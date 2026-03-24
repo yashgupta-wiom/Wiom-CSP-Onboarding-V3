@@ -37,24 +37,24 @@ data class ScenarioMeta(
 )
 
 val scenarioMeta = mapOf(
-    Scenario.PHONE_DUPLICATE to ScenarioMeta(0, "नंबर पहले से रजिस्टर्ड", "Phone Already Registered", "\uD83D\uDCF1", "registration"),
-    Scenario.OTP_WRONG to ScenarioMeta(1, "गलत OTP", "Wrong OTP Entered", "❌", "registration"),
-    Scenario.OTP_EXPIRED to ScenarioMeta(1, "OTP Expired", "OTP Expired", "⏰", "registration"),
-    Scenario.AREA_NOT_SERVICEABLE to ScenarioMeta(3, "एरिया सर्विसेबल नहीं", "Area Not Serviceable", "\uD83D\uDCCD", "verification"),
-    Scenario.KYC_PAN_MISMATCH to ScenarioMeta(5, "PAN नाम मेल नहीं खाता", "PAN Name Mismatch", "\uD83E\uDEAA", "verification"),
-    Scenario.KYC_AADHAAR_EXPIRED to ScenarioMeta(5, "Aadhaar पता पुराना", "Aadhaar Expired", "⚠\uFE0F", "verification"),
-    Scenario.KYC_PAN_AADHAAR_UNLINKED to ScenarioMeta(5, "PAN-Aadhaar लिंक नहीं", "PAN-Aadhaar Not Linked", "\uD83D\uDD17", "verification"),
-    Scenario.REGFEE_FAILED to ScenarioMeta(4, "₹2K भुगतान फेल", "₹2K Payment Failed", "\uD83D\uDCB3", "payment"),
-    Scenario.REGFEE_TIMEOUT to ScenarioMeta(4, "₹2K भुगतान Timeout", "₹2K Payment Timeout", "⏳", "payment"),
-    Scenario.BANK_PENNYDROP_FAIL to ScenarioMeta(6, "Penny Drop फेल", "Penny Drop Failed", "\uD83C\uDFE6", "bank"),
-    Scenario.BANK_NAME_MISMATCH to ScenarioMeta(6, "Bank नाम मेल नहीं खाता", "Bank Name Mismatch", "\uD83D\uDC64", "bank"),
-    Scenario.DEDUP_FOUND to ScenarioMeta(6, "Dedup मैच मिला", "Dedup Match Found", "\uD83D\uDD0D", "bank"),
-    Scenario.ISP_DOC_INVALID to ScenarioMeta(7, "ISP दस्तावेज़ अमान्य", "ISP Document Invalid", "\uD83D\uDCC4", "documentation"),
-    Scenario.VERIFICATION_REJECTED to ScenarioMeta(9, "सत्यापन अस्वीकृत", "Verification Rejected", "\uD83D\uDE14", "verification"),
-    Scenario.TECH_ASSESSMENT_REJECTED to ScenarioMeta(12, "तकनीकी मूल्यांकन अस्वीकृत", "Tech Assessment Rejected", "\uD83D\uDEE0\uFE0F", "documentation"),
-    Scenario.ONBOARDFEE_FAILED to ScenarioMeta(11, "₹20K भुगतान फेल", "₹20K Payment Failed", "\uD83D\uDCB8", "payment"),
-    Scenario.TRAINING_QUIZ_FAIL to ScenarioMeta(14, "Quiz फेल", "Quiz Failed", "\uD83D\uDCDD", "training"),
-    Scenario.POLICY_QUIZ_FAIL to ScenarioMeta(15, "Policy Quiz फेल", "Policy Quiz Failed", "\uD83D\uDCDD", "training"),
+    Scenario.PHONE_DUPLICATE to ScenarioMeta(0, "\u0928\u0902\u092C\u0930 \u092A\u0939\u0932\u0947 \u0938\u0947 \u0930\u091C\u093F\u0938\u094D\u091F\u0930\u094D\u0921", "Phone Already Registered", "\uD83D\uDCF1", "registration"),
+    Scenario.OTP_WRONG to ScenarioMeta(1, "\u0917\u0932\u0924 OTP", "Wrong OTP Entered", "\u274C", "registration"),
+    Scenario.OTP_EXPIRED to ScenarioMeta(1, "OTP Expired", "OTP Expired", "\u23F0", "registration"),
+    Scenario.AREA_NOT_SERVICEABLE to ScenarioMeta(3, "\u090F\u0930\u093F\u092F\u093E \u0938\u0930\u094D\u0935\u093F\u0938\u0947\u092C\u0932 \u0928\u0939\u0940\u0902", "Area Not Serviceable", "\uD83D\uDCCD", "verification"),
+    Scenario.KYC_PAN_MISMATCH to ScenarioMeta(5, "PAN \u0928\u093E\u092E \u092E\u0947\u0932 \u0928\u0939\u0940\u0902 \u0916\u093E\u0924\u093E", "PAN Name Mismatch", "\uD83E\uDEAA", "verification"),
+    Scenario.KYC_AADHAAR_EXPIRED to ScenarioMeta(5, "Aadhaar \u092A\u0924\u093E \u092A\u0941\u0930\u093E\u0928\u093E", "Aadhaar Expired", "\u26A0\uFE0F", "verification"),
+    Scenario.KYC_PAN_AADHAAR_UNLINKED to ScenarioMeta(5, "PAN-Aadhaar \u0932\u093F\u0902\u0915 \u0928\u0939\u0940\u0902", "PAN-Aadhaar Not Linked", "\uD83D\uDD17", "verification"),
+    Scenario.REGFEE_FAILED to ScenarioMeta(4, "\u20B92K \u092D\u0941\u0917\u0924\u093E\u0928 \u092B\u0947\u0932", "\u20B92K Payment Failed", "\uD83D\uDCB3", "payment"),
+    Scenario.REGFEE_TIMEOUT to ScenarioMeta(4, "\u20B92K \u092D\u0941\u0917\u0924\u093E\u0928 Timeout", "\u20B92K Payment Timeout", "\u23F3", "payment"),
+    Scenario.BANK_PENNYDROP_FAIL to ScenarioMeta(6, "Penny Drop \u092B\u0947\u0932", "Penny Drop Failed", "\uD83C\uDFE6", "bank"),
+    Scenario.BANK_NAME_MISMATCH to ScenarioMeta(6, "Bank \u0928\u093E\u092E \u092E\u0947\u0932 \u0928\u0939\u0940\u0902 \u0916\u093E\u0924\u093E", "Bank Name Mismatch", "\uD83D\uDC64", "bank"),
+    Scenario.DEDUP_FOUND to ScenarioMeta(6, "Dedup \u092E\u0948\u091A \u092E\u093F\u0932\u093E", "Dedup Match Found", "\uD83D\uDD0D", "bank"),
+    Scenario.ISP_DOC_INVALID to ScenarioMeta(7, "ISP \u0926\u0938\u094D\u0924\u093E\u0935\u0947\u091C\u093C \u0905\u092E\u093E\u0928\u094D\u092F", "ISP Document Invalid", "\uD83D\uDCC4", "documentation"),
+    Scenario.VERIFICATION_REJECTED to ScenarioMeta(9, "\u0938\u0924\u094D\u092F\u093E\u092A\u0928 \u0905\u0938\u094D\u0935\u0940\u0915\u0943\u0924", "Verification Rejected", "\u274C", "verification"),
+    Scenario.TECH_ASSESSMENT_REJECTED to ScenarioMeta(12, "\u0924\u0915\u0928\u0940\u0915\u0940 \u092E\u0942\u0932\u094D\u092F\u093E\u0902\u0915\u0928 \u0905\u0938\u094D\u0935\u0940\u0915\u0943\u0924", "Tech Assessment Rejected", "\uD83D\uDEE0\uFE0F", "assessment"),
+    Scenario.ONBOARDFEE_FAILED to ScenarioMeta(11, "\u20B920K \u092D\u0941\u0917\u0924\u093E\u0928 \u092B\u0947\u0932", "\u20B920K Payment Failed", "\uD83D\uDCB8", "payment"),
+    Scenario.TRAINING_QUIZ_FAIL to ScenarioMeta(14, "Quiz \u092B\u0947\u0932", "Quiz Failed", "\uD83D\uDCDD", "training"),
+    Scenario.POLICY_QUIZ_FAIL to ScenarioMeta(15, "\u092A\u0949\u0932\u093F\u0938\u0940 Quiz \u092B\u0947\u0932", "Policy Quiz Failed", "\uD83D\uDCCB", "training"),
 )
 
 data class QuizQuestion(
@@ -77,42 +77,19 @@ data class TrainingModule(
     val questions: List<QuizQuestion>,
 )
 
-data class RejectionReason(
-    val id: String,
-    val labelHi: String,
-    val labelEn: String,
-    val resolvable: Boolean,
-    val resolveScreen: Int, // -1 if not resolvable
-    val ctaHi: String,
-    val ctaEn: String,
-)
-
-val REJECTION_REASONS = listOf(
-    RejectionReason("kyc_unclear", "KYC दस्तावेज़ अस्पष्ट / अमान्य", "KYC Document Unclear/Invalid", true, 5, "दस्तावेज़ दोबारा अपलोड करें", "Re-upload Documents"),
-    RejectionReason("pan_aadhaar_mismatch", "PAN और आधार में नाम मेल नहीं खाता", "PAN-Aadhaar Name Mismatch", true, 5, "सही दस्तावेज़ अपलोड करें", "Upload Correct Documents"),
-    RejectionReason("shop_photo_bad", "दुकान की फ़ोटो स्वीकार्य नहीं", "Shop Photo Not Acceptable", true, 8, "फ़ोटो दोबारा अपलोड करें", "Re-upload Photos"),
-    RejectionReason("isp_invalid", "ISP अनुबंध अमान्य / अधूरा", "ISP Agreement Invalid/Incomplete", true, 7, "ISP अनुबंध दोबारा अपलोड करें", "Re-upload ISP Agreement"),
-    RejectionReason("address_failed", "पता सत्यापन विफल", "Address Verification Failed", true, 3, "पता अपडेट करें", "Update Address"),
-    RejectionReason("bank_mismatch", "बैंक विवरण मेल नहीं खाता", "Bank Details Mismatch", true, 6, "बैंक विवरण अपडेट करें", "Update Bank Details"),
-    RejectionReason("duplicate_csp", "एरिया में पहले से CSP मौजूद", "Duplicate CSP in Area", false, -1, "₹2,000 रिफंड प्रक्रिया शुरू", "₹2,000 Refund Initiated"),
-)
-
 object OnboardingState {
-    var currentScreen by mutableIntStateOf(0)
     var pitchDismissed by mutableStateOf(false)
+    var currentScreen by mutableIntStateOf(0)
     var verificationRejected by mutableStateOf(false)
-    var verificationRejectReasonId by mutableStateOf<String?>(null)
     var techAssessmentRejected by mutableStateOf(false)
-    var shopFrontPhotoUploaded by mutableStateOf(false)
-    var routerPhotoUploaded by mutableStateOf(false)
-    var policyQuizScore by mutableIntStateOf(0)
-    var policyQuizPassed by mutableStateOf(false)
     const val TOTAL_SCREENS = 17
 
     // Scenario simulator
     var activeScenario by mutableStateOf(Scenario.NONE)
-    var simulatorExpanded by mutableStateOf(false)
+    var simulatorExpanded by mutableStateOf(true)
     var isLoading by mutableStateOf(false)
+    var isProcessing by mutableStateOf(false)
+    var processingMessage by mutableStateOf("")
 
     // Validation state
     var phoneError by mutableStateOf<String?>(null)
@@ -126,11 +103,11 @@ object OnboardingState {
     var otpDigits by mutableStateOf(listOf("", "", "", ""))
     var otpTimerSeconds by mutableIntStateOf(30)
     var otpTimerExpired by mutableStateOf(false)
+    var tncAccepted by mutableStateOf(false)
     var personalName by mutableStateOf("")
     var personalEmail by mutableStateOf("")
     var entityType by mutableStateOf("")
     var tradeName by mutableStateOf("")
-    var selectedState by mutableStateOf("Madhya Pradesh")
     var city by mutableStateOf("")
     var pincode by mutableStateOf("")
     var address by mutableStateOf("")
@@ -141,9 +118,6 @@ object OnboardingState {
     var aadhaarBackUploaded by mutableStateOf(false)
     var gstUploaded by mutableStateOf(false)
 
-    // ISP Agreement
-    var ispAgreementUploaded by mutableStateOf(false)
-
     // Bank screen
     var bankAccountHolder by mutableStateOf("")
     var bankName by mutableStateOf("")
@@ -151,10 +125,15 @@ object OnboardingState {
     var bankIfsc by mutableStateOf("")
     var bankVerified by mutableStateOf(false)
 
-    // Tech review (legacy fields kept for compatibility)
+    // ISP Agreement
+    var ispAgreementUploaded by mutableStateOf(false)
+
+    // Shop & Equipment Photos
     var shopPhotoUploaded by mutableStateOf(false)
-    var equipmentReviewed by mutableStateOf(false)
-    var internetSetupType by mutableStateOf("")
+    var equipmentPhotoUploaded by mutableStateOf(false)
+
+    // Policy Quiz
+    var policyQuizPassed by mutableStateOf(false)
 
     // Training modules
     var trainingModules = mutableStateListOf<TrainingModule>()
@@ -174,28 +153,28 @@ object OnboardingState {
                 listOf(
                     TrainingModule(
                         id = "app_usage",
-                        titleHi = "App कैसे चलाएं",
+                        titleHi = "App \u0915\u0948\u0938\u0947 \u091A\u0932\u093E\u090F\u0902",
                         titleEn = "How to use the App",
-                        subtitleHi = "Customer, रीचार्ज, शिकायतें",
+                        subtitleHi = "Customer, \u0930\u0940\u091A\u093E\u0930\u094D\u091C, \u0936\u093F\u0915\u093E\u092F\u0924\u0947\u0902",
                         subtitleEn = "Customer, Recharge, Complaints",
                         icon = "\uD83D\uDCF1",
                         videoUrl = "",
                         questions = listOf(
                             QuizQuestion(
-                                questionHi = "ग्राहक का नया कनेक्शन कैसे बनाएं?",
+                                questionHi = "\u0917\u094D\u0930\u093E\u0939\u0915 \u0915\u093E \u0928\u092F\u093E \u0915\u0928\u0947\u0915\u094D\u0936\u0928 \u0915\u0948\u0938\u0947 \u092C\u0928\u093E\u090F\u0902?",
                                 questionEn = "How to create a new customer connection?",
                                 options = listOf(
-                                    "Settings से" to "From Settings",
-                                    "Home > Add Customer से" to "From Home > Add Customer",
-                                    "Profile से" to "From Profile",
-                                    "Help से" to "From Help",
+                                    "Settings \u0938\u0947" to "From Settings",
+                                    "Home > Add Customer \u0938\u0947" to "From Home > Add Customer",
+                                    "Profile \u0938\u0947" to "From Profile",
+                                    "Help \u0938\u0947" to "From Help",
                                 ),
                                 correctIndex = 1,
-                                hintHi = "Home screen पर 'Add Customer' बटन दबाएं",
+                                hintHi = "Home screen \u092A\u0930 'Add Customer' \u092C\u091F\u0928 \u0926\u092C\u093E\u090F\u0902",
                                 hintEn = "Press 'Add Customer' button on Home screen",
                             ),
                             QuizQuestion(
-                                questionHi = "रीचार्ज status कहां देखें?",
+                                questionHi = "\u0930\u0940\u091A\u093E\u0930\u094D\u091C status \u0915\u0939\u093E\u0902 \u0926\u0947\u0916\u0947\u0902?",
                                 questionEn = "Where to check recharge status?",
                                 options = listOf(
                                     "Settings" to "Settings",
@@ -204,35 +183,35 @@ object OnboardingState {
                                     "Profile" to "Profile",
                                 ),
                                 correctIndex = 2,
-                                hintHi = "Earnings section में Transactions tab पर जाएं",
+                                hintHi = "Earnings section \u092E\u0947\u0902 Transactions tab \u092A\u0930 \u091C\u093E\u090F\u0902",
                                 hintEn = "Go to Transactions tab in Earnings section",
                             ),
                         ),
                     ),
                     TrainingModule(
                         id = "sla_exposure",
-                        titleHi = "SLA और Exposure",
+                        titleHi = "SLA \u0914\u0930 Exposure",
                         titleEn = "SLA & Exposure",
-                        subtitleHi = "नियम, स्तर, प्रभाव",
+                        subtitleHi = "\u0928\u093F\u092F\u092E, \u0938\u094D\u0924\u0930, \u092A\u094D\u0930\u092D\u093E\u0935",
                         subtitleEn = "Rules, Levels, Impact",
                         icon = "\uD83D\uDCCA",
                         videoUrl = "",
                         questions = listOf(
                             QuizQuestion(
-                                questionHi = "ग्राहक शिकायत का resolution time क्या है?",
+                                questionHi = "\u0917\u094D\u0930\u093E\u0939\u0915 \u0936\u093F\u0915\u093E\u092F\u0924 \u0915\u093E resolution time \u0915\u094D\u092F\u093E \u0939\u0948?",
                                 questionEn = "What is customer complaint resolution time?",
                                 options = listOf(
-                                    "24 घंटे" to "24 hours",
-                                    "4 घंटे" to "4 hours",
-                                    "48 घंटे" to "48 hours",
-                                    "1 हफ़्ता" to "1 week",
+                                    "24 \u0918\u0902\u091F\u0947" to "24 hours",
+                                    "4 \u0918\u0902\u091F\u0947" to "4 hours",
+                                    "48 \u0918\u0902\u091F\u0947" to "48 hours",
+                                    "1 \u0939\u095E\u094D\u0924\u093E" to "1 week",
                                 ),
                                 correctIndex = 1,
-                                hintHi = "SLA के अनुसार 4 घंटे में समाधान करना ज़रूरी है",
+                                hintHi = "SLA \u0915\u0947 \u0905\u0928\u0941\u0938\u093E\u0930 4 \u0918\u0902\u091F\u0947 \u092E\u0947\u0902 \u0938\u092E\u093E\u0927\u093E\u0928 \u0915\u0930\u0928\u093E \u091C\u093C\u0930\u0942\u0930\u0940 \u0939\u0948",
                                 hintEn = "Resolution within 4 hours is required as per SLA",
                             ),
                             QuizQuestion(
-                                questionHi = "Minimum uptime requirement क्या है?",
+                                questionHi = "Minimum uptime requirement \u0915\u094D\u092F\u093E \u0939\u0948?",
                                 questionEn = "What is minimum uptime requirement?",
                                 options = listOf(
                                     "90%" to "90%",
@@ -241,14 +220,14 @@ object OnboardingState {
                                     "80%" to "80%",
                                 ),
                                 correctIndex = 1,
-                                hintHi = "Connection 95%+ चालू रहना चाहिए",
+                                hintHi = "Connection 95%+ \u091A\u093E\u0932\u0942 \u0930\u0939\u0928\u093E \u091A\u093E\u0939\u093F\u090F",
                                 hintEn = "Connection should be running 95%+",
                             ),
                         ),
                     ),
                     TrainingModule(
                         id = "money_matters",
-                        titleHi = "पैसों की बात",
+                        titleHi = "\u092A\u0948\u0938\u094B\u0902 \u0915\u0940 \u092C\u093E\u0924",
                         titleEn = "Money Matters",
                         subtitleHi = "Commission, TDS, TCS",
                         subtitleEn = "Commission, TDS, TCS",
@@ -256,20 +235,20 @@ object OnboardingState {
                         videoUrl = "",
                         questions = listOf(
                             QuizQuestion(
-                                questionHi = "नए कनेक्शन पर कमीशन कितना है?",
+                                questionHi = "\u0928\u090F \u0915\u0928\u0947\u0915\u094D\u0936\u0928 \u092A\u0930 \u0915\u092E\u0940\u0936\u0928 \u0915\u093F\u0924\u0928\u093E \u0939\u0948?",
                                 questionEn = "Commission on new connection?",
                                 options = listOf(
-                                    "₹150" to "₹150",
-                                    "₹200" to "₹200",
-                                    "₹300" to "₹300",
-                                    "₹500" to "₹500",
+                                    "\u20B9150" to "\u20B9150",
+                                    "\u20B9200" to "\u20B9200",
+                                    "\u20B9300" to "\u20B9300",
+                                    "\u20B9500" to "\u20B9500",
                                 ),
                                 correctIndex = 2,
-                                hintHi = "हर नए कनेक्शन पर ₹300 मिलता है",
-                                hintEn = "You get ₹300 for every new connection",
+                                hintHi = "\u0939\u0930 \u0928\u090F \u0915\u0928\u0947\u0915\u094D\u0936\u0928 \u092A\u0930 \u20B9300 \u092E\u093F\u0932\u0924\u093E \u0939\u0948",
+                                hintEn = "You get \u20B9300 for every new connection",
                             ),
                             QuizQuestion(
-                                questionHi = "Commission payout कब होता है?",
+                                questionHi = "Commission payout \u0915\u092C \u0939\u094B\u0924\u093E \u0939\u0948?",
                                 questionEn = "When is commission payout?",
                                 options = listOf(
                                     "Daily" to "Daily",
@@ -278,7 +257,7 @@ object OnboardingState {
                                     "Quarterly" to "Quarterly",
                                 ),
                                 correctIndex = 1,
-                                hintHi = "हर Monday को bank account में payout होता है",
+                                hintHi = "\u0939\u0930 Monday \u0915\u094B bank account \u092E\u0947\u0902 payout \u0939\u094B\u0924\u093E \u0939\u0948",
                                 hintEn = "Payout happens every Monday to bank account",
                             ),
                         ),
@@ -294,10 +273,10 @@ object OnboardingState {
 
     fun fillAllScreens() {
         isFilledMode = true
-        pitchDismissed = true
         phoneNumber = "9876543210"
         otpDigits = listOf("4", "7", "2", "9")
-        personalName = "राजेश कुमार"
+        tncAccepted = true
+        personalName = "\u0930\u093E\u091C\u0947\u0936 \u0915\u0941\u092E\u093E\u0930"
         personalEmail = "rajesh@email.com"
         entityType = "Individual"
         tradeName = "Rajesh Telecom"
@@ -308,18 +287,14 @@ object OnboardingState {
         aadhaarFrontUploaded = true
         aadhaarBackUploaded = true
         gstUploaded = true
-        bankAccountHolder = "राजेश कुमार"
+        bankAccountHolder = "\u0930\u093E\u091C\u0947\u0936 \u0915\u0941\u092E\u093E\u0930"
         bankName = "State Bank of India"
         bankAccountNumber = "XXXX XXXX 4521"
         bankIfsc = "SBIN0001234"
         bankVerified = true
-        shopPhotoUploaded = true
-        shopFrontPhotoUploaded = true
-        routerPhotoUploaded = true
-        equipmentReviewed = true
-        internetSetupType = "Fiber (FTTH)"
         ispAgreementUploaded = true
-        policyQuizScore = 5
+        shopPhotoUploaded = true
+        equipmentPhotoUploaded = true
         policyQuizPassed = true
         completedModuleIds.clear()
         completedModuleIds.addAll(trainingModules.map { it.id })
@@ -327,11 +302,11 @@ object OnboardingState {
 
     fun emptyAllScreens() {
         isFilledMode = false
-        pitchDismissed = false
         phoneNumber = ""
         otpDigits = listOf("", "", "", "")
         otpTimerSeconds = 30
         otpTimerExpired = false
+        tncAccepted = false
         personalName = ""
         personalEmail = ""
         entityType = ""
@@ -348,15 +323,9 @@ object OnboardingState {
         bankAccountNumber = ""
         bankIfsc = ""
         bankVerified = false
-        shopPhotoUploaded = false
-        shopFrontPhotoUploaded = false
-        routerPhotoUploaded = false
-        equipmentReviewed = false
-        internetSetupType = ""
         ispAgreementUploaded = false
-        verificationRejected = false
-        techAssessmentRejected = false
-        policyQuizScore = 0
+        shopPhotoUploaded = false
+        equipmentPhotoUploaded = false
         policyQuizPassed = false
         completedModuleIds.clear()
         activeTrainingModuleId = null
@@ -404,22 +373,22 @@ object OnboardingState {
     )
 
     val screenMetas = listOf(
-        ScreenMeta("Phase 1", "मोबाइल नंबर", "Mobile Number"),              // 0
-        ScreenMeta("Phase 1", "OTP वेरिफिकेशन", "OTP Verification"),       // 1
-        ScreenMeta("Phase 1", "व्यक्तिगत जानकारी", "Personal Info"),        // 2
-        ScreenMeta("Phase 1", "लोकेशन", "Location"),                        // 3
-        ScreenMeta("Phase 1", "रजिस्ट्रेशन फ़ीस", "Registration Fee"),      // 4
-        ScreenMeta("Phase 2", "KYC दस्तावेज़", "KYC Documents"),             // 5
-        ScreenMeta("Phase 2", "Bank + Dedup Check", "Bank + Dedup"),         // 6
-        ScreenMeta("Phase 2", "ISP अनुबंध", "ISP Agreement"),               // 7
-        ScreenMeta("Phase 2", "फ़ोटो", "Photos"),                           // 8
-        ScreenMeta("Phase 2", "सत्यापन", "Verification"),                   // 9
-        ScreenMeta("Phase 2", "नीतियां और रेट कार्ड", "Policy & Rate Card"), // 10
-        ScreenMeta("Phase 3", "ऑनबोर्डिंग फ़ीस", "Onboarding Fee"),          // 11
-        ScreenMeta("Phase 3", "तकनीकी मूल्यांकन", "Technical Assessment"),   // 12
-        ScreenMeta("Phase 3", "CSP खाता सेटअप", "CSP Account Setup"),        // 13
-        ScreenMeta("Phase 3", "ट्रेनिंग", "Training"),                      // 14
-        ScreenMeta("Phase 3", "Wiom नीति प्रश्नोत्तरी", "Policy Quiz"),      // 15
-        ScreenMeta("Phase 3", "Go Live!", "Go Live!"),                       // 16
+        ScreenMeta("Stage 1", "\u092E\u094B\u092C\u093E\u0907\u0932 \u0928\u0902\u092C\u0930", "Mobile Number"),
+        ScreenMeta("Stage 1", "OTP + T&C", "OTP + T&C"),
+        ScreenMeta("Stage 1", "\u0935\u094D\u092F\u0915\u094D\u0924\u093F\u0917\u0924 \u091C\u093E\u0928\u0915\u093E\u0930\u0940", "Personal Info"),
+        ScreenMeta("Stage 1", "\u0932\u094B\u0915\u0947\u0936\u0928", "Location"),
+        ScreenMeta("Stage 1", "\u0930\u091C\u093F\u0938\u094D\u091F\u094D\u0930\u0947\u0936\u0928 \u092B\u093C\u0940\u0938", "Registration Fee"),
+        ScreenMeta("Stage 2", "KYC \u0926\u0938\u094D\u0924\u093E\u0935\u0947\u091C\u093C", "KYC Documents"),
+        ScreenMeta("Stage 2", "Bank + Dedup Check", "Bank + Dedup"),
+        ScreenMeta("Stage 2", "ISP \u090F\u0917\u094D\u0930\u0940\u092E\u0947\u0902\u091F", "ISP Agreement"),
+        ScreenMeta("Stage 2", "\u0936\u0949\u092A \u0914\u0930 \u0909\u092A\u0915\u0930\u0923 \u092B\u093C\u094B\u091F\u094B", "Shop & Equipment Photos"),
+        ScreenMeta("Stage 2", "\u0938\u0924\u094D\u092F\u093E\u092A\u0928", "Verification"),
+        ScreenMeta("Stage 3", "\u0928\u0940\u0924\u093F, Payout \u0914\u0930 SLA", "Policy, Payout & SLA"),
+        ScreenMeta("Stage 3", "\u0911\u0928\u092C\u094B\u0930\u094D\u0921\u093F\u0902\u0917 \u092B\u093C\u0940\u0938", "Onboarding Fee"),
+        ScreenMeta("Stage 3", "\u0924\u0915\u0928\u0940\u0915\u0940 \u092E\u0942\u0932\u094D\u092F\u093E\u0902\u0915\u0928", "Technical Assessment"),
+        ScreenMeta("Stage 3", "CSP \u0916\u093E\u0924\u093E \u0938\u0947\u091F\u0905\u092A", "CSP Account Setup"),
+        ScreenMeta("Stage 3", "\u091F\u094D\u0930\u0947\u0928\u093F\u0902\u0917", "Training"),
+        ScreenMeta("Stage 3", "\u092A\u0949\u0932\u093F\u0938\u0940 Quiz", "Policy Quiz"),
+        ScreenMeta("Stage 3", "Go Live!", "Go Live!"),
     )
 }

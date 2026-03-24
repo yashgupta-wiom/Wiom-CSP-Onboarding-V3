@@ -739,6 +739,25 @@ fun LoadingOverlay(messageHi: String, messageEn: String, isVisible: Boolean) {
     }
 }
 
+// ─── Loading Overlay (state-driven convenience overload) ────────
+@Composable
+fun LoadingOverlay(message: String = "") {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.5f)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            CircularProgressIndicator(color = WiomPrimary)
+            if (message.isNotBlank()) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(message, color = Color.White, fontSize = 14.sp)
+            }
+        }
+    }
+}
+
 // ─── Upload Row Error ───────────────────────────────────────────
 @Composable
 fun UploadRowError(
@@ -946,5 +965,59 @@ fun ScenarioSimulatorPanel(currentScreen: Int) {
                 Spacer(Modifier.height(8.dp))
             }
         }
+    }
+}
+
+// ─── Field Validation Error ─────────────────────────────────────
+@Composable
+fun FieldValidationError(error: String?) {
+    if (error != null) {
+        Text(
+            text = error,
+            color = WiomNegative,
+            fontSize = 12.sp,
+            lineHeight = 16.sp,
+            modifier = Modifier.padding(start = 4.dp, top = 2.dp, bottom = 8.dp)
+        )
+    }
+}
+
+// ─── Retry Card ─────────────────────────────────────────────────
+@Composable
+fun RetryCard(
+    titleHi: String, titleEn: String,
+    messageHi: String, messageEn: String,
+    onRetry: () -> Unit
+) {
+    WiomCard {
+        Column {
+            Text(t(titleHi, titleEn), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = WiomWarning)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(t(messageHi, messageEn), fontSize = 14.sp, color = WiomText, lineHeight = 20.sp)
+            Spacer(modifier = Modifier.height(12.dp))
+            WiomButton(
+                text = t("फिर से कोशिश करें", "Retry"),
+                onClick = onRetry
+            )
+        }
+    }
+}
+
+// ─── Empty State Card ───────────────────────────────────────────
+@Composable
+fun EmptyStateCard(
+    emoji: String,
+    titleHi: String, titleEn: String,
+    subtitleHi: String, subtitleEn: String
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(emoji, fontSize = 48.sp)
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(t(titleHi, titleEn), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = WiomText, textAlign = TextAlign.Center)
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(t(subtitleHi, subtitleEn), fontSize = 14.sp, color = WiomTextSec, textAlign = TextAlign.Center)
     }
 }

@@ -9,9 +9,9 @@ import com.wiom.csp.data.Scenario
 import com.wiom.csp.data.TrainingModule
 import com.wiom.csp.util.Lang
 import org.json.JSONArray
-import org.json.JSONObject
-import java.io.File
 
+// NOTE: DashboardReceiver uses OnboardingState for prototype testing.
+// In production, replace with proper ViewModel/Repository communication.
 class DashboardReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
@@ -23,14 +23,7 @@ class DashboardReceiver : BroadcastReceiver() {
             }
             "com.wiom.csp.NAVIGATE" -> {
                 val screen = intent.getIntExtra("screen", -1)
-                if (screen == -1) {
-                    // Navigate to Pitch screen
-                    OnboardingState.pitchDismissed = false
-                    OnboardingState.currentScreen = 0
-                } else if (screen in 0 until OnboardingState.TOTAL_SCREENS) {
-                    OnboardingState.pitchDismissed = true
-                    OnboardingState.goTo(screen)
-                }
+                if (screen in 0 until OnboardingState.TOTAL_SCREENS) OnboardingState.goTo(screen)
             }
             "com.wiom.csp.LANG" -> {
                 val lang = intent.getStringExtra("lang") ?: "toggle"
@@ -45,9 +38,6 @@ class DashboardReceiver : BroadcastReceiver() {
                 OnboardingState.currentScreen = 0
                 OnboardingState.verificationRejected = false
                 OnboardingState.techAssessmentRejected = false
-                OnboardingState.pitchDismissed = false
-                OnboardingState.policyQuizScore = 0
-                OnboardingState.policyQuizPassed = false
             }
             "com.wiom.csp.FILL" -> {
                 val mode = intent.getStringExtra("mode") ?: "empty"
@@ -101,11 +91,10 @@ class DashboardReceiver : BroadcastReceiver() {
                 when (action) {
                     "approved" -> {
                         OnboardingState.verificationRejected = false
-                        OnboardingState.goTo(10) // Move to Policy & Rate Card
+                        OnboardingState.goTo(10) // Move to Policy, Payout & SLA
                     }
                     "rejected" -> {
                         OnboardingState.verificationRejected = true
-                        OnboardingState.verificationRejectReasonId = intent.getStringExtra("reason") ?: ""
                         OnboardingState.goTo(9) // Stay on Verification screen, show rejected
                     }
                 }
@@ -115,113 +104,55 @@ class DashboardReceiver : BroadcastReceiver() {
                 when (action) {
                     "approved" -> {
                         OnboardingState.techAssessmentRejected = false
-                        OnboardingState.goTo(13) // Move to Account Setup
+                        OnboardingState.goTo(13) // Move to CSP Account Setup
                     }
                     "rejected" -> {
                         OnboardingState.techAssessmentRejected = true
-                        OnboardingState.goTo(12) // Stay on Tech Assessment, show rejected
+                        OnboardingState.goTo(12) // Stay on Tech Assessment screen, show rejected
                     }
                 }
             }
-            // Keep legacy QA action for backward compatibility
-            "com.wiom.csp.QA" -> {
-                val action = intent.getStringExtra("action") ?: "approved"
-                when (action) {
-                    "approved" -> {
-                        OnboardingState.verificationRejected = false
-                        OnboardingState.goTo(10)
+            "com.wiom.csp.POLICYQUIZ" -> {
+                val configJson = intent.getStringExtra("config") ?: "[]"
+                try {
+                    val arr = JSONArray(configJson)
+                    val questions = mutableListOf<QuizQuestion>()
+                    for (i in 0 until arr.length()) {
+                        val q = arr.getJSONObject(i)
+                        val opts = mutableListOf<Pair<String, String>>()
+                        val oArr = q.getJSONArray("options")
+                        for (k in 0 until oArr.length()) {
+                            val o = oArr.getJSONArray(k)
+                            opts.add(o.getString(0) to o.getString(1))
+                        }
+                        questions.add(QuizQuestion(
+                            questionHi = q.getString("questionHi"),
+                            questionEn = q.getString("questionEn"),
+                            options = opts,
+                            correctIndex = q.getInt("correctIndex"),
+                            hintHi = q.getString("hintHi"),
+                            hintEn = q.getString("hintEn"),
+                        ))
                     }
-                    "rejected" -> {
-                        OnboardingState.verificationRejected = true
-                        OnboardingState.goTo(9)
-                    }
-                }
-            }
-            "com.wiom.csp.DUMP_STATE" -> {
-                val s = OnboardingState
-                val json = JSONObject().apply {
-                    put("currentScreen", s.currentScreen)
-                    put("pitchDismissed", s.pitchDismissed)
-                    put("verificationRejected", s.verificationRejected)
-                    put("verificationRejectReasonId", s.verificationRejectReasonId ?: "")
-                    put("techAssessmentRejected", s.techAssessmentRejected)
-                    put("isFilledMode", s.isFilledMode)
-
-                    // Personal Information
-                    put("personal", JSONObject().apply {
-                        put("phone", s.phoneNumber)
-                        put("name", s.personalName)
-                        put("email", s.personalEmail)
-                        put("entityType", s.entityType)
-                        put("tradeName", s.tradeName)
-                    })
-
-                    // Location Information
-                    put("location", JSONObject().apply {
-                        put("city", s.city)
-                        put("pincode", s.pincode)
-                        put("address", s.address)
-                    })
-
-                    // KYC Documents
-                    put("kyc", JSONObject().apply {
-                        put("panUploaded", s.panUploaded)
-                        put("aadhaarFrontUploaded", s.aadhaarFrontUploaded)
-                        put("aadhaarBackUploaded", s.aadhaarBackUploaded)
-                        put("gstUploaded", s.gstUploaded)
-                    })
-
-                    // Registration Fee
-                    put("registrationFee", JSONObject().apply {
-                        put("amount", 2000)
-                        put("paid", s.currentScreen > 4)
-                    })
-
-                    // Bank Account Details
-                    put("bank", JSONObject().apply {
-                        put("accountHolder", s.bankAccountHolder)
-                        put("bankName", s.bankName)
-                        put("accountNumber", s.bankAccountNumber)
-                        put("ifsc", s.bankIfsc)
-                        put("verified", s.bankVerified)
-                    })
-
-                    // ISP Agreement
-                    put("ispAgreement", JSONObject().apply {
-                        put("uploaded", s.ispAgreementUploaded)
-                    })
-
-                    // Shop Photos
-                    put("shopPhotos", JSONObject().apply {
-                        put("shopFrontPhotoUploaded", s.shopFrontPhotoUploaded)
-                        put("routerPhotoUploaded", s.routerPhotoUploaded)
-                    })
-
-                    // Onboarding Fee
-                    put("onboardingFee", JSONObject().apply {
-                        put("amount", 20000)
-                        put("paid", s.currentScreen > 11)
-                    })
-
-                    // Policy Quiz
-                    put("policyQuiz", JSONObject().apply {
-                        put("score", s.policyQuizScore)
-                        put("passed", s.policyQuizPassed)
-                    })
-
-                    // Active scenario
-                    put("activeScenario", s.activeScenario.name)
-
-                    // Training progress
-                    put("training", JSONObject().apply {
-                        put("totalModules", s.trainingModules.size)
-                        put("completedModules", s.completedModuleIds.size)
-                        put("allCompleted", s.allModulesCompleted())
-                    })
-                }
-
-                val file = File(context.filesDir, "state.json")
-                file.writeText(json.toString(2))
+                    // Policy quiz questions are stored separately — they could be
+                    // consumed by the Screen 15 composable via a dedicated holder.
+                    // For now we expose them through a training module with reserved id.
+                    val policyModule = TrainingModule(
+                        id = "policy_quiz",
+                        titleHi = "\u092A\u0949\u0932\u093F\u0938\u0940 Quiz",
+                        titleEn = "Policy Quiz",
+                        subtitleHi = "\u0928\u0940\u0924\u093F \u0914\u0930 SLA \u092A\u094D\u0930\u0936\u094D\u0928",
+                        subtitleEn = "Policy & SLA Questions",
+                        icon = "\uD83D\uDCCB",
+                        videoUrl = "",
+                        questions = questions,
+                    )
+                    // Replace existing policy_quiz module if present, else add
+                    val idx = OnboardingState.trainingModules.indexOfFirst { it.id == "policy_quiz" }
+                    if (idx >= 0) OnboardingState.trainingModules[idx] = policyModule
+                    else OnboardingState.trainingModules.add(policyModule)
+                    OnboardingState.policyQuizPassed = false
+                } catch (_: Exception) { }
             }
         }
     }

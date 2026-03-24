@@ -306,7 +306,7 @@ body.dash-light .tgl-knob{transform:translateX(16px);background:var(--pri);}
 <!-- TOP BAR -->
 <div class="top-bar">
   <h1>Wiom CSP Onboarding — Interactive Prototype</h1>
-  <div class="step-info" id="stepInfo">Phase 0 — Pre-Entry Gate</div>
+  <div class="step-info" id="stepInfo">Stage 1 — Registration</div>
 </div>
 <div class="progress-strip" id="progressStrip"></div>
 
@@ -316,7 +316,7 @@ body.dash-light .tgl-knob{transform:translateX(16px);background:var(--pri);}
   <div class="left-panel">
     <div class="left-header">
       <span class="lh-title" id="lhTitle">Partner App</span>
-      <span class="lh-phase" id="lhPhase">Screen 1 of 15</span>
+      <span class="lh-phase" id="lhPhase">Screen 1 of 17</span>
     </div>
     <div class="phone-wrap">
       <div class="phone" id="phoneFrame"></div>
@@ -347,8 +347,9 @@ body.dash-light .tgl-knob{transform:translateX(16px);background:var(--pri);}
 
 <script>
 // ===== STATE =====
+let showPitch = true;
 let currentScreen = 0;
-const totalScreens = 15;
+const totalScreens = 17;
 let lang = 'hi'; // 'hi' (default per Wiom guidelines) or 'en'
 function t(hi, en){ return lang==='hi' ? hi : en; }
 function toggleLang(){
@@ -367,7 +368,8 @@ let partnerState = {
   trainingDone:false,live:false,
   status:'new',phase:'Entry'
 };
-let qaRejected = false;
+let verificationRejected = false;
+let techAssessmentRejected = false;
 let activityLog = [];
 let activeScenario = null; // tracks which error/corner case is active
 
@@ -379,22 +381,22 @@ const scenarios = {
   'otp-expired': {screen:1, label:'OTP Expired', icon:'⏰', cat:'registration'},
   // Location & KYC
   'area-not-serviceable': {screen:3, label:'Area Not Serviceable', icon:'📍', cat:'verification'},
-  'kyc-pan-mismatch': {screen:4, label:'PAN Name Mismatch', icon:'🪪', cat:'verification'},
-  'kyc-aadhaar-expired': {screen:4, label:'Aadhaar Expired', icon:'⚠️', cat:'verification'},
-  'kyc-pan-aadhaar-unlinked': {screen:4, label:'PAN-Aadhaar Not Linked', icon:'🔗', cat:'verification'},
+  'kyc-pan-mismatch': {screen:5, label:'PAN Name Mismatch', icon:'🪪', cat:'verification'},
+  'kyc-aadhaar-expired': {screen:5, label:'Aadhaar Expired', icon:'⚠️', cat:'verification'},
+  
   // Payments
-  'regfee-failed': {screen:5, label:'₹2K Payment Failed', icon:'💳', cat:'payment'},
-  'regfee-timeout': {screen:5, label:'₹2K Payment Timeout', icon:'⏳', cat:'payment'},
+  'regfee-failed': {screen:4, label:'₹2K Payment Failed', icon:'💳', cat:'payment'},
+  'regfee-timeout': {screen:4, label:'₹2K Payment Timeout', icon:'⏳', cat:'payment'},
   // Bank & Dedup
-  'bank-pennydrop-fail': {screen:8, label:'Penny Drop Failed', icon:'🏦', cat:'bank'},
-  'bank-name-mismatch': {screen:8, label:'Bank Name Mismatch', icon:'👤', cat:'bank'},
-  'dedup-found': {screen:8, label:'Dedup Match Found', icon:'🔍', cat:'bank'},
+  'bank-pennydrop-fail': {screen:6, label:'Penny Drop Failed', icon:'🏦', cat:'bank'},
+  'bank-name-mismatch': {screen:6, label:'Bank Name Mismatch', icon:'👤', cat:'bank'},
+  'dedup-found': {screen:6, label:'Dedup Match Found', icon:'🔍', cat:'bank'},
   // Agreement & Tech
-  'esign-failed': {screen:9, label:'e-Sign Failed', icon:'✍️', cat:'documentation'},
-  'tech-device-incompatible': {screen:10, label:'Device Incompatible', icon:'📵', cat:'documentation'},
+  'isp-doc-invalid': {screen:7, label:'ISP Doc Invalid', icon:'✍️', cat:'documentation'},
+  'verification-rejected': {screen:9, label:'Verification Rejected', icon:'📵', cat:'documentation'},
   // Onboarding & Training
   'onboardfee-failed': {screen:11, label:'₹20K Payment Failed', icon:'💸', cat:'payment'},
-  'training-quiz-fail': {screen:13, label:'Quiz Failed', icon:'📝', cat:'training'},
+  'training-quiz-fail': {screen:14, label:'Quiz Failed', icon:'📝', cat:'training'},
 };
 
 // Error screen renderers — Wiom-style: no blame, reassuring, benefit-first
@@ -494,7 +496,7 @@ const errorScreens = {
     <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('KYC Documents','KYC Documents')}</span><span class="hright">${t('स्टेप 3/4','Step 3/4')}</span></div>
     <div class="scontent"><div class="pad">
       <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('अपलोड करें — सिस्टम तुरंत वेरीफाई करेगा','Upload — system will verify instantly')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('सभी दस्तावेज़ अपलोड करें — सत्यापन टीम द्वारा जांच होगी','Upload all documents — verification team will review')}</div>
       <div class="upload-row" style="border-color:var(--negative);background:var(--neg-100);"><div><div class="uname">🪪 PAN Card</div><div class="ustatus" style="color:var(--negative);">Name Mismatch ✗</div></div><button class="ubtn" style="border-color:var(--negative);color:var(--negative);">Fix</button></div>
       <div style="background:var(--neg-100);border:1px solid var(--negative);border-radius:var(--r-input);padding:10px 12px;margin-bottom:12px;">
         <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:4px;">${t('PAN नाम मेल नहीं खाता','PAN name does not match')}</div>
@@ -524,26 +526,7 @@ const errorScreens = {
     <div class="bbar"><button class="cta dis">${t('आधार Update करें, फिर आगे बढ़ें','Update Aadhaar, then proceed')}</button></div>
     </div>`,
 
-  'kyc-pan-aadhaar-unlinked': ()=>`
-    <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('KYC Documents','KYC Documents')}</span><span class="hright">${t('स्टेप 3/4','Step 3/4')}</span></div>
-    <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
-      <div class="upload-row verified"><div><div class="uname">📄 PAN Card</div><div class="ustatus" style="color:var(--positive);">Verified ✓</div></div><button class="ubtn done">✓</button></div>
-      <div class="verif" style="padding:2px 12px;"><span class="vi">✓</span> ABCDE1234F — Active</div>
-      <div class="upload-row verified"><div><div class="uname">${t('📄 आधार कार्ड','📄 Aadhaar Card')}</div><div class="ustatus" style="color:var(--positive);">Verified ✓</div></div><button class="ubtn done">✓</button></div>
-      <div class="verif" style="padding:2px 12px;"><span class="vi">✓</span> XXXX XXXX 4521 — Valid</div>
-      <div style="background:var(--neg-100);border:1px solid var(--negative);border-radius:var(--r-input);padding:10px 12px;margin:8px 0 12px;">
-        <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:4px;">${t('🔗 PAN-Aadhaar Link नहीं है','🔗 PAN-Aadhaar is not linked')}</div>
-        <div style="font-size:12px;color:var(--text-sec);line-height:16px;">${t('Income Tax Department के अनुसार PAN और Aadhaar लिंक होना अनिवार्य है।','As per Income Tax Department, PAN and Aadhaar linking is mandatory.')}</div>
-        <div style="font-size:12px;color:var(--text-sec);line-height:16px;margin-top:6px;">${t('👉 incometax.gov.in पर जाकर PAN-Aadhaar लिंक करें','👉 Visit incometax.gov.in to link PAN-Aadhaar')}</div>
-      </div>
-      <div class="upload-row verified"><div><div class="uname">📄 GST Certificate</div><div class="ustatus" style="color:var(--positive);">Verified ✓</div></div><button class="ubtn done">✓</button></div>
-    </div>
-    <div class="bbar"><button class="cta dis">${t('PAN-Aadhaar लिंक करें, फिर आगे बढ़ें','Link PAN-Aadhaar, then proceed')}</button></div>
-    </div>`,
-
-  'regfee-failed': ()=>`
+    'regfee-failed': ()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
     <div class="hdr"><span class="htitle">${t('भुगतान स्टेटस','Payment Status')}</span></div>
     <div class="scontent"><div class="pad" style="text-align:center;">
@@ -563,7 +546,6 @@ const errorScreens = {
     </div>
     <div class="bbar">
       <button class="cta" onclick="clearScenario()">${t('दोबारा भुगतान करें','Retry Payment')}</button>
-      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('बाद में करें — होम पर जाएं','Do it later — go to Home')}</button>
     </div>
     </div>`,
 
@@ -654,61 +636,68 @@ const errorScreens = {
     </div>
     </div>`,
 
-  'esign-failed': ()=>`
+  'isp-doc-invalid': ()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('पार्टनर एग्रीमेंट','Partner Agreement')}</span><span class="hright">${t('स्टेप 7','Step 7')}</span></div>
+    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('ISP अनुबंध','ISP Agreement')}</span><span class="hright">${t('स्टेप 3/5','Step 3/5')}</span></div>
     <div class="scontent"><div class="pad" style="text-align:center;">
-      <div style="font-size:40px;margin:16px 0;">✍️</div>
-      <div style="font-size:20px;font-weight:700;color:var(--warn-700);line-height:28px;">${t('e-Sign नहीं हो पाया','e-Sign could not be completed')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('चिंता न करें — दोबारा try कर सकते हैं','Don\'t worry — you can try again')}</div>
-      <div class="card" style="text-align:left;border-color:var(--warning);background:var(--warn-200);">
-        <div style="font-size:12px;font-weight:700;color:var(--warn-700);margin-bottom:4px;">⚠️ Aadhaar e-Sign Connection Error</div>
-        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('UIDAI सर्वर से कनेक्शन में दिक़्क़त हुई। यह कभी-कभी होता है।','There was a connection issue with the UIDAI server. This happens sometimes.')}</div>
+      <div style="font-size:40px;margin:16px 0;">📄</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('ISP अनुबंध अमान्य है','ISP Agreement Invalid')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('चिंता न करें — सही दस्तावेज़ अपलोड करें','Don\'t worry — upload the correct document')}</div>
+      <div class="card" style="text-align:left;border-color:var(--negative);background:var(--neg-100);">
+        <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:4px;">❌ ${t('दस्तावेज़ अमान्य','Document Invalid')}</div>
+        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('कृपया सही ISP अनुबंध अपलोड करें — DOT अनुपालन के लिए यह अनिवार्य है।','Please upload a valid ISP Agreement — this is mandatory for DOT compliance.')}</div>
       </div>
-      <div class="card" style="text-align:left;">
-        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;">${t('ये करें:','Try this:')}</div>
-        <div style="font-size:14px;color:var(--text-sec);line-height:22px;">
-          ${t('1. इंटरनेट कनेक्शन चेक करें','1. Check your internet connection')}<br>
-          ${t('2. 2-3 मिनट इंतज़ार करें','2. Wait 2-3 minutes')}<br>
-          ${t('3. दोबारा e-Sign try करें','3. Try e-Sign again')}
-        </div>
-      </div>
-      <div class="ibox ibox-p" style="text-align:left;"><span class="ii">📞</span><span>${t('बार-बार fail हो रहा? हमसे बात करें','Failing repeatedly? Talk to us')}</span></div>
     </div>
-    <div class="bbar">
-      <button class="cta" onclick="clearScenario()">${t('दोबारा e-Sign करें','Retry e-Sign')}</button>
-      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('हमसे बात करें','Talk to us')}</button>
-    </div>
+    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('दोबारा अपलोड करें','Re-upload')}</button></div>
     </div>`,
 
-  'tech-device-incompatible': ()=>`
+  'verification-rejected': ()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="htitle">${t('Technical Review','Technical Review')}</span></div>
+    <div class="hdr"><span class="htitle">${t('सत्यापन','Verification')}</span></div>
     <div class="scontent"><div class="pad" style="text-align:center;">
-      <div style="font-size:40px;margin:8px 0;">📵</div>
-      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('Device Compatible नहीं है','Device is not compatible')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin:4px 0 16px;line-height:20px;">${t('चिंता न करें — solution है','Don\'t worry — there is a solution')}</div>
-    </div>
-    <div class="pad" style="padding-top:0;">
-      <div class="card" style="border-color:var(--negative);background:var(--neg-100);">
-        <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:8px;">DEVICE CHECK FAILED</div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--hint);">Device</span><b>Samsung Galaxy J2 Core</b></div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--hint);">Android</span><b style="color:var(--negative);">8.1 (Min: 11)</b></div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--hint);">RAM</span><b style="color:var(--negative);">1 GB (Min: 3 GB)</b></div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span style="color:var(--hint);">Wiom OS</span><b style="color:var(--negative);">Not Supported</b></div>
+      <div style="font-size:40px;margin:16px 0;">😔</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('प्रोफ़ाइल अभी स्वीकृत नहीं हुई','Profile not accepted yet')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('चिंता न करें — आपका पैसा सुरक्षित है','Don\'t worry — your money is safe')}</div>
+      <div class="card" style="text-align:left;border-color:var(--positive);background:var(--pos-100);">
+        <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">🔒 ${t('रिफंड शुरू हो गया','Refund initiated')}</div>
+        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('₹2,000 5-7 कार्य दिवसों में वापस होंगे','₹2,000 will be credited in 5-7 working days')}</div>
       </div>
-      <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--info);margin-bottom:8px;">${t('📱 RECOMMENDED DEVICES','📱 RECOMMENDED DEVICES')}</div>
-        <div style="font-size:14px;color:var(--text-sec);line-height:22px;">
-          ✓ Samsung Galaxy M34 / M14<br>
-          ✓ Redmi Note 12 / 13<br>
-          ✓ Realme Narzo 60x<br>
-          ✓ ${t('Any Android 11+ with 3GB+ RAM','Any Android 11+ with 3GB+ RAM')}
-        </div>
-      </div>
-      <div class="ibox ibox-p"><span class="ii">💡</span><span>${t('नया device लेने के बाद यही step से continue कर सकते हैं','After getting a new device, you can continue from this same step')}</span></div>
     </div>
-    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('Device बदलकर Retry करें','Change Device and Retry')}</button></div>
+    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('ठीक है','OK')}</button></div>
+    </div>`,
+
+  'tech-assessment-rejected': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('तकनीकी मूल्यांकन','Technical Assessment')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:40px;margin:16px 0;">😔</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('तकनीकी मूल्यांकन पास नहीं हुआ','Technical Assessment not passed')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('चिंता न करें — आपका पैसा सुरक्षित है','Don\'t worry — your money is safe')}</div>
+      <div class="card" style="text-align:left;border-color:var(--positive);background:var(--pos-100);">
+        <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">🔒 ${t('रिफंड शुरू हो गया','Refund initiated')}</div>
+        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('₹20,000 5-7 कार्य दिवसों में वापस होंगे','₹20,000 will be credited in 5-7 working days')}</div>
+      </div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('ठीक है','OK')}</button></div>
+    </div>`,
+
+  'policy-quiz-fail': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('Wiom नीति प्रश्नोत्तरी','Wiom Policy Quiz')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:40px;margin:16px 0;">📝</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('प्रश्नोत्तरी पास नहीं हुई','Quiz not passed')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('चिंता न करें — मॉड्यूल दोबारा देखें और फिर से कोशिश करें','Don\'t worry — review modules and try again')}</div>
+      <div class="card" style="text-align:center;border-color:var(--negative);background:var(--neg-100);">
+        <div style="font-size:14px;font-weight:700;color:var(--negative);">${t('स्कोर','Score')}: 2/5 (40%)</div>
+        <div style="font-size:12px;color:var(--text-sec);margin-top:4px;">${t('पास होने के लिए 80% चाहिए','80% required to pass')}</div>
+        <div class="pbar" style="margin:8px 0;"><div class="fill" style="width:40%;background:var(--negative);"></div></div>
+      </div>
+    </div>
+    <div class="bbar">
+      <button class="cta" onclick="clearScenario()">${t('मॉड्यूल दोबारा देखें','Review Modules')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('फिर से प्रश्नोत्तरी दें','Retake Quiz')}</button>
+    </div>
     </div>`,
 
   'onboardfee-failed': ()=>`
@@ -731,7 +720,6 @@ const errorScreens = {
     </div>
     <div class="bbar">
       <button class="cta" onclick="clearScenario()">${t('दोबारा भुगतान करें','Retry Payment')}</button>
-      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('बाद में करें — होम पर जाएं','Do it later — go to Home')}</button>
     </div>
     </div>`,
 
@@ -812,7 +800,7 @@ function toast(msg,type='g'){
 // ===== SCREENS =====
 const screens = [
   // 0: Phone Entry
-  {phase:'Phase 1',title:'मोबाइल नंबर',
+  {phase:'Stage 1',title:'फ़ोन नंबर',
    solves:['Phone-based registration'],
    types:[{label:'User Entry',cls:'user-entry',icon:'✏️'}],
    render:()=>`
@@ -821,7 +809,7 @@ const screens = [
     <div class="scontent"><div class="pad">
       <div style="text-align:center;padding:24px 0 8px;">
         <div style="font-size:32px;margin-bottom:8px;">&#129309;</div>
-        <div style="font-size:24px;font-weight:700;color:var(--text);line-height:32px;">${t('पार्टनर बनें','Become a Partner')}</div>
+        <div style="font-size:24px;font-weight:700;color:var(--text);line-height:32px;">${t('Wiom पार्टनर बनें','Become a Wiom Partner')}</div>
         <div style="font-size:14px;color:var(--text-sec);margin-top:4px;line-height:20px;">${t('Wiom के साथ अपना बिज़नेस शुरू करें','Start your business with Wiom')}</div>
       </div>
       <div style="height:24px;"></div>
@@ -829,383 +817,325 @@ const screens = [
       <div class="phone-inp-wrap"><span class="phone-prefix">+91</span><input class="finp" type="tel" maxlength="10" value="9876543210" placeholder="${t('10 अंकों का नंबर','10 digit number')}"></div>
       <div class="ibox ibox-p"><span class="ii">&#128274;</span><span>${t('OTP आपके नंबर पर भेजा जाएगा','OTP will be sent to your number')}</span></div>
     </div>
-    <div class="bbar"><button class="cta" onclick="next()">${t('OTP भेजें','Send OTP')}</button></div>
+    <div class="bbar"><div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;"><div class="chk-box checked" style="width:18px;height:18px;border-radius:4px;font-size:10px;">&#10003;</div><span style="font-size:11px;color:var(--text-sec);line-height:14px;">${t('मैं','I accept the')} <span style="color:var(--pri);text-decoration:underline;cursor:pointer;">${t('नियम व शर्तें','Terms & Conditions')}</span> ${t('स्वीकार करता/करती हूँ','')}</span></div><button class="cta" onclick="next()">${t('OTP भेजें','Send OTP')}</button></div>
     </div>`},
 
-  // 1: OTP
-  {phase:'Phase 1',title:'OTP वेरिफिकेशन',
+  // 1: OTP + T&C
+  {phase:'Stage 1',title:'OTP सत्यापन',
    solves:['Phone verification'],
    types:[{label:'User Entry',cls:'user-entry',icon:'✏️'},{label:'System Verify',cls:'sys-check',icon:'⚡'}],
    render:()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('OTP वेरीफाई','Verify OTP')}</span></div>
-    <div class="scontent"><div class="pad" style="text-align:center;">
-      <div style="height:16px;"></div>
-      <div style="font-size:20px;font-weight:700;color:var(--text);line-height:28px;">${t('OTP डालें','Enter OTP')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin-top:4px;line-height:20px;">${t('+91 98765 43210 पर भेजा गया','Sent to +91 98765 43210')}</div>
-      <div class="otp-row"><input class="otp-box filled" type="text" maxlength="1" value="4" style="text-align:center;border:2px solid var(--border-focus);font:700 20px/1 inherit;color:var(--text);outline:none;"><input class="otp-box filled" type="text" maxlength="1" value="7" style="text-align:center;border:2px solid var(--border-focus);font:700 20px/1 inherit;color:var(--text);outline:none;"><input class="otp-box filled" type="text" maxlength="1" value="2" style="text-align:center;border:2px solid var(--border-focus);font:700 20px/1 inherit;color:var(--text);outline:none;"><input class="otp-box filled" type="text" maxlength="1" value="9" style="text-align:center;border:2px solid var(--border-focus);font:700 20px/1 inherit;color:var(--text);outline:none;"></div>
-      <div style="font-size:12px;color:var(--hint);margin-top:8px;line-height:16px;">${t('OTP दोबारा भेजें','Resend OTP in')} <b>28s</b></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('OTP सत्यापन','Verify OTP')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="text-align:center;">
+        <div style="font-size:20px;font-weight:700;color:var(--text);line-height:28px;">${t('OTP डालें','Enter OTP')}</div>
+        <div style="font-size:14px;color:var(--text-sec);margin-top:4px;line-height:20px;">${t('+91 98765 43210 पर भेजा गया','Sent to +91 98765 43210')}</div>
+        <div class="otp-row"><input class="otp-box filled" type="text" maxlength="1" value="4" style="text-align:center;border:2px solid var(--border-focus);font:700 20px/1 inherit;color:var(--text);outline:none;"><input class="otp-box filled" type="text" maxlength="1" value="7" style="text-align:center;border:2px solid var(--border-focus);font:700 20px/1 inherit;color:var(--text);outline:none;"><input class="otp-box filled" type="text" maxlength="1" value="2" style="text-align:center;border:2px solid var(--border-focus);font:700 20px/1 inherit;color:var(--text);outline:none;"><input class="otp-box filled" type="text" maxlength="1" value="9" style="text-align:center;border:2px solid var(--border-focus);font:700 20px/1 inherit;color:var(--text);outline:none;"></div>
+        <div style="font-size:12px;color:var(--hint);margin-top:8px;">${t('OTP दोबारा भेजें','Resend OTP in')} <b>28s</b></div>
+      </div>
     </div>
-    <div class="bbar"><button class="cta" onclick="next()">${t('वेरीफाई करें','Verify')}</button></div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('सत्यापित करें','Verify')}</button></div>
     </div>`},
 
-  // 2: Personal & Business
-  {phase:'Phase 1',title:'व्यक्तिगत जानकारी',
+  // 2: Personal & Business Info
+  {phase:'Stage 1',title:'व्यक्तिगत जानकारी',
    solves:['Partner profile creation'],
    types:[{label:'User Entry',cls:'user-entry',icon:'✏️'}],
    render:()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('रजिस्ट्रेशन','Registration')}</span><span class="hright">${t('स्टेप 1/4','Step 1/4')}</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('पंजीकरण','Registration')}</span><span class="hright">${t('स्टेप 1/3','Step 1/3')}</span></div>
     <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('व्यक्तिगत जानकारी','Personal Information')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('आपकी पहचान और बिज़नेस की जानकारी','Your identity and business information')}</div>
-      <div class="lbl">${t('पूरा नाम (आधार अनुसार)','Full Name (as per Aadhaar)')}</div><input class="finp" type="text" value="${t('राजेश कुमार','Rajesh Kumar')}" placeholder="${t('राम कुमार','Ram Kumar')}">
-      <div class="lbl">${t('ईमेल','Email')}</div><input class="finp" type="email" value="rajesh@email.com" placeholder="name@email.com">
-      <div class="lbl">${t('बिज़नेस प्रकार','Entity Type')}</div><select class="finp" onchange="partnerState.entityType=this.value"><option value="Individual" selected>${t('व्यक्तिगत','Individual')}</option><option value="Proprietorship">${t('प्रोप्राइटरशिप','Proprietorship')}</option><option value="Partnership">${t('पार्टनरशिप','Partnership')}</option><option value="Pvt Ltd">${t('प्राइवेट लिमिटेड','Pvt Ltd')}</option><option value="LLP">LLP</option></select>
-      <div class="lbl">${t('व्यापार नाम','Trade Name')}</div><input class="finp" type="text" value="Rajesh Telecom" placeholder="${t('आपकी दुकान/बिज़नेस का नाम','Your shop/business name')}">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('व्यक्तिगत और व्यापार जानकारी','Personal & Business Info')}</div>
+      <div class="lbl">${t('पूरा नाम (आधार अनुसार)','Full Name (as per Aadhaar)')}</div><input class="finp" type="text" value="${t('राजेश कुमार','Rajesh Kumar')}">
+      <div class="lbl">${t('ईमेल','Email')}</div><input class="finp" type="email" value="rajesh@email.com">
+      <div class="lbl">${t('व्यापार प्रकार','Entity Type')}</div><select class="finp"><option selected>${t('व्यक्तिगत','Individual')}</option></select>
+      <div class="lbl">${t('व्यापार का नाम','Trade Name')}</div><input class="finp" type="text" value="Rajesh Telecom">
     </div>
-    <div class="bbar"><button class="cta" onclick="next()">${t('अब लोकेशन बताइए','Next: Location')}</button></div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('अब स्थान बताइए','Next: Location')}</button></div>
     </div>`},
 
-  // 3: Location
-  {phase:'Phase 1',title:'लोकेशन',
+  // 3: Business Location
+  {phase:'Stage 1',title:'व्यापार स्थान',
    solves:['Location data collection'],
    types:[{label:'User Entry',cls:'user-entry',icon:'✏️'}],
-   deferred:['#7 Serviceability check','#6 Density/demand assessment'],
    render:()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('रजिस्ट्रेशन','Registration')}</span><span class="hright">${t('स्टेप 2/4','Step 2/4')}</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('पंजीकरण','Registration')}</span><span class="hright">${t('स्टेप 2/3','Step 2/3')}</span></div>
     <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('लोकेशन जानकारी','Location Information')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('आपकी दुकान/ऑफिस की लोकेशन','Your shop/office location')}</div>
-      <div class="lbl">${t('राज्य','State')}</div><select class="finp"><option value="">${t('राज्य चुनें','Select State')}</option><option value="MP" selected>Madhya Pradesh</option><option value="MH">Maharashtra</option><option value="RJ">Rajasthan</option><option value="UP">Uttar Pradesh</option><option value="GJ">Gujarat</option><option value="CG">Chhattisgarh</option><option value="DL">Delhi</option><option value="KA">Karnataka</option><option value="TN">Tamil Nadu</option></select>
-      <div class="lbl">${t('शहर','City')}</div><input class="finp" type="text" value="Indore" placeholder="${t('शहर का नाम','City name')}">
-      <div class="lbl">${t('पिनकोड','Pincode')}</div><input class="finp" type="tel" maxlength="6" value="452010" placeholder="${t('6 अंकों का पिनकोड','6-digit pincode')}">
-      <div class="lbl">${t('पूरा पता','Full Address')}</div><textarea class="finp" placeholder="${t('मकान नं, गली, मोहल्ला','House no, street, locality')}">123, Vijay Nagar, Indore</textarea>
-      <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
-        <span class="trust-badge">&#128205; ${t('GPS कैप्चर हुआ','GPS Captured')}</span>
-        <span style="font-size:12px;color:var(--hint);">22.71° N, 75.85° E</span>
-      </div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('व्यापार स्थान','Business Location')}</div>
+      <div class="lbl">${t('राज्य','State')}</div><select class="finp"><option selected>${t('मध्य प्रदेश','Madhya Pradesh')}</option></select>
+      <div class="lbl">${t('शहर','City')}</div><input class="finp" type="text" value="Indore">
+      <div class="lbl">${t('पिनकोड','Pincode')}</div><input class="finp" type="tel" maxlength="6" value="452010">
+      <div class="lbl">${t('पूरा पता','Full Address')}</div><textarea class="finp">123, Vijay Nagar, Indore</textarea>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px;"><span class="trust-badge">&#128205; ${t('GPS कैप्चर हुआ','GPS Captured')}</span><span style="font-size:12px;color:var(--hint);">22.71° N, 75.85° E</span></div>
     </div>
-    <div class="bbar"><button class="cta" onclick="next()">${t('अब KYC दस्तावेज़ दें','Next: KYC Documents')}</button></div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('अब पंजीकरण शुल्क भरें','Next: Registration Fee')}</button></div>
     </div>`},
 
-  // 4: KYC Documents
-  {phase:'Phase 1',title:'KYC दस्तावेज़',
-   solves:['#3 PAN/GST validation','#2 Doc verification','#N4 PAN-Aadhaar link','#N5 Auto KYC'],
-   types:[{label:'User Upload',cls:'user-action',icon:'📤'},{label:'System Auto-Verify',cls:'sys-check',icon:'⚡'}],
+  // 4: Registration Fee ₹2,000
+  {phase:'Stage 1',title:'पंजीकरण शुल्क',
+   solves:['Registration fee collection'],
+   types:[{label:'User Action',cls:'user-action',icon:'💳'}],
    render:()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('KYC दस्तावेज़','KYC Documents')}</span><span class="hright">${t('स्टेप 3/4','Step 3/4')}</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('पंजीकरण','Registration')}</span></div>
     <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('अपलोड करें — सिस्टम तुरंत वेरीफाई करेगा','Upload — system will verify instantly')}</div>
-      <div id="kyc-pan" class="upload-row verified" onclick="toggleKyc('pan')"><div><div class="uname">&#128196; ${t('PAN कार्ड','PAN Card')}</div><div class="ustatus" style="color:var(--positive);" id="kyc-pan-st">${t('वेरीफाइड','Verified')} &#10003;</div></div><button class="ubtn done" id="kyc-pan-btn">&#10003;</button></div>
-      <div id="kyc-aadhaar" class="upload-row verified" onclick="toggleKyc('aadhaar')"><div><div class="uname">&#128196; ${t('आधार कार्ड','Aadhaar Card')}</div><div class="ustatus" style="color:var(--positive);" id="kyc-aadhaar-st">${t('वेरीफाइड','Verified')} &#10003;</div></div><button class="ubtn done" id="kyc-aadhaar-btn">&#10003;</button></div>
-      <div id="kyc-gst" class="upload-row verified" onclick="toggleKyc('gst')"><div><div class="uname">&#128196; ${t('GST प्रमाणपत्र','GST Certificate')}</div><div class="ustatus" style="color:var(--positive);" id="kyc-gst-st">${t('वेरीफाइड','Verified')} &#10003;</div></div><button class="ubtn done" id="kyc-gst-btn">&#10003;</button></div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:12px;">${t('पंजीकरण शुल्क','Registration Fee')}</div>
+      <div class="amt-box"><div class="amt">₹2,000</div><div class="amt-lbl">${t('पंजीकरण शुल्क','Registration Fee')}</div></div>
+      <div class="card" style="background:#fff;"><div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;">ℹ️ ${t('जरूरी जानकारी','Important Information')}</div><div style="font-size:14px;color:var(--text);line-height:20px;">${t('शुल्क भुगतान के बाद सत्यापन प्रक्रिया शुरू होगी।','Verification process will start after fee payment.')}</div><div style="margin-top:8px;"><span class="trust-badge">&#128274; ${t('रिजेक्ट होने पर पूरा रिफंड','Full refund if rejected')}</span></div></div>
+      <div class="ibox ibox-p"><span class="ii">&#128176;</span><span>${t('शुल्क भुगतान के बाद आपके दस्तावेज़ जमा किए जाएंगे','Your documents will be collected after fee payment')}</span></div>
     </div>
-    <div class="bbar"><button class="cta" onclick="next()">${t('अब रजिस्ट्रेशन फ़ीस भरें','Next: Registration Fee')}</button></div>
+    <div class="bbar"><button class="cta" onclick="next()">₹2,000 ${t('भुगतान करें','Pay Now')}</button></div>
     </div>`},
 
-  // 5: Registration Fee ₹2,000
-  {phase:'Phase 1',title:'रजिस्ट्रेशन फ़ीस',
-   solves:['Registration fee collection','#13 Payment reconciliation'],
-   types:[{label:'User Action',cls:'user-action',icon:'💳'},{label:'System Auto',cls:'sys-gen',icon:'🤖'}],
-   render:()=>`
-    <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('रजिस्ट्रेशन फ़ीस','Registration Fee')}</span><span class="hright">${t('स्टेप 4/4','Step 4/4')}</span></div>
-    <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;line-height:28px;">${t('रजिस्ट्रेशन फ़ीस','Registration Fee')}</div>
-      <div class="amt-box">
-        <div class="amt">&#8377;2,000</div>
-        <div class="amt-lbl">${t('रजिस्ट्रेशन फ़ीस','Registration Fee')}</div>
-      </div>
-      <div class="card" style="font-size:14px;color:var(--text-sec);line-height:20px;">
-        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;">&#9432; ${t('जरूरी जानकारी','Important Information')}</div>
-        ${t('भुगतान के बाद आपकी profile Business/QA team द्वारा review की जाएगी।','After payment, your profile will be reviewed by the Business/QA team.')}<br><br>
-        <span class="trust-badge" style="margin-top:4px;">&#128274; ${t('Reject होने पर full refund मिलेगा','Full refund if rejected')}</span>
-      </div>
-      <div class="ibox ibox-p"><span class="ii">&#128176;</span><span>${t('फ़ीस के बाद QA investigation शुरू होगी','QA investigation will start after fee payment')}</span></div>
-    </div>
-    <div class="bbar"><button class="cta" onclick="next()">&#8377;2,000 ${t('भुगतान करें','Pay Now')}</button></div>
-    </div>`},
-
-  // 6: QA Investigation
-  {phase:'Phase 2',title:'QA Investigation',
-   solves:['Business/QA verification','Profile quality check'],
-   types:[{label:'Wiom Decision',cls:'wiom-decision',icon:'🏢'},{label:'Business/QA Team',cls:'wiom-decision',icon:'👁️'}],
+  // 5: KYC Documents
+  {phase:'Stage 2',title:'KYC दस्तावेज़',
+   solves:['PAN/GST validation','Doc verification'],
+   types:[{label:'User Upload',cls:'user-action',icon:'📤'}],
    render:()=>{
-    if(qaRejected){
-      return `
-      <div class="sbar"><span>9:41</span><span>100%</span></div>
-      <div class="hdr"><span class="htitle">${t('Application स्टेटस','Application Status')}</span></div>
-      <div class="scontent"><div class="pad" style="text-align:center;">
-        <div style="font-size:40px;margin:16px 0;">&#128532;</div>
-        <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('Profile अभी स्वीकार नहीं हुई','Profile not accepted yet')}</div>
-        <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('चिंता न करें — आपका पैसा सुरक्षित है','Don\'t worry — your money is safe')}</div>
-        <div class="card" style="text-align:left;border-color:var(--negative);background:var(--neg-100);">
-          <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:8px;">${t('कारण','Reason')}</div>
-          <div style="font-size:14px;color:var(--text);line-height:20px;">${t('Location इस समय service area में नहीं है। Area infrastructure तैयार होने पर दोबारा apply कर सकते हैं।','Location is not in the service area currently. You can re-apply once area infrastructure is ready.')}</div>
-        </div>
-        <div class="card" style="text-align:left;border-color:var(--positive);background:var(--pos-100);">
-          <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:8px;">&#128274; ${t('Refund शुरू हो गया','Refund initiated')}</div>
-          <div style="font-size:14px;color:var(--text);line-height:20px;">${t('₹2,000 आपके bank account में 5-7 working days में आ जाएगा।','₹2,000 will be credited to your bank account in 5-7 working days.')}</div>
-          <div style="font-size:12px;color:var(--hint);margin-top:4px;">Ref: RFD-2026-0042</div>
-        </div>
-        <div class="ibox ibox-p" style="text-align:left;"><span class="ii">&#128276;</span><span>${t('जब area तैयार हो, तो दोबारा apply कर सकते हैं।','You can re-apply when the area is ready.')}</span></div>
-        <div style="height:12px;"></div>
-        <button class="cta sec" onclick="qaRejected=false;renderPhone();" style="font-size:14px;">&#8592; ${t('Approved Path देखें','View Approved Path')}</button>
-      </div></div>`;
-    }
+    const allDone = window.kycPan && window.kycAadhaarF && window.kycAadhaarB && window.kycGst;
     return `
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="htitle">${t('Application स्टेटस','Application Status')}</span></div>
-    <div class="scontent"><div class="pad" style="text-align:center;">
-      <div style="font-size:40px;margin:16px 0;">&#128269;</div>
-      <div style="font-size:20px;font-weight:700;color:var(--text);line-height:28px;">${t('Investigation चल रही है','Investigation in progress')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('Business/QA team आपकी profile चेक कर रही है','Business/QA team is reviewing your profile')}</div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('KYC दस्तावेज़','KYC Documents')}</span><span class="hright">${t('स्टेप 1/5','Step 1/5')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('सभी दस्तावेज़ अपलोड करें — सत्यापन टीम द्वारा जांच होगी','Upload all documents — verification team will review')}</div>
+      <div class="upload-row ${window.kycPan?'verified':''}" onclick="window.kycPan=!window.kycPan;renderPhone();"><div><div class="uname">🪪 ${t('PAN कार्ड','PAN Card')}</div><div class="ustatus" style="color:${window.kycPan?'var(--positive)':'var(--hint)'};">${window.kycPan?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycPan?'done':''}">${window.kycPan?'✓':t('अपलोड','Upload')}</button></div>
+      <div class="upload-row ${window.kycAadhaarF?'verified':''}" onclick="window.kycAadhaarF=!window.kycAadhaarF;renderPhone();"><div><div class="uname">📄 ${t('आधार कार्ड — सामने','Aadhaar — Front')}</div><div class="ustatus" style="color:${window.kycAadhaarF?'var(--positive)':'var(--hint)'};">${window.kycAadhaarF?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycAadhaarF?'done':''}">${window.kycAadhaarF?'✓':t('अपलोड','Upload')}</button></div>
+      <div class="upload-row ${window.kycAadhaarB?'verified':''}" onclick="window.kycAadhaarB=!window.kycAadhaarB;renderPhone();"><div><div class="uname">📄 ${t('आधार कार्ड — पीछे','Aadhaar — Back')}</div><div class="ustatus" style="color:${window.kycAadhaarB?'var(--positive)':'var(--hint)'};">${window.kycAadhaarB?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycAadhaarB?'done':''}">${window.kycAadhaarB?'✓':t('अपलोड','Upload')}</button></div>
+      <div class="upload-row ${window.kycGst?'verified':''}" onclick="window.kycGst=!window.kycGst;renderPhone();"><div><div class="uname">📋 ${t('GST प्रमाणपत्र','GST Certificate')}</div><div class="ustatus" style="color:${window.kycGst?'var(--positive)':'var(--hint)'};">${window.kycGst?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycGst?'done':''}">${window.kycGst?'✓':t('अपलोड','Upload')}</button></div>
+      <div class="ibox ibox-p" style="margin-top:12px;"><span class="ii">💡</span><span>${t('साफ़ फ़ोटो लें — सारे अक्षर दिखने चाहिए','Take a clear photo — all text must be visible')}</span></div>
     </div>
-    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('फ़ोन वेरीफाइड','Phone Verified')}</div></div></div>
-    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('व्यक्तिगत जानकारी','Personal Information')}</div></div></div>
-    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('लोकेशन सबमिट','Location Submitted')}</div></div></div>
-    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('KYC दस्तावेज़ वेरीफाइड','KYC Documents Verified')}</div></div></div>
-    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('₹2,000 रजिस्ट्रेशन फ़ीस','₹2,000 Registration Fee')}</div></div></div>
-    <div class="cl-item" style="border:none;"><div class="cl-icon wait">&#8943;</div><div><div class="cl-text">QA Investigation</div><div class="cl-sub" style="color:var(--warn-700);">${t('Business/QA team review कर रही है...','Business/QA team is reviewing...')}</div></div></div>
-    <div class="pad">
-      <div class="ibox ibox-o"><span class="ii">&#9203;</span><span>${t('Review में 2-3 business days लग सकते हैं। Notification मिलेगा।','Review may take 2-3 business days. You will be notified.')}</span></div>
-      <div style="height:16px;"></div>
-      <div style="font-size:10px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;text-align:center;">SIMULATE QA DECISION</div>
-      <button class="cta" onclick="next()" style="background:var(--positive);margin-bottom:8px;box-shadow:0 4px 12px rgba(27,191,93,0.3);">&#10003; ${t('QA Approved → Documentation Phase','QA Approved → Documentation Phase')}</button>
-      <button class="cta sec" onclick="qaRejected=true;renderPhone();addLog('QA REJECTED — Refund initiated','rejection');toast('Profile rejected. Refund initiated.','r');" style="color:var(--negative);background:var(--neg-100);border:1px solid var(--negative);box-shadow:none;">&#10007; ${t('QA Rejected → Refund','QA Rejected → Refund')}</button>
-    </div>
-    </div>`;
-   }},
+    <div class="bbar"><button class="cta ${allDone?'':'dis'}" ${allDone?'onclick="next()"':''}>${allDone?t('अब बैंक विवरण दें','Next: Bank Details'):t('सभी दस्तावेज़ अपलोड करें','Upload all documents')}</button></div>
+    </div>`;}},
 
-  // 7: Policy + Rate Card
-  {phase:'Phase 2',title:'Policy + Rate Card',
-   solves:['#9 Commission clarity','#10 SLA awareness','Partner expectation setting'],
-   types:[{label:'User Action',cls:'user-action',icon:'📖'},{label:'Quiz Verify',cls:'sys-check',icon:'✅'}],
+  // 6: Bank Details
+  {phase:'Stage 2',title:'बैंक विवरण',
+   solves:['Bank verification','Dedup check'],
+   types:[{label:'User Entry',cls:'user-entry',icon:'✏️'},{label:'System Verify',cls:'sys-check',icon:'⚡'}],
    render:()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('नीतियां और रेट कार्ड','Policy & Rate Card')}</span><span class="hright">${t('स्टेप 5','Step 5')}</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('बैंक विवरण','Bank Details')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
     <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('नीतियां और कमीशन','Policies & Commission')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('QA Approved ✓ — अब policies समझें','QA Approved ✓ — now review policies')}</div>
-      <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">${t('कमीशन संरचना','COMMISSION STRUCTURE')}</div>
-        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:20px;"><span style="color:var(--text-sec);">${t('नया कनेक्शन','New Connection')}</span><b style="color:var(--positive);">₹300/${t('कनेक्शन','conn')}</b></div>
-        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;line-height:20px;"><span style="color:var(--text-sec);">${t('रिचार्ज कमीशन','Recharge Commission')}</span><b style="color:var(--positive);">₹300</b></div>
-      </div>
-      <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">${t('SLA शर्तें','SLA TERMS')}</div>
-        <div style="font-size:14px;color:var(--text-sec);line-height:22px;">
-          &#8226; ${t('ग्राहक शिकायत: 4 घंटे में समाधान','Customer complaints: 4hr resolution')}<br>
-          &#8226; ${t('कनेक्शन 95%+ चालू रहना चाहिए','Connection 95%+ to be up and running')}<br>
-          &#8226; ${t('उपकरण देखभाल की ज़िम्मेदारी','Equipment care responsibility')}<br>
-          &#8226; ${t('Wiom ब्रांड गाइडलाइन का पालन','Wiom brand guidelines compliance')}
-        </div>
-      </div>
+      <div class="lbl">${t('खाताधारक का नाम','Account Holder')}</div><input class="finp ok" type="text" value="${t('राजेश कुमार','Rajesh Kumar')}">
+      <div class="lbl">${t('बैंक का नाम','Bank Name')}</div><input class="finp ok" type="text" value="State Bank of India">
+      <div class="lbl">${t('खाता संख्या','Account Number')}</div><input class="finp ok" type="text" value="XXXX XXXX 4521">
+      <div class="lbl">IFSC</div><input class="finp ok" type="text" value="SBIN0001234">
+      <div class="card" style="border-color:var(--positive);background:var(--pos-100);"><div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">✓ ${t('पेनी ड्रॉप सत्यापित','PENNY DROP VERIFIED')}</div><div style="font-size:14px;color:var(--text);">${t('₹1 क्रेडिट — नाम मैच कन्फ़र्म','₹1 credited — Name match confirmed')}</div></div>
+      <div class="card" style="border-color:var(--positive);background:var(--pos-100);"><div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">✓ ${t('डुप्लीकेट जांच पास','DEDUP CHECK PASSED')}</div><div style="font-size:14px;color:var(--text);">PAN, Aadhaar, GST, Bank — ${t('कोई डुप्लिकेट नहीं','No duplicates')}</div></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('अब ISP अनुबंध अपलोड करें','Next: ISP Agreement')}</button></div>
+    </div>`},
+
+  // 7: ISP Agreement Upload (NEW)
+  {phase:'Stage 2',title:'ISP अनुबंध',
+   solves:['DOT compliance','ISP Agreement collection'],
+   types:[{label:'User Upload',cls:'user-action',icon:'📤'},{label:'DOT Compliance',cls:'sys-check',icon:'🔒'}],
+   render:()=>{
+    return `
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('ISP अनुबंध','ISP Agreement')}</span><span class="hright">${t('स्टेप 3/5','Step 3/5')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;">${t('ISP अनुबंध अपलोड','ISP Agreement Upload')}</div>
+      <div class="card" style="border-color:var(--info);background:var(--info-100);"><div style="font-size:12px;font-weight:700;color:var(--info);margin-bottom:4px;">ℹ️ ${t('DOT अनुपालन के लिए अनिवार्य','Mandatory for DOT Compliance')}</div><div style="font-size:14px;color:var(--text);">${t('ISP अनुबंध दूरसंचार विभाग की जांच के लिए आवश्यक है।','ISP Agreement is required for Department of Telecom verification.')}</div></div>
+      <div style="display:flex;gap:8px;margin:12px 0;"><span class="trust-badge">🔒 ${t('DOT अनुपालन','DOT Compliance')}</span><span class="trust-badge">✓ ${t('TRAI दिशानिर्देश','TRAI Guidelines')}</span></div>
+      <div class="upload-row ${window.ispDoc?'verified':''}" onclick="window.ispDoc=!window.ispDoc;renderPhone();"><div><div class="uname">📄 ${t('ISP अनुबंध','ISP Agreement')}</div><div class="ustatus" style="color:${window.ispDoc?'var(--positive)':'var(--hint)'};">${window.ispDoc?t('DOT तैयार','DOT Ready')+' ✓':t('अपलोड करें','Upload')}</div></div><button class="ubtn ${window.ispDoc?'done':''}">${window.ispDoc?'✓':t('अपलोड','Upload')}</button></div>
+      <div class="ibox ibox-p" style="margin-top:8px;"><span class="ii">💡</span><span>${t('साफ़ फ़ोटो लें — सारा टेक्स्ट दिखना चाहिए','Take a clear photo — all text must be visible')}</span></div>
+    </div>
+    <div class="bbar"><button class="cta ${window.ispDoc?'':'dis'}" ${window.ispDoc?'onclick="next()"':''}>${window.ispDoc?t('आगे बढ़ें','Proceed'):t('ISP अनुबंध अपलोड करें','Upload ISP Agreement')}</button></div>
+    </div>`;}},
+
+  // 8: Shop & Equipment Photos (NEW)
+  {phase:'Stage 2',title:'दुकान और उपकरण फ़ोटो',
+   solves:['Visual verification'],
+   types:[{label:'User Upload',cls:'user-action',icon:'📸'}],
+   render:()=>{
+    const bothDone = window.shopPhoto && window.equipPhoto;
+    return `
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('फ़ोटो','Photos')}</span><span class="hright">${t('स्टेप 4/5','Step 4/5')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:16px;">${t('दुकान और उपकरण फ़ोटो','Shop & Equipment Photos')}</div>
+      <div class="upload-row ${window.shopPhoto?'verified':''}" onclick="window.shopPhoto=!window.shopPhoto;renderPhone();"><div><div class="uname">🏪 ${t('दुकान की फ़ोटो','Shop Front Photo')}</div><div class="ustatus" style="color:${window.shopPhoto?'var(--positive)':'var(--hint)'};">${window.shopPhoto?t('अपलोड हो गया','Uploaded')+' ✓':t('अपलोड करें','Upload')}</div></div><button class="ubtn ${window.shopPhoto?'done':''}">${window.shopPhoto?'✓':t('फ़ोटो लें','Take Photo')}</button></div>
+      <div style="font-size:11px;color:var(--hint);margin:-4px 0 8px 12px;">${t('दुकान के सामने से साफ़ फ़ोटो — बोर्ड दिखना चाहिए','Clear photo of shop front — signboard must be visible')}</div>
+      <div class="upload-row ${window.equipPhoto?'verified':''}" onclick="window.equipPhoto=!window.equipPhoto;renderPhone();"><div><div class="uname">📡 ${t('राउटर/उपकरण फ़ोटो','Router/Equipment Photo')}</div><div class="ustatus" style="color:${window.equipPhoto?'var(--positive)':'var(--hint)'};">${window.equipPhoto?t('अपलोड हो गया','Uploaded')+' ✓':t('अपलोड करें','Upload')}</div></div><button class="ubtn ${window.equipPhoto?'done':''}">${window.equipPhoto?'✓':t('फ़ोटो लें','Take Photo')}</button></div>
+      <div style="font-size:11px;color:var(--hint);margin:-4px 0 8px 12px;">${t('इंटरनेट उपकरण (राउटर, केबल) की फ़ोटो','Photo of internet equipment — router, cables')}</div>
+    </div>
+    <div class="bbar"><button class="cta ${bothDone?'':'dis'}" ${bothDone?'onclick="next()"':''}>${bothDone?t('सत्यापन के लिए जमा करें','Submit for Verification'):t('दोनों फ़ोटो अपलोड करें','Upload both photos')}</button></div>
+    </div>`;}},
+
+  // 9: Verification (Branch Point 1)
+  {phase:'Stage 2',title:'सत्यापन',
+   solves:['Verification review'],
+   types:[{label:'Wiom Decision',cls:'wiom-decision',icon:'🏢'}],
+   render:()=>{
+    if(verificationRejected){return `<div class="sbar"><span>9:41</span><span>100%</span></div><div class="hdr"><span class="htitle">${t('सत्यापन','Verification')}</span></div><div class="scontent"><div class="pad" style="text-align:center;"><div style="font-size:40px;margin:16px 0;">😔</div><div style="font-size:20px;font-weight:700;color:var(--negative);">${t('प्रोफ़ाइल अभी स्वीकृत नहीं हुई','Profile not accepted yet')}</div><div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;">${t('चिंता न करें — आपका पैसा सुरक्षित है','Don\'t worry — your money is safe')}</div><div class="card" style="text-align:left;border-color:var(--negative);background:var(--neg-100);"><div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:8px;">${t('कारण','Reason')}</div><div style="font-size:14px;color:var(--text);">${t('स्थान सेवा क्षेत्र में नहीं है।','Location not in service area.')}</div></div><div class="card" style="text-align:left;border-color:var(--positive);background:var(--pos-100);"><div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:8px;">🔒 ${t('रिफंड शुरू हो गया','Refund initiated')}</div><div style="font-size:14px;color:var(--text);">${t('₹2,000 5-7 कार्य दिवसों में वापस','₹2,000 credited in 5-7 working days')}</div><div style="font-size:12px;color:var(--hint);margin-top:4px;">Ref: RFD-2026-0042</div></div><div class="card" style="text-align:left;border-color:var(--info);background:var(--info-100);margin-top:12px;"><div style="font-size:12px;font-weight:700;color:var(--info);margin-bottom:4px;">${t('दस्तावेज़ दोबारा अपलोड करें','Re-upload Documents')}</div><div style="font-size:14px;color:var(--text);line-height:20px;">${t('आपके पास 3 बार दस्तावेज़ सही करने का मौका है। उसके बाद प्रोफ़ाइल अस्वीकृत हो जाएगी।','You have 3 chances to correct your documents. After that, the profile will be rejected.')}</div></div><button class="cta" onclick="verificationRejected=false;goTo(5);toast('दस्तावेज़ सही करें','o');" style="margin-top:8px;background:var(--info);">${t('दस्तावेज़ सही करें (2 मौके बाकी)','Correct Documents (2 attempts left)')}</button><button class="cta sec" onclick="verificationRejected=false;renderPhone();" style="margin-top:8px;">← ${t('Approved Path देखें','View Approved Path')}</button></div></div>`;}
+    return `<div class="sbar"><span>9:41</span><span>100%</span></div><div class="hdr"><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 5/5','Step 5/5')}</span></div><div class="scontent"><div class="pad" style="text-align:center;"><div style="font-size:40px;margin:16px 0;">🔍</div><div style="font-size:20px;font-weight:700;color:var(--text);">${t('सत्यापन जारी है','Verification in progress')}</div><div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;">${t('सत्यापन टीम आपके दस्तावेज़ों की जांच कर रही है','Verification team is reviewing your documents')}</div></div><div class="cl-item"><div class="cl-icon done">✓</div><div><div class="cl-text">${t('KYC दस्तावेज़','KYC Documents')}</div></div></div><div class="cl-item"><div class="cl-icon done">✓</div><div><div class="cl-text">${t('बैंक विवरण','Bank Details')}</div></div></div><div class="cl-item"><div class="cl-icon done">✓</div><div><div class="cl-text">${t('ISP अनुबंध','ISP Agreement')}</div></div></div><div class="cl-item"><div class="cl-icon done">✓</div><div><div class="cl-text">${t('दुकान और उपकरण सत्यापन','Shop & Equipment Verification')}</div></div></div><div class="cl-item" style="border:none;"><div class="cl-icon wait">⋯</div><div><div class="cl-text">${t('सत्यापन समीक्षा','Verification Review')}</div><div class="cl-sub" style="color:var(--warn-700);">${t('समीक्षा जारी...','Under review...')}</div></div></div><div class="pad"><div class="ibox ibox-o"><span class="ii">⏳</span><span>${t('समीक्षा में 2-3 कार्य दिवस','Review may take 2-3 business days')}</span></div><div style="height:16px;"></div><button class="cta" onclick="next()" style="background:var(--positive);margin-bottom:8px;">✓ ${t('सत्यापन स्वीकृत','Verification Approved')}</button><button class="cta sec" onclick="verificationRejected=true;renderPhone();toast('Verification Rejected. ₹2K Refund.','r');" style="color:var(--negative);background:var(--neg-100);border:1px solid var(--negative);box-shadow:none;">✗ ${t('सत्यापन अस्वीकृत','Verification Rejected')}</button></div></div>`;}},
+
+  // 10: Policy, Payout & SLA
+  {phase:'Stage 3',title:'नीति और SLA',
+   solves:['Commission clarity','SLA awareness'],
+   types:[{label:'User Action',cls:'user-action',icon:'📖'}],
+   render:()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('नीति और SLA','Policy & SLA')}</span><span class="hright">${t('स्टेप 1/7','Step 1/7')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div class="card"><div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;">${t('कमीशन','COMMISSION')}</div><div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;"><span style="color:var(--text-sec);">${t('नया कनेक्शन','New Connection')}</span><b style="color:var(--positive);">₹300</b></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;"><span style="color:var(--text-sec);">${t('रीचार्ज','Recharge')}</span><b style="color:var(--positive);">₹300</b></div></div>
+      <div class="card"><div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;">${t('भुगतान','PAYOUT')}</div><div style="font-size:14px;color:var(--text-sec);">${t('हर सोमवार, RazorpayX के माध्यम से','Every Monday, via RazorpayX')}</div></div>
+      <div class="card"><div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;">SLA</div><div style="font-size:14px;color:var(--text-sec);line-height:22px;">• ${t('शिकायत: 4 घंटे','Complaints: 4hr')}<br>• ${t('अपटाइम: 95%+','Uptime: 95%+')}<br>• ${t('उपकरण देखभाल','Equipment care')}<br>• ${t('ब्रांड अनुपालन','Brand compliance')}</div></div>
     </div>
     <div class="bbar"><button class="cta" onclick="next()">${t('समझ गया, आगे बढ़ें','Understood, proceed')}</button></div>
     </div>`},
 
-  // 8: Bank + Dedup Check
-  {phase:'Phase 2',title:'Bank + Dedup Check',
-   solves:['#4 Bank verification','#5 Penny-drop','#11 Dedup across PAN/Aadhaar/GST/Bank'],
-   types:[{label:'User Entry',cls:'user-entry',icon:'✏️'},{label:'System Auto-Verify',cls:'sys-check',icon:'⚡'}],
-   render:()=>`
-    <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('Bank वेरिफिकेशन','Bank Verification')}</span><span class="hright">${t('स्टेप 6','Step 6')}</span></div>
-    <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('बैंक खाता जानकारी','Bank Account Details')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('Commission payment आपके बैंक अकाउंट में आएगा','Commission payments will be sent to your bank account')}</div>
-      <div class="lbl">${t('अकाउंट होल्डर नाम','Account Holder Name')}</div><div class="inp-wrap"><input class="finp ok" type="text" value="Rajesh Kumar" placeholder="${t('राम कुमार','Ram Kumar')}"><span class="inp-check">&#10003;</span></div>
-      <div class="lbl">${t('बैंक नाम','Bank Name')}</div><select class="finp"><option value="">${t('बैंक चुनें','Select Bank')}</option><option value="SBI" selected>State Bank of India</option><option value="PNB">Punjab National Bank</option><option value="BOB">Bank of Baroda</option><option value="HDFC">HDFC Bank</option><option value="ICICI">ICICI Bank</option><option value="Axis">Axis Bank</option><option value="Kotak">Kotak Mahindra Bank</option><option value="Union">Union Bank</option></select>
-      <div class="lbl">${t('अकाउंट नंबर','Account Number')}</div><div class="inp-wrap"><input class="finp ok" type="text" value="XXXX XXXX 4521" placeholder="${t('अकाउंट नंबर','Account Number')}"><span class="inp-check">&#10003;</span></div>
-      <div class="lbl">IFSC Code</div><div class="inp-wrap"><input class="finp ok" type="text" value="SBIN0001234" placeholder="IFSC Code"><span class="inp-check">&#10003;</span></div>
-      <div class="card" style="border-color:var(--pos-300);background:var(--pos-100);">
-        <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">&#10003; ${t('पेनी ड्रॉप वेरीफाइड','PENNY DROP VERIFIED')}</div>
-        <div style="font-size:14px;color:var(--text-sec);line-height:20px;">${t('₹1 क्रेडिट और वेरीफाइड — नाम मैच कन्फ़र्म','₹1 credited & verified — Name match confirmed')}</div>
-      </div>
-      <div class="card" style="border-color:var(--pos-300);background:var(--pos-100);">
-        <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">&#10003; ${t('डीडप चेक पास','DEDUP CHECK PASSED')}</div>
-        <div style="font-size:14px;color:var(--text-sec);line-height:20px;">${t('PAN, आधार, GST, Bank — कोई डुप्लिकेट नहीं मिला','PAN, Aadhaar, GST, Bank — No duplicates found')}</div>
-      </div>
-    </div>
-    <div class="bbar"><button class="cta" onclick="next()">${t('अब Agreement करें','Next: Agreement')}</button></div>
-    </div>`},
-
-  // 9: Agreement Signing
-  {phase:'Phase 2',title:'Agreement',
-   solves:['#12 Partner agreement','ISP license compliance','Legal e-sign'],
-   types:[{label:'User Action',cls:'user-action',icon:'📝'},{label:'System Generate',cls:'sys-gen',icon:'🤖'}],
-   render:()=>`
-    <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('पार्टनर एग्रीमेंट','Partner Agreement')}</span><span class="hright">${t('स्टेप 7','Step 7')}</span></div>
-    <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('पार्टनर एग्रीमेंट','Partner Agreement')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('Review और e-Sign करें','Review and e-Sign')}</div>
-      <div class="agree-box">
-        <b>WIOM CHANNEL SALES PARTNER AGREEMENT</b><br><br>
-        This Agreement is entered between Wiom Technologies Pvt. Ltd. ("Company") and the Partner identified herein.<br><br>
-        <b>1. SCOPE:</b> Partner shall act as authorized CSP for Wiom internet services in designated territory.<br><br>
-        <b>2. RESPONSIBILITIES:</b> Customer acquisition, service activation, first-level support, equipment care.<br><br>
-        <b>3. COMMISSION:</b> As per Rate Card shared and acknowledged. Subject to SLA compliance.<br><br>
-        <b>4. TERM:</b> 12 months, auto-renewable. 30-day notice for termination.<br><br>
-        <b>5. COMPLIANCE:</b> Partner shall comply with ISP license terms (DOT/TRAI) and Wiom brand guidelines.
-      </div>
-      <div class="card" style="border-color:var(--pos-300);background:var(--pos-100);">
-        <div class="verif"><span class="vi">&#10003;</span> ${t('ISP License: DOT Compliance वेरीफाइड','ISP License: DOT Compliance Verified')}</div>
-        <div class="verif"><span class="vi">&#10003;</span> ${t('TRAI Guidelines: स्वीकृत','TRAI Guidelines: Acknowledged')}</div>
-      </div>
-      <div class="chk-row" onclick="toggleChk(this)">
-        <div class="chk-box checked" id="agreeChk">&#10003;</div>
-        <span class="chk-label">${t('मैंने सभी नियम और शर्तें पढ़ लिए और accept करता हूं','I have read and accept all terms and conditions')}</span>
-      </div>
-      <div class="ibox ibox-p"><span class="ii">&#128274;</span><span>${t('Aadhaar e-Sign से agreement sign होगा','Agreement will be signed via Aadhaar e-Sign')}</span></div>
-    </div>
-    <div class="bbar"><button class="cta" onclick="next()">${t('e-Sign करें','e-Sign')}</button></div>
-    </div>`},
-
-  // 10: Tech Review
-  {phase:'Phase 2',title:'Technical Review',
-   solves:['#6 Infra/tech assessment','#N1 Device & OS compatibility'],
-   types:[{label:'Wiom Decision',cls:'wiom-decision',icon:'🏢'},{label:'Tech Team Review',cls:'sys-check',icon:'🔧'}],
-   render:()=>`
-    <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="htitle">${t('तकनीकी समीक्षा','Technical Review')}</span></div>
-    <div class="scontent"><div class="pad" style="text-align:center;">
-      <div style="font-size:40px;margin:8px 0;">&#128736;</div>
-      <div style="font-size:20px;font-weight:700;color:var(--positive);line-height:28px;">${t('दस्तावेज़ पूरे!','Documentation complete!')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin:4px 0 16px;line-height:20px;">${t('अब Technical Review हो रही है','Technical Review in progress')}</div>
-    </div>
-    <div class="pad" style="padding-top:0;">
-      <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">${t('डिवाइस चेक','DEVICE CHECK')}</div>
-        <div class="verif"><span class="vi">&#10003;</span> Samsung Galaxy M34</div>
-        <div class="verif"><span class="vi">&#10003;</span> Android 14 — ${t('संगत','Compatible')}</div>
-        <div class="verif"><span class="vi">&#10003;</span> Wiom OS: ${t('तैयार','Ready')}</div>
-      </div>
-      <div class="card">
-        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">${t('इन्फ्रा चेक','INFRA CHECK')}</div>
-        <div class="lbl">${t('इंटरनेट सेटअप','Internet Setup')}</div>
-        <select class="finp"><option value="FTTH" selected>Fiber (FTTH)</option><option value="DSL">DSL</option><option value="Cable">Cable Broadband</option><option value="Wireless">Fixed Wireless</option><option value="Satellite">Satellite</option></select>
-        <div class="upload-row verified" onclick="this.classList.toggle('verified');toast('Photo status toggled','p');" style="cursor:pointer;"><div><div class="uname">${t('दुकान की फ़ोटो','Shop Front Photo')}</div><div class="ustatus" style="color:var(--positive);">${t('रिव्यूड','Reviewed')} &#10003;</div></div><button class="ubtn done">&#10003;</button></div>
-        <div class="upload-row verified" onclick="this.classList.toggle('verified');toast('Photo status toggled','p');" style="cursor:pointer;"><div><div class="uname">${t('राऊटर / उपकरण','Router / Equipment')}</div><div class="ustatus" style="color:var(--positive);">${t('रिव्यूड','Reviewed')} &#10003;</div></div><button class="ubtn done">&#10003;</button></div>
-      </div>
-      <div class="ibox ibox-g"><span class="ii">&#10003;</span><span>${t('Tech review पूरी! अब onboarding fee भरें।','Tech review complete! Now pay the onboarding fee.')}</span></div>
-    </div>
-    <div class="bbar"><button class="cta" onclick="next()">${t('Onboarding Fee भरें','Pay Onboarding Fee')}</button></div>
-    </div>`},
-
   // 11: Onboarding Fee ₹20,000
-  {phase:'Phase 3',title:'Onboarding Fee',
-   solves:['Onboarding fee collection','#13 Payment reconciliation','#N7 Fee → Invoice auto'],
-   types:[{label:'User Action',cls:'user-action',icon:'💳'},{label:'System Auto',cls:'sys-gen',icon:'🤖'}],
+  {phase:'Stage 3',title:'ऑनबोर्डिंग शुल्क',
+   solves:['Onboarding fee collection'],
+   types:[{label:'User Action',cls:'user-action',icon:'💳'}],
    render:()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="htitle">${t('ऑनबोर्डिंग फ़ीस','Onboarding Fee')}</span></div>
+    <div class="hdr"><span class="htitle">${t('ऑनबोर्डिंग शुल्क','Onboarding Fee')}</span><span class="hright">${t('स्टेप 2/7','Step 2/7')}</span></div>
     <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:12px;line-height:28px;">${t('ऑनबोर्डिंग फ़ीस','Onboarding Fee')}</div>
-      <div class="amt-box">
-        <div class="amt">&#8377;20,000</div>
-        <div class="amt-lbl">${t('ऑनबोर्डिंग फ़ीस (GST सहित)','Onboarding Fee (incl. GST)')}</div>
-      </div>
-      <div class="card" style="font-size:14px;color:var(--text-sec);line-height:22px;">
-        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;">&#10003; ${t('विवरण','Details')}</div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);"><span>${t('रजिस्ट्रेशन फ़ीस (भुगतान हुआ)','Registration Fee (paid)')}</span><b style="color:var(--text);">&#8377;2,000</b></div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);"><span>${t('ऑनबोर्डिंग फ़ीस','Onboarding Fee')}</span><b style="color:var(--text);">&#8377;20,000</b></div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;font-weight:700;color:var(--text);"><span>${t('कुल Investment','Total Investment')}</span><b>&#8377;22,000</b></div>
-      </div>
-      <div class="ibox ibox-g"><span class="ii">&#10003;</span><span>${t('भुगतान के बाद Training modules unlock होंगे','Training modules will unlock after payment')}</span></div>
+      <div class="amt-box"><div class="amt">₹20,000</div><div class="amt-lbl">${t('ऑनबोर्डिंग शुल्क (GST सहित)','Onboarding Fee (incl. GST)')}</div></div>
+      <div class="card" style="background:#fff;"><div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;"><span style="color:var(--text-sec);">${t('पंजीकरण शुल्क (भुगतान हुआ)','Reg Fee (paid)')}</span><span style="color:var(--text);">₹2,000</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;"><span style="color:var(--text-sec);">${t('ऑनबोर्डिंग शुल्क','Onboarding Fee')}</span><span style="color:var(--text);">₹20,000</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;font-weight:700;"><span style="color:var(--text);">${t('कुल निवेश','Total Investment')}</span><span style="color:var(--text);">₹22,000</span></div></div>
+      <div class="ibox ibox-g"><span class="ii">✓</span><span>${t('भुगतान के बाद तकनीकी मूल्यांकन शुरू होगा','Technical assessment will begin after payment')}</span></div>
     </div>
-    <div class="bbar"><button class="cta" onclick="next()">&#8377;20,000 ${t('भुगतान करें','Pay Now')}</button></div>
+    <div class="bbar"><button class="cta" onclick="next()">₹20,000 ${t('भुगतान करें','Pay Now')}</button></div>
     </div>`},
 
-  // 12: Financial Setup
-  {phase:'Phase 3',title:'Financial Setup',
-   solves:['#13 Ledger creation','#N7 RazorpayX payout','Invoice auto-gen','Trade name lock'],
-   types:[{label:'System Auto',cls:'sys-gen',icon:'🤖'},{label:'Wiom Backend',cls:'sys-check',icon:'⚙️'}],
+  // 12: Technical Assessment (Branch Point 2 — NEW)
+  {phase:'Stage 3',title:'तकनीकी मूल्यांकन',
+   solves:['Technical readiness'],
+   types:[{label:'Wiom Decision',cls:'wiom-decision',icon:'🔧'}],
+   render:()=>{
+    if(techAssessmentRejected){return `<div class="sbar"><span>9:41</span><span>100%</span></div><div class="hdr"><span class="htitle">${t('तकनीकी मूल्यांकन','Technical Assessment')}</span></div><div class="scontent"><div class="pad" style="text-align:center;"><div style="font-size:40px;margin:16px 0;">😔</div><div style="font-size:20px;font-weight:700;color:var(--negative);">${t('तकनीकी मूल्यांकन पास नहीं हुआ','Technical Assessment not passed')}</div><div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;">${t('चिंता न करें — आपका पैसा सुरक्षित है','Don\'t worry — your money is safe')}</div><div class="card" style="text-align:left;border-color:var(--negative);background:var(--neg-100);"><div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:8px;">${t('कारण','Reason')}</div><div style="font-size:14px;color:var(--text);">${t('इंफ्रास्ट्रक्चर तैयार नहीं','Infrastructure not ready')}</div></div><div class="card" style="text-align:left;border-color:var(--positive);background:var(--pos-100);"><div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:8px;">🔒 ${t('रिफंड शुरू','Refund initiated')}</div><div style="font-size:14px;color:var(--text);">${t('₹20,000 5-7 कार्य दिवसों में वापस','₹20,000 credited in 5-7 working days')}</div><div style="font-size:12px;color:var(--hint);margin-top:4px;">Ref: RFD-2026-0078</div></div><button class="cta sec" onclick="techAssessmentRejected=false;renderPhone();" style="margin-top:12px;">← ${t('Approved Path देखें','View Approved Path')}</button></div></div>`;}
+    return `<div class="sbar"><span>9:41</span><span>100%</span></div><div class="hdr"><span class="htitle">${t('तकनीकी मूल्यांकन','Technical Assessment')}</span><span class="hright">${t('स्टेप 3/7','Step 3/7')}</span></div><div class="scontent"><div class="pad" style="text-align:center;"><div style="font-size:40px;margin:16px 0;">🔧</div><div style="font-size:20px;font-weight:700;color:var(--text);">${t('तकनीकी मूल्यांकन जारी है','Technical Assessment in progress')}</div><div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;">${t('हमारी तकनीकी टीम जांच कर रही है','Our technical team is reviewing')}</div></div><div class="cl-item"><div class="cl-icon wait">⋯</div><div><div class="cl-text">${t('इंफ्रास्ट्रक्चर','Infrastructure Review')}</div></div></div><div class="cl-item"><div class="cl-icon wait">⋯</div><div><div class="cl-text">${t('नेटवर्क','Network Readiness')}</div></div></div><div class="cl-item" style="border:none;"><div class="cl-icon wait">⋯</div><div><div class="cl-text">${t('स्थान','Location Feasibility')}</div></div></div><div class="pad"><div class="ibox ibox-o"><span class="ii">⏳</span><span>${t('2-3 कार्य दिवस','May take 2-3 business days')}</span></div><div style="height:16px;"></div><button class="cta" onclick="next()" style="background:var(--positive);margin-bottom:8px;">✓ ${t('मूल्यांकन पास','Assessment Passed')}</button><button class="cta sec" onclick="techAssessmentRejected=true;renderPhone();toast('Tech Assessment Rejected. ₹20K Refund.','r');" style="color:var(--negative);background:var(--neg-100);border:1px solid var(--negative);box-shadow:none;">✗ ${t('मूल्यांकन अस्वीकृत','Assessment Rejected')}</button></div></div>`;}},
+
+  // 13: CSP Account Setup
+  {phase:'Stage 3',title:'CSP खाता सेटअप',
+   solves:['Financial backend setup'],
+   types:[{label:'System Auto',cls:'sys-gen',icon:'🤖'}],
    render:()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="htitle">${t('फ़ाइनेंशियल सेटअप','Financial Setup')}</span><span class="hright">${t('स्टेप 9','Step 9')}</span></div>
-    <div class="scontent"><div class="pad" style="text-align:center;">
-      <div style="font-size:40px;margin:8px 0;">&#9881;</div>
-      <div style="font-size:20px;font-weight:700;color:var(--text);line-height:28px;">${t('Backend Setup हो रहा है','Backend Setup in progress')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin:4px 0 16px;line-height:20px;">${t('System आपका financial account तैयार कर रहा है','System is preparing your financial account')}</div>
+    <div class="hdr"><span class="htitle">${t('CSP खाता सेटअप','CSP Account Setup')}</span><span class="hright">${t('स्टेप 4/7','Step 4/7')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div class="cl-item"><div class="cl-icon done">✓</div><div><div class="cl-text">${t('पार्टनर लेजर','Partner Ledger')}</div><div class="cl-sub">${t('कमीशन ट्रैकिंग सक्रिय','Commission tracking active')}</div></div></div>
+      <div class="cl-item"><div class="cl-icon done">✓</div><div><div class="cl-text">RazorpayX</div><div class="cl-sub">SBI A/C XXXX4521</div></div></div>
+      <div class="cl-item"><div class="cl-icon done">✓</div><div><div class="cl-text">Zoho Invoice</div><div class="cl-sub">${t('ऑटो-इनवॉइस','Auto-invoice')}</div></div></div>
+      <div class="cl-item"><div class="cl-icon done">✓</div><div><div class="cl-text">${t('व्यापार नाम लॉक','Trade Name Lock')}</div><div class="cl-sub">Rajesh Telecom</div></div></div>
+      <div class="cl-item" style="border:none;"><div class="cl-icon done">✓</div><div><div class="cl-text">TDS/TCS</div><div class="cl-sub">PAN ABCDE1234F</div></div></div>
+      <div class="pad"><div class="card" style="border-color:var(--positive);background:var(--pos-100);text-align:center;"><div style="font-size:16px;font-weight:700;color:var(--positive);">✓ ${t('सब तैयार!','All set!')}</div></div></div>
     </div>
-    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('पार्टनर लेजर बना','Partner Ledger Created')}</div><div class="cl-sub">${t('Commission tracking चालू','Commission tracking active')}</div></div></div>
-    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('RazorpayX Payout लिंक','RazorpayX Payout Link')}</div><div class="cl-sub">${t('SBI A/C XXXX4521 payouts के लिए लिंक','SBI A/C XXXX4521 linked for payouts')}</div></div></div>
-    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('Zoho Invoice सेटअप','Zoho Invoice Setup')}</div><div class="cl-sub">${t('हर settlement के लिए auto-invoice','Auto-invoice for every settlement')}</div></div></div>
-    <div class="cl-item"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('Trade Name लॉक','Trade Name Locked')}</div><div class="cl-sub">${t('"Rajesh Telecom" — आधिकारिक नाम','"Rajesh Telecom" — official name')}</div></div></div>
-    <div class="cl-item" style="border:none;"><div class="cl-icon done">&#10003;</div><div><div class="cl-text">${t('TDS/TCS कॉन्फ़िगरेशन','TDS/TCS Configuration')}</div><div class="cl-sub">${t('PAN ABCDE1234F — auto deduction सेटअप','PAN ABCDE1234F — auto deduction setup')}</div></div></div>
-    <div class="pad">
-      <div class="card" style="border-color:var(--pos-300);background:var(--pos-100);">
-        <div style="font-size:14px;font-weight:700;color:var(--positive);margin-bottom:4px;">&#10003; ${t('सब तैयार है!','All set!')}</div>
-        <div style="font-size:14px;color:var(--text-sec);line-height:20px;">${t('Ledger, payouts, invoicing, और tax setup पूरा। अब training शुरू!','Ledger, payouts, invoicing, and tax setup complete. Now start training!')}</div>
-      </div>
-      <div class="ibox ibox-g"><span class="ii">&#128176;</span><span>${t('Commission payouts हर Monday, सीधे आपके बैंक में','Commission payouts every Monday, directly to your bank')}</span></div>
-    </div>
-    <div class="bbar"><button class="cta" onclick="next()">${t('Training शुरू करें','Start Training')}</button></div>
+    <div class="bbar"><button class="cta" onclick="next()">${t('प्रशिक्षण शुरू करें','Start Training')}</button></div>
     </div>`},
 
-  // 13: Training
-  {phase:'Phase 3',title:'Training Modules',
-   solves:['#8 Training before go-live','#14 Partner readiness','#N3 SLA/finance education'],
-   types:[{label:'User Action',cls:'user-action',icon:'📖'},{label:'Quiz + Learn',cls:'user-action',icon:'🎓'}],
-   render:()=>`
+  // 14: CSP Training Modules
+  {phase:'Stage 3',title:'CSP प्रशिक्षण',
+   solves:['Partner training'],
+   types:[{label:'User Action',cls:'user-action',icon:'📖'}],
+   render:()=>{
+    if(!window.trainMod) window.trainMod=0;
+    const done=window.trainMod;
+    const allDone=done>=3;
+    return `
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="htitle">&#127891; ${t('ट्रेनिंग','Training')}</span><span class="hright">2/3</span></div>
+    <div class="hdr"><span class="htitle">${t('CSP प्रशिक्षण','CSP Training')}</span><span class="hright">${t('स्टेप 5/7','Step 5/7')}</span></div>
     <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('पार्टनर ट्रेनिंग','Partner Training')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin-bottom:4px;line-height:20px;">${t('पूरा करें, फिर काम शुरू!','Complete to start working!')}</div>
-      <div class="pbar"><div class="fill" style="width:66%;background:var(--positive);"></div></div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('प्रशिक्षण मॉड्यूल','Training Modules')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:12px;">${t('हर मॉड्यूल में वीडियो देखें और क्विज़ पास करें','Watch video and pass quiz in each module')}</div>
+      <div class="pbar"><div class="fill" style="width:${done*33.3}%;background:${allDone?'var(--positive)':'var(--pri)'};"></div></div>
+      <div style="font-size:12px;color:${allDone?'var(--positive)':'var(--pri)'};font-weight:600;margin:4px 0 16px;">${done}/3 ${t('पूरे','Complete')}</div>
+
+      <div class="mod-card ${done>=1?'done':''}" onclick="${done<1?'window.trainMod=1;renderPhone();':''}"><div class="mod-icon" style="background:${done>=1?'var(--pos-100)':'var(--pri-light)'};">📱</div><div><div class="mod-title">${t('ऐप कैसे चलाएं','App Usage')}</div><div class="mod-sub">${t('ग्राहक, रीचार्ज, शिकायतें','Customer, Recharge, Complaints')}</div></div><span class="mod-badge" style="background:${done>=1?'var(--pos-100)':'var(--pri)'};color:${done>=1?'var(--positive)':'#fff'};">${done>=1?'✓ '+t('पूरा','Done'):t('शुरू करें','Start')}</span></div>
+
+      <div class="mod-card ${done>=2?'done':done>=1?'':'disabled'}" ${done==1?'style="border-color:var(--pri);background:var(--pri-light);"':''} onclick="${done==1?'window.trainMod=2;renderPhone();':''}"><div class="mod-icon" style="background:${done>=2?'var(--pos-100)':done>=1?'var(--pri-light)':'var(--bg-sec)'};">📊</div><div><div class="mod-title">${t('SLA और Exposure','SLA & Exposure')}</div><div class="mod-sub">${t('नियम, स्तर, प्रभाव','Rules, Levels, Impact')}</div></div><span class="mod-badge" style="background:${done>=2?'var(--pos-100)':done>=1?'var(--pri)':'var(--bg-sec)'};color:${done>=2?'var(--positive)':done>=1?'#fff':'var(--hint)'};">${done>=2?'✓ '+t('पूरा','Done'):t('शुरू करें','Start')}</span></div>
+
+      <div class="mod-card ${done>=3?'done':done>=2?'':'disabled'}" ${done==2?'style="border-color:var(--pri);background:var(--pri-light);"':''} onclick="${done==2?'window.trainMod=3;renderPhone();':''}"><div class="mod-icon" style="background:${done>=3?'var(--pos-100)':done>=2?'var(--pri-light)':'var(--bg-sec)'};">💰</div><div><div class="mod-title">${t('पैसों की बात','Money Matters')}</div><div class="mod-sub">${t('कमीशन, TDS, TCS','Commission, TDS, TCS')}</div></div><span class="mod-badge" style="background:${done>=3?'var(--pos-100)':done>=2?'var(--pri)':'var(--bg-sec)'};color:${done>=3?'var(--positive)':done>=2?'#fff':'var(--hint)'};">${done>=3?'✓ '+t('पूरा','Done'):t('शुरू करें','Start')}</span></div>
+
+      ${done>0 && done<3?`<div class="card" style="border-color:var(--pri);background:var(--pri-light);margin-top:12px;">
+        <div style="font-size:14px;font-weight:700;color:var(--pri);margin-bottom:8px;">${done==1?'📊':'💰'} ${done==1?t('SLA और Exposure','SLA & Exposure'):t('पैसों की बात','Money Matters')} — ${t('वीडियो','Video')}</div>
+        <div style="background:var(--dark);border-radius:var(--r-sm);height:100px;display:flex;align-items:center;justify-content:center;color:var(--surface);font-size:28px;margin-bottom:8px;">▶️</div>
+        <div style="font-size:12px;color:var(--text-sec);margin-bottom:8px;">${t('वीडियो देखने के बाद क्विज़ दें','Take quiz after watching video')}</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">${t('क्विज़','Quiz')}</div>
+        <div class="quiz-q">${done==1?t('ग्राहक शिकायत का resolution time?','Complaint resolution time?'):t('नए कनेक्शन पर कमीशन?','Commission on new connection?')}</div>
+        <div class="quiz-opt correct">${done==1?'4 '+t('घंटे','hours'):'₹300'} ✓</div>
+      </div>`:''}
+    </div>
+    <div class="bbar"><button class="cta ${allDone?'':'dis'}" ${allDone?'onclick="next()"':''}>${allDone?t('Wiom नीति प्रश्नोत्तरी शुरू करें','Start Wiom Policy Quiz'):t('सभी मॉड्यूल पूरे करें','Complete all modules')}</button></div>
+    </div>`;}},
+
+  // 15: Wiom Policy Quiz (NEW)
+  {phase:'Stage 3',title:'Wiom नीति प्रश्नोत्तरी',
+   solves:['Final knowledge check'],
+   types:[{label:'User Action',cls:'user-action',icon:'📋'}],
+   render:()=>{
+    if(!window.quizQ) window.quizQ=0;
+    const q=window.quizQ;
+    const questions=[
+      {q_hi:'नए कनेक्शन पर कमीशन कितना है?',q_en:'Commission on new connection?',opts:['₹150','₹200','₹300','₹500'],correct:2,hint_hi:'हर नए कनेक्शन पर ₹300 मिलता है',hint_en:'You get ₹300 for every new connection'},
+      {q_hi:'ग्राहक शिकायत का resolution time?',q_en:'Complaint resolution time?',opts:['24 hrs','4 hrs','48 hrs','1 week'],correct:1,hint_hi:'SLA: 4 घंटे में समाधान',hint_en:'SLA: 4hr resolution'},
+      {q_hi:'Minimum uptime requirement?',q_en:'Minimum uptime requirement?',opts:['90%','95%','99%','80%'],correct:1,hint_hi:'95%+ अपटाइम ज़रूरी है',hint_en:'95%+ uptime required'},
+      {q_hi:'Commission payout कब होता है?',q_en:'When is commission payout?',opts:['Daily','Weekly (Mon)','Monthly','Quarterly'],correct:1,hint_hi:'हर Monday को payout',hint_en:'Every Monday'},
+      {q_hi:'रीचार्ज कमीशन कितना है?',q_en:'Recharge commission?',opts:['₹100','₹200','₹300','₹500'],correct:2,hint_hi:'रीचार्ज पर ₹300',hint_en:'₹300 per recharge'}
+    ];
+    if(q>=5){
+      return `
+      <div class="sbar"><span>9:41</span><span>100%</span></div>
+      <div class="hdr"><span class="htitle">${t('Wiom नीति प्रश्नोत्तरी','Wiom Policy Quiz')}</span><span class="hright">${t('स्टेप 6/7','Step 6/7')}</span></div>
+      <div class="scontent"><div class="pad" style="text-align:center;">
+        <div style="font-size:40px;margin:20px 0;">🎉</div>
+        <div style="font-size:20px;font-weight:700;color:var(--positive);">${t('बधाई हो! प्रश्नोत्तरी पास!','Congratulations! Quiz Passed!')}</div>
+        <div style="font-size:14px;color:var(--text);margin-top:8px;">${t('स्कोर','Score')}: 5/5 (100%)</div>
+        <div class="pbar" style="margin:12px 0;"><div class="fill" style="width:100%;background:var(--positive);"></div></div>
+      </div>
+      <div class="bbar"><button class="cta" onclick="next()">${t('लाइव हो जाएं!','Go Live!')}</button></div>
+      </div>`;
+    }
+    const cq=questions[q];
+    return `
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('Wiom नीति प्रश्नोत्तरी','Wiom Policy Quiz')}</span><span class="hright">${t('स्टेप 6/7','Step 6/7')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div class="card" style="border-color:var(--info);background:var(--info-100);"><div style="font-size:12px;font-weight:700;color:var(--info);margin-bottom:4px;">📋 ${t('अंतिम प्रश्नोत्तरी','Final Quiz')}</div><div style="font-size:14px;color:var(--text);">${t('80% अंक चाहिए पास होने के लिए','80% score required to pass')}</div></div>
       <div style="height:12px;"></div>
-      <div class="mod-card done" onclick="toast('${t('Module पूरा हो चुका है ✓','Module already completed ✓')}','g')" style="cursor:pointer;"><div class="mod-icon" style="background:var(--pos-100);">&#128241;</div><div><div class="mod-title">${t('App कैसे चलाएं','How to use the App')}</div><div class="mod-sub">${t('Customer, रिचार्ज, शिकायतें','Customer, recharge, complaints')}</div></div><div class="mod-badge" style="background:var(--pos-100);color:var(--positive);">&#10003;</div></div>
-      <div class="mod-card done" onclick="toast('${t('Module पूरा हो चुका है ✓','Module already completed ✓')}','g')" style="cursor:pointer;"><div class="mod-icon" style="background:var(--pos-100);">&#128200;</div><div><div class="mod-title">${t('SLA और Exposure','SLA & Exposure')}</div><div class="mod-sub">${t('नियम, स्तर, प्रभाव','Rules, levels, impact')}</div></div><div class="mod-badge" style="background:var(--pos-100);color:var(--positive);">&#10003;</div></div>
-      <div class="mod-card" style="border-color:var(--pri);background:var(--pri-light);cursor:pointer;" onclick="this.classList.add('done');this.style.borderColor='var(--pos-300)';this.style.background='var(--pos-100)';this.querySelector('.mod-badge').style.background='var(--pos-100)';this.querySelector('.mod-badge').style.color='var(--positive)';this.querySelector('.mod-badge').textContent='✓';toast('${t('बहुत बढ़िया! Module शुरू','Great! Module started')}','g');"><div class="mod-icon" style="background:var(--warn-200);">&#128176;</div><div><div class="mod-title">${t('पैसों की बात','Money Matters')}</div><div class="mod-sub">Commission, TDS, TCS</div></div><div class="mod-badge" style="background:var(--warn-200);color:var(--warn-700);">${t('शुरू करें','Start')}</div></div>
-      <div style="height:8px;"></div>
-      <div class="card">
-        <div class="quiz-q">${t('TDS क्या है?','What is TDS?')}</div>
-        <div style="font-size:12px;color:var(--text-sec);line-height:18px;margin-bottom:8px;">${t('Tax Deducted at Source — Wiom TDS काटता है, certificate मिलेगा।','Tax Deducted at Source — Wiom deducts TDS, you will receive a certificate.')}</div>
-        <div class="quiz-q">${t('Invoice कब?','When is the Invoice?')}</div>
-        <div style="font-size:12px;color:var(--text-sec);line-height:18px;">${t('हर settlement के साथ auto-generated।','Auto-generated with every settlement.')}</div>
-      </div>
+      <div class="pbar"><div class="fill" style="width:${q*20}%;background:var(--pri);"></div></div>
+      <div style="font-size:12px;color:var(--hint);font-weight:600;margin:4px 0 12px;">${t('प्रश्न','Question')} ${q+1}/5</div>
+      <div class="quiz-q">${t(cq.q_hi,cq.q_en)}</div>
+      ${cq.opts.map((o,i)=>`<div class="quiz-opt" onclick="window.quizQ=${q+1};renderPhone();toast('${i===cq.correct?'✓ Correct!':'✓ '+t(cq.hint_hi,cq.hint_en)}','g');" style="cursor:pointer;">${o}</div>`).join('')}
     </div>
-    <div class="bbar"><button class="cta" onclick="next()">${t('Quiz पूरा करें','Complete Quiz')}</button></div>
-    </div>`},
+    <div class="bbar"><div style="font-size:12px;color:var(--hint);text-align:center;">${t('सही विकल्प चुनें','Select the correct option')}</div></div>`;}},
 
-  // 14: Go Live
-  {phase:'Phase 3',title:'Go Live!',
-   solves:['Partner activation','Complete onboarding'],
-   types:[{label:'System + User',cls:'mixed',icon:'🚀'},{label:'Partner Starts Working',cls:'sys-gen',icon:'🎉'}],
+  // 16: Go Live!
+  {phase:'Stage 3',title:'लाइव हो जाएं!',
+   solves:['Partner activation'],
+   types:[{label:'System Auto',cls:'sys-gen',icon:'🎉'}],
    render:()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="htitle">${t('पार्टनर ऐप होम','Partner App Home')}</span></div>
-    <div class="scontent"><div class="pad" style="text-align:center;padding-top:24px;">
-      <div style="font-size:40px;">&#127881;</div>
-      <div style="font-size:24px;font-weight:700;color:var(--text);line-height:32px;">${t('बधाई हो, राजेश!','Congratulations, Rajesh!')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin-top:4px;margin-bottom:16px;line-height:20px;">${t('आप अब Wiom Partner हैं','You are now a Wiom Partner')}</div>
-      <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;">
-        <span class="chip chip-g">&#10003; ${t('रजिस्टर्ड','Registered')}</span><span class="chip chip-g">&#10003; ${t('QA Approved','QA Approved')}</span><span class="chip chip-g">&#10003; ${t('Bank वेरीफाइड','Bank Verified')}</span><span class="chip chip-g">&#10003; ${t('एग्रीमेंट','Agreement')}</span><span class="chip chip-g">&#10003; ${t('Tech Review','Tech Review')}</span><span class="chip chip-g">&#10003; ${t('फ़ाइनेंशियल सेटअप','Financial Setup')}</span><span class="chip chip-g">&#10003; ${t('ट्रेनिंग पूरी','Trained')}</span>
+    <div class="hdr"><span class="htitle">${t('पार्टनर ऐप होम','Partner App Home')}</span><span class="hright">${t('स्टेप 7/7','Step 7/7')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:40px;margin:12px 0;">🎉</div>
+      <div style="font-size:24px;font-weight:700;color:var(--text);">${t('बधाई हो, राजेश!','Congratulations, Rajesh!')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-top:4px;">${t('आप अब Wiom पार्टनर हैं','You are now a Wiom Partner')}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:16px 0;">
+        <span class="chip chip-g">✓ ${t('पंजीकृत','Registered')}</span><span class="chip chip-g">✓ ${t('KYC सत्यापित','KYC Verified')}</span><span class="chip chip-g">✓ ${t('बैंक सत्यापित','Bank Verified')}</span><span class="chip chip-g">✓ ${t('ISP अनुबंध','ISP Agreement')}</span><span class="chip chip-g">✓ ${t('फ़ोटो जमा','Photos')}</span><span class="chip chip-g">✓ ${t('सत्यापन स्वीकृत','Verification Approved')}</span><span class="chip chip-g">✓ ${t('तकनीकी मूल्यांकन','Tech Assessment')}</span><span class="chip chip-g">✓ ${t('खाता सेटअप','Account Setup')}</span><span class="chip chip-g">✓ ${t('प्रशिक्षित','Trained & Certified')}</span>
       </div>
-    </div>
-    <div class="sec-hdr">${t('क्विक एक्शन','QUICK ACTIONS')}</div>
-    <div class="pad" style="padding-top:4px;">
-      <div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer;"><span style="font-size:20px;">&#128100;</span><div><div style="font-size:14px;font-weight:700;color:var(--text);line-height:20px;">${t('Customer जोड़ें','Add Customer')}</div><div style="font-size:12px;color:var(--text-sec);line-height:16px;">${t('नया कनेक्शन','New connection')}</div></div></div>
-      <div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer;"><span style="font-size:20px;">&#128176;</span><div><div style="font-size:14px;font-weight:700;color:var(--text);line-height:20px;">${t('कमाई देखें','View Earnings')}</div><div style="font-size:12px;color:var(--text-sec);line-height:16px;">Commission, TDS</div></div></div>
-      <div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer;"><span style="font-size:20px;">&#128221;</span><div><div style="font-size:14px;font-weight:700;color:var(--text);line-height:20px;">${t('टास्क','Tasks')}</div><div style="font-size:12px;color:var(--text-sec);line-height:16px;">${t('रिस्टोर, शिकायतें','Restore, complaints')}</div></div></div>
-      <div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer;"><span style="font-size:20px;">&#127891;</span><div><div style="font-size:14px;font-weight:700;color:var(--text);line-height:20px;">${t('ट्रेनिंग','Training')}</div><div style="font-size:12px;color:var(--text-sec);line-height:16px;">${t('Module दोबारा देखें','Revisit modules')}</div></div></div>
-    </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 0;">
+        <div class="card" style="text-align:center;"><div style="font-size:24px;">👤</div><div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px;">${t('ग्राहक जोड़ें','Add Customer')}</div></div>
+        <div class="card" style="text-align:center;"><div style="font-size:24px;">💰</div><div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px;">${t('कमाई देखें','View Earnings')}</div></div>
+        <div class="card" style="text-align:center;"><div style="font-size:24px;">📝</div><div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px;">${t('कार्य','Tasks')}</div></div>
+        <div class="card" style="text-align:center;"><div style="font-size:24px;">🎓</div><div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px;">${t('प्रशिक्षण','Training')}</div></div>
+      </div>
+      <div class="card" style="border-color:var(--pri);background:var(--pri-light);text-align:center;"><div style="font-size:24px;">🚀</div><div style="font-size:14px;font-weight:700;color:var(--pri);">${t('Wiom CSP ऐप डाउनलोड करें','Download Wiom CSP App')}</div></div>
+    </div></div>
     </div>`},
 ];
 
 // ===== DASHBOARD PARTNERS =====
 const partners = [
   {id:'CSP-0042',name:'Rajesh Kumar',trade:'Rajesh Telecom',city:'Indore',status:'new',phase:'Entry',regFee:0,onboardFee:0,kyc:'—',qa:'—',bank:'—',agreement:'—',pan:'ABCDE1234F'},
-  {id:'CSP-0043',name:'Priya Sharma',trade:'Priya Net Zone',city:'Bhopal',status:'pending',phase:'QA Investigation',regFee:2000,onboardFee:0,kyc:'verified',qa:'pending',bank:'—',agreement:'—',pan:'FGHIJ5678K'},
+  {id:'CSP-0043',name:'Priya Sharma',trade:'Priya Net Zone',city:'Bhopal',status:'pending',phase:'Verification',regFee:2000,onboardFee:0,kyc:'verified',qa:'pending',bank:'—',agreement:'—',pan:'FGHIJ5678K'},
   {id:'CSP-0044',name:'Anil Verma',trade:'Verma Comm',city:'Ujjain',status:'review',phase:'Bank Verification',regFee:2000,onboardFee:0,kyc:'verified',qa:'approved',bank:'pending',agreement:'—',pan:'KLMNO9012P'},
-  {id:'CSP-0045',name:'Sunita Devi',trade:'Sunita Internet',city:'Indore',status:'rejected',phase:'QA Rejected',regFee:2000,onboardFee:0,kyc:'verified',qa:'rejected',bank:'—',agreement:'—',pan:'QRSTU3456V'},
+  {id:'CSP-0045',name:'Sunita Devi',trade:'Sunita Internet',city:'Indore',status:'rejected',phase:'Verification Rejected',regFee:2000,onboardFee:0,kyc:'verified',qa:'rejected',bank:'—',agreement:'—',pan:'QRSTU3456V'},
   {id:'CSP-0046',name:'Mohit Patel',trade:'Patel Broadband',city:'Sagar',status:'training',phase:'Training',regFee:2000,onboardFee:20000,kyc:'verified',qa:'approved',bank:'verified',agreement:'signed',pan:'WXYZ7890A'},
   {id:'CSP-0047',name:'Kavita Singh',trade:'Singh Net',city:'Jabalpur',status:'approved',phase:'LIVE',regFee:2000,onboardFee:20000,kyc:'verified',qa:'approved',bank:'verified',agreement:'signed',pan:'BCDEF2345G'},
   {id:'CSP-0048',name:'Deepak Jain',trade:'Jain Hub',city:'Indore',status:'pending',phase:'Awaiting Reg Fee',regFee:0,onboardFee:0,kyc:'pending',qa:'—',bank:'—',agreement:'—',pan:'GHIJK6789L'},
@@ -1242,28 +1172,63 @@ function updateState(idx){
   const p=partners[0];
   const toasts={
     0:()=>{s.status='otp-sent';s.phase='OTP Sent';addLog('OTP sent to +91 98765 43210','info');toast('OTP sent','p');},
-    1:()=>{s.otpVerified=true;s.phase='Registration';addLog('OTP verified','info');toast('OTP verified ✓','g');},
+    1:()=>{s.otpVerified=true;s.phase='T&C + OTP Done';addLog('T&C accepted, OTP verified','info');toast('T&C accepted, OTP verified ✓','g');},
     2:()=>{s.personalDone=true;s.phase='Personal Done';addLog('Personal details submitted','info');},
     3:()=>{s.locationDone=true;s.phase='Location Done';addLog('Location submitted: Indore, MP','info');},
-    4:()=>{s.kycDone=true;s.phase='KYC Verified';p.kyc='verified';addLog('KYC auto-verified: PAN, Aadhaar, GST','kyc');toast('KYC verified ✓','g');},
-    5:()=>{s.regFeePaid=true;s.status='investigation';s.phase='QA Investigation';p.regFee=2000;p.phase='QA Investigation';p.status='pending';addLog('₹2,000 registration fee paid','payment');toast('भुगतान सफल! QA investigation शुरू','g');},
-    6:()=>{s.qaStatus='approved';s.phase='QA Approved';p.qa='approved';p.phase='Policy Review';p.status='review';addLog('✓ QA APPROVED — Documentation phase','approval');toast('QA Approved! Documentation phase next','g');},
-    7:()=>{s.phase='Policy Reviewed';p.phase='Bank Verification';addLog('Policy & rate card reviewed, quiz passed','info');toast('Policy acknowledged ✓','g');},
-    8:()=>{s.phase='Bank Verified';p.phase='Agreement';p.bank='verified';addLog('Bank verified via penny-drop. Dedup clear.','kyc');toast('Bank verified, dedup clear ✓','g');},
-    9:()=>{s.phase='Agreement Signed';p.phase='Tech Review';p.agreement='signed';addLog('Partner agreement e-signed via Aadhaar','info');toast('Agreement signed ✓','g');},
-    10:()=>{s.techReviewDone=true;s.phase='Tech Reviewed';p.phase='Onboarding Fee';addLog('Tech review complete — device & infra OK','info');toast('Tech review passed ✓','g');},
-    11:()=>{s.onboardFeePaid=true;s.status='training';s.phase='Financial Setup';p.onboardFee=20000;p.phase='Financial Setup';p.status='training';addLog('₹20,000 onboarding fee paid','payment');toast('भुगतान सफल! Financial setup शुरू...','g');},
-    12:()=>{s.phase='Training';p.phase='Training';addLog('Financial setup complete — ledger, payouts, invoicing ready','info');toast('सब तैयार! Training शुरू 🎓','g');},
-    13:()=>{s.trainingDone=true;s.phase='Training Done';addLog('All training modules completed','training');},
-    14:()=>{s.live=true;s.status='live';s.phase='LIVE';p.status='approved';p.phase='LIVE';addLog('🎉 Partner is LIVE!','live');toast('बधाई हो! Partner is LIVE! 🎉','g');}
+    4:()=>{s.regFeePaid=true;s.status='documenting';s.phase='Reg Fee Paid';p.regFee=2000;p.phase='KYC';p.status='pending';addLog('₹2,000 registration fee paid','payment');toast('भुगतान सफल! अब दस्तावेज़ जमा करें','g');},
+    5:()=>{s.kycDone=true;s.phase='KYC Verified';p.kyc='verified';addLog('KYC auto-verified: PAN, Aadhaar, GST','kyc');toast('KYC verified ✓','g');},
+    6:()=>{s.phase='Bank Verified';p.bank='verified';addLog('Bank verified via penny-drop. Dedup clear.','kyc');toast('Bank verified, dedup clear ✓','g');},
+    7:()=>{s.phase='ISP Agreement';addLog('ISP Agreement uploaded — DOT compliance ready','info');toast('ISP Agreement uploaded ✓','g');},
+    8:()=>{s.phase='Photos Submitted';addLog('Shop & equipment photos uploaded','info');toast('Photos uploaded ✓','g');},
+    9:()=>{s.qaStatus='approved';s.phase='Verification Approved';p.qa='approved';p.phase='Policy Review';p.status='review';addLog('✓ VERIFICATION APPROVED — Activation phase','approval');toast('Verification Approved! Activation phase next','g');},
+    10:()=>{s.phase='Policy Reviewed';addLog('Policy, Payout & SLA acknowledged','info');toast('Policy acknowledged ✓','g');},
+    11:()=>{s.onboardFeePaid=true;s.status='assessment';s.phase='Onboard Fee Paid';p.onboardFee=20000;p.phase='Tech Assessment';p.status='training';addLog('₹20,000 onboarding fee paid','payment');toast('भुगतान सफल! Technical assessment शुरू','g');},
+    12:()=>{s.techReviewDone=true;s.phase='Tech Assessment Passed';p.phase='Account Setup';addLog('✓ TECH ASSESSMENT PASSED — Account setup next','approval');toast('Tech Assessment passed ✓','g');},
+    13:()=>{s.phase='Account Setup Done';p.phase='Training';addLog('CSP account setup complete — ledger, payouts, invoicing ready','info');toast('सब तैयार! Training शुरू 🎓','g');},
+    14:()=>{s.trainingDone=true;s.phase='Training Done';addLog('All training modules completed','training');toast('Training complete ✓','g');},
+    15:()=>{s.phase='Quiz Passed';addLog('Wiom Policy Quiz passed — 4/5 (80%)','training');toast('Policy Quiz passed ✓','g');},
+    16:()=>{s.live=true;s.status='live';s.phase='LIVE';p.status='approved';p.phase='LIVE';addLog('🎉 Partner is LIVE!','live');toast('बधाई हो! Partner is LIVE! 🎉','g');}
   };
   if(toasts[idx]) toasts[idx]();
 }
 
 // ===== RENDER =====
+function dismissPitch(){ showPitch=false; renderPhone(); renderDashboard(); updateProgress(); }
+
 function renderPhone(){
-  const s = screens[currentScreen];
   const phone = document.getElementById('phoneFrame');
+
+  // Show pitch screen if not dismissed
+  if(showPitch){
+    phone.innerHTML = `<div class="phone-content-enter">
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="scontent" style="height:calc(720px - 32px - 72px);overflow-y:auto;">
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:24px;text-align:center;">
+        <div style="width:72px;height:72px;border-radius:18px;background:var(--pri);display:flex;align-items:center;justify-content:center;margin-bottom:16px;"><span style="font-size:32px;font-weight:700;color:#fff;">W</span></div>
+        <div style="font-size:28px;font-weight:700;color:var(--pri);line-height:36px;">Wiom Partner+</div>
+        <div style="font-size:14px;color:var(--text-sec);margin-top:6px;line-height:20px;">${t('\u092D\u093E\u0930\u0924 \u0915\u093E \u0938\u092C\u0938\u0947 \u092D\u0930\u094B\u0938\u0947\u092E\u0902\u0926 \u0907\u0902\u091F\u0930\u0928\u0947\u091F \u092A\u093E\u0930\u094D\u091F\u0928\u0930 \u0928\u0947\u091F\u0935\u0930\u094D\u0915','India\u2019s most trusted internet partner network')}</div>
+        <div style="height:24px;"></div>
+        <div style="width:100%;text-align:left;">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg-sec);border-radius:12px;margin-bottom:8px;"><span style="font-size:20px;">🌐</span><span style="font-size:14px;font-weight:600;color:var(--text);">${t('अपने एरिया में इंटरनेट सेवा प्रदाता बनें','Become an internet service provider in your area')}</span></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg-sec);border-radius:12px;margin-bottom:8px;"><span style="font-size:20px;">💰</span><span style="font-size:14px;font-weight:600;color:var(--text);">${t('हर कनेक्शन और रीचार्ज पर कमाई करें','Earn on every connection & recharge')}</span></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg-sec);border-radius:12px;margin-bottom:8px;"><span style="font-size:20px;">🎓</span><span style="font-size:14px;font-weight:600;color:var(--text);">${t('पूरी ट्रेनिंग और निरंतर सपोर्ट','Complete training & ongoing support')}</span></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg-sec);border-radius:12px;margin-bottom:8px;"><span style="font-size:20px;">🚀</span><span style="font-size:14px;font-weight:600;color:var(--text);">${t('कम निवेश में अपना खुद का बिजनेस','Your own business with low investment')}</span></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <span class="trust-badge">\uD83D\uDD12 ${t('DOT \u0905\u0928\u0941\u092A\u093E\u0932\u0928','DOT Compliant')}</span>
+          <span class="trust-badge">\u2713 ${t('TRAI \u0938\u094D\u0935\u0940\u0915\u0943\u0924','TRAI Approved')}</span>
+        </div>
+      </div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="dismissPitch()">${t('\u0936\u0941\u0930\u0942 \u0915\u0930\u0947\u0902','Get Started')}</button></div>
+    </div>`;
+    document.getElementById('stepInfo').textContent = t('Wiom Partner+ \u2014 \u092A\u093F\u091A','Wiom Partner+ \u2014 Pitch');
+    document.getElementById('lhPhase').textContent = t('\u0938\u094D\u0935\u093E\u0917\u0924 \u0938\u094D\u0915\u094D\u0930\u0940\u0928','Welcome Screen');
+    document.getElementById('lhTitle').textContent = 'Wiom';
+    return;
+  }
+
+  const s = screens[currentScreen];
   // Check for active error scenario
   if(activeScenario && errorScreens[activeScenario]){
     phone.innerHTML = `<div class="phone-content-enter">${errorScreens[activeScenario]()}</div>`;
@@ -1419,7 +1384,7 @@ function showPartnerDetail(idx){
         </div>
       </div>
     </div>
-    ${p.qa==='rejected'?`<div class="dedup-box"><h4>⚠ QA REJECTED</h4><div style="color:var(--surface);">Profile rejected. Refund of ₹${p.regFee.toLocaleString()} initiated.</div></div>`:''}
+    ${p.qa==='rejected'?`<div class="dedup-box"><h4>⚠ VERIFICATION REJECTED</h4><div style="color:var(--surface);">Profile rejected. Refund of ₹${p.regFee.toLocaleString()} initiated.</div></div>`:''}
   `;
   panel.classList.add('open');
 }
