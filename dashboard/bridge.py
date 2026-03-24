@@ -106,6 +106,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
             decision = body.get("decision", "approved")
             cmd = [ADB, "shell", "am", "broadcast", "-a", "com.wiom.csp.QA",
                    "--es", "action", decision, "-n", "com.wiom.csp/.DashboardReceiver"]
+        elif action == "verification":
+            decision = body.get("decision", "approved")
+            reason = body.get("reason", "")
+            cmd = [ADB, "shell", "am", "broadcast", "-a", "com.wiom.csp.VERIFICATION",
+                   "--es", "action", decision, "--es", "reason", reason,
+                   "-n", "com.wiom.csp/.DashboardReceiver"]
+        elif action == "techassessment":
+            decision = body.get("decision", "approved")
+            cmd = [ADB, "shell", "am", "broadcast", "-a", "com.wiom.csp.TECHASSESSMENT",
+                   "--es", "action", decision, "-n", "com.wiom.csp/.DashboardReceiver"]
+        elif action == "policyquiz_config":
+            questions = body.get("questions", [])
+            config_json = json.dumps(questions)
+            cmd = [ADB, "shell", "am", "broadcast", "-a", "com.wiom.csp.POLICYQUIZ",
+                   "--es", "config", config_json, "-n", "com.wiom.csp/.DashboardReceiver"]
         elif action == "training_config":
             modules = body.get("modules", [])
             config_json = json.dumps(modules)

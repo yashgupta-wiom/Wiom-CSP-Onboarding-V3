@@ -154,6 +154,27 @@
   /* Toast */
   .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #2d1f3e; border: 1px solid #D9008D; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 300; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
 
+  /* Rejection reason modal */
+  .modal-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 250; align-items: center; justify-content: center; }
+  .modal-backdrop.show { display: flex; }
+  .modal { background: #1e1530; border: 1px solid #D9008D; border-radius: 16px; padding: 24px; max-width: 480px; width: 90%; max-height: 80vh; overflow-y: auto; }
+  .modal h3 { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .modal .modal-sub { font-size: 12px; color: #a7a1b2; margin-bottom: 16px; }
+  .reason-option { background: #2d1f3e; border: 2px solid #3d2f50; border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 10px; }
+  .reason-option:hover { border-color: #D9008D; background: #251b38; }
+  .reason-option.selected { border-color: #d92130; background: rgba(217,33,48,0.1); }
+  .reason-radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #665e75; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .reason-option.selected .reason-radio { border-color: #d92130; background: #d92130; }
+  .reason-option.selected .reason-radio::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+  .reason-label { font-size: 13px; color: #e0d8ec; font-weight: 500; }
+  .reason-resolve { font-size: 10px; color: #00c853; margin-top: 2px; }
+  .reason-no-resolve { font-size: 10px; color: #d92130; margin-top: 2px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+  .modal-btn { flex: 1; border: none; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .modal-btn-cancel { background: #2d1f3e; color: #a7a1b2; border: 1px solid #3d2f50; }
+  .modal-btn-reject { background: #d92130; color: #fff; }
+  .modal-btn-reject:disabled { opacity: 0.4; cursor: not-allowed; }
+
   @media (max-width: 900px) {
     .layout { flex-direction: column; }
     .list-panel { width: 100%; min-width: 0; max-height: 280px; border-right: none; border-bottom: 1px solid #2d1f3e; }
@@ -203,11 +224,36 @@
   <div class="doc-viewer" id="docViewer"></div>
 </div>
 
+<!-- Rejection Reason Modal -->
+<div class="modal-backdrop" id="rejectModal">
+  <div class="modal">
+    <h3>❌ Select Rejection Reason</h3>
+    <div class="modal-sub">Choose the primary reason for rejecting this application</div>
+    <div id="reasonList"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="closeRejectModal()">Cancel</button>
+      <button class="modal-btn modal-btn-reject" id="confirmRejectBtn" disabled onclick="confirmReject()">Reject Application</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const BRIDGE = 'http://localhost:8092';
 let selectedAppId = null;
 let applications = [];
 let activeFilter = 'all';
+let rejectingAppId = null;
+let selectedReasonId = null;
+
+const REJECTION_REASONS = [
+  { id: 'kyc_unclear', label: 'KYC दस्तावेज़ अस्पष्ट / अमान्य', en: 'KYC Document Unclear/Invalid', resolvable: true, resolve: 'Re-upload KYC documents (Screen 5)' },
+  { id: 'pan_aadhaar_mismatch', label: 'PAN और आधार में नाम मेल नहीं खाता', en: 'PAN-Aadhaar Name Mismatch', resolvable: true, resolve: 'Upload correct documents (Screen 5)' },
+  { id: 'shop_photo_bad', label: 'दुकान की फ़ोटो स्वीकार्य नहीं', en: 'Shop Photo Not Acceptable', resolvable: true, resolve: 'Re-upload shop photo (Screen 8)' },
+  { id: 'isp_invalid', label: 'ISP अनुबंध अमान्य / अधूरा', en: 'ISP Agreement Invalid/Incomplete', resolvable: true, resolve: 'Re-upload ISP agreement (Screen 7)' },
+  { id: 'address_failed', label: 'पता सत्यापन विफल', en: 'Address Verification Failed', resolvable: true, resolve: 'Update address (Screen 3)' },
+  { id: 'bank_mismatch', label: 'बैंक विवरण मेल नहीं खाता', en: 'Bank Details Mismatch', resolvable: true, resolve: 'Update bank details (Screen 6)' },
+  { id: 'duplicate_csp', label: 'एरिया में पहले से CSP मौजूद', en: 'Duplicate CSP in Area', resolvable: false, resolve: '₹2,000 refund initiated — not resolvable' },
+];
 
 // ─── Mock Applications Data ────────────────────────────
 // These simulate multiple CSP applications submitted for QA review
@@ -415,7 +461,7 @@ async function loadLiveApp() {
   try {
     const res = await fetch(BRIDGE + '/data');
     const data = await res.json();
-    if (data.error || data.currentScreen < 6) {
+    if (data.error || data.currentScreen < 9) {
       // Remove live app if not ready
       applications = applications.filter(a => !a.isLive);
       renderFilterBar();
@@ -428,7 +474,7 @@ async function loadLiveApp() {
     const liveApp = {
       id: 'LIVE_DEVICE',
       submittedAt: new Date().toISOString(),
-      decision: saved['LIVE_DEVICE'] !== undefined ? saved['LIVE_DEVICE'] : (data.qaRejected ? 'rejected' : (data.currentScreen > 6 ? 'approved' : null)),
+      decision: saved['LIVE_DEVICE'] !== undefined ? saved['LIVE_DEVICE'] : (data.verificationRejected ? 'rejected' : (data.currentScreen > 9 ? 'approved' : null)),
       personal: data.personal || {},
       location: data.location || {},
       kyc: data.kyc || {},
@@ -448,28 +494,83 @@ async function loadLiveApp() {
 }
 
 // ─── Save decision ──────────────────────────────────────
-function saveDecision(appId, decision) {
+function saveDecision(appId, decision, reasonId) {
   const saved = JSON.parse(localStorage.getItem('wiom_qa_decisions') || '{}');
   saved[appId] = decision;
   localStorage.setItem('wiom_qa_decisions', JSON.stringify(saved));
 
+  // Save reason separately
+  if (reasonId) {
+    const reasons = JSON.parse(localStorage.getItem('wiom_qa_reasons') || '{}');
+    reasons[appId] = reasonId;
+    localStorage.setItem('wiom_qa_reasons', JSON.stringify(reasons));
+  }
+
   // Update in-memory
   const app = applications.find(a => a.id === appId);
-  if (app) app.decision = decision;
+  if (app) {
+    app.decision = decision;
+    if (reasonId) app.rejectReasonId = reasonId;
+  }
 }
 
 // ─── QA Actions ─────────────────────────────────────────
-async function makeDecision(appId, decision) {
-  saveDecision(appId, decision);
+function openRejectModal(appId) {
+  rejectingAppId = appId;
+  selectedReasonId = null;
+  const list = document.getElementById('reasonList');
+  list.innerHTML = REJECTION_REASONS.map(r => `
+    <div class="reason-option" onclick="selectReason('${r.id}', this)">
+      <div class="reason-radio"></div>
+      <div>
+        <div class="reason-label">${r.label}</div>
+        <div class="reason-label" style="font-size:11px;color:#a7a1b2;">${r.en}</div>
+        <div class="${r.resolvable ? 'reason-resolve' : 'reason-no-resolve'}">
+          ${r.resolvable ? '✅ Resolvable from app' : '❌ Not resolvable'} — ${r.resolve}
+        </div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('confirmRejectBtn').disabled = true;
+  document.getElementById('rejectModal').classList.add('show');
+}
+
+function selectReason(reasonId, el) {
+  selectedReasonId = reasonId;
+  document.querySelectorAll('.reason-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('confirmRejectBtn').disabled = false;
+}
+
+function closeRejectModal() {
+  document.getElementById('rejectModal').classList.remove('show');
+  rejectingAppId = null;
+  selectedReasonId = null;
+}
+
+async function confirmReject() {
+  if (!rejectingAppId || !selectedReasonId) return;
+  const appId = rejectingAppId;
+  const reasonId = selectedReasonId;
+  closeRejectModal();
+  await makeDecision(appId, 'rejected', reasonId);
+}
+
+async function makeDecision(appId, decision, reasonId) {
+  saveDecision(appId, decision, reasonId);
 
   // If live device, also send to app
   if (appId === 'LIVE_DEVICE') {
     try {
-      await fetch(BRIDGE, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'qa', decision }) });
+      const body = { action: 'verification', decision };
+      if (reasonId) body.reason = reasonId;
+      await fetch(BRIDGE, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     } catch (e) { console.error(e); }
   }
 
-  showToast(decision === 'approved' ? '✅ Application APPROVED' : '❌ Application REJECTED — Refund initiated');
+  const reason = REJECTION_REASONS.find(r => r.id === reasonId);
+  const reasonText = reason ? ` — ${reason.en}` : '';
+  showToast(decision === 'approved' ? '✅ Application APPROVED' : `❌ Application REJECTED${reasonText}`);
   renderFilterBar();
   renderList();
   renderDetail(appId);
@@ -480,7 +581,7 @@ function reverseDecision(appId) {
 
   // If live device, navigate back to QA screen
   if (appId === 'LIVE_DEVICE') {
-    fetch(BRIDGE, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'navigate', screen: 6 }) }).catch(() => {});
+    fetch(BRIDGE, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'navigate', screen: 9 }) }).catch(() => {});
   }
 
   showToast('↩ Decision reversed — back to Pending');
@@ -588,7 +689,7 @@ function renderDetail(appId) {
     decisionHtml = `
       <div class="decision-box">
         <button class="qa-btn qa-btn-approve" onclick="makeDecision('${app.id}', 'approved')">✓ Approve</button>
-        <button class="qa-btn qa-btn-reject" onclick="makeDecision('${app.id}', 'rejected')">✗ Reject</button>
+        <button class="qa-btn qa-btn-reject" onclick="openRejectModal('${app.id}')">✗ Reject</button>
       </div>
     `;
   } else if (app.decision === 'approved') {
@@ -599,10 +700,16 @@ function renderDetail(appId) {
       </div>
     `;
   } else {
+    const savedReasons = JSON.parse(localStorage.getItem('wiom_qa_reasons') || '{}');
+    const rejReasonId = app.rejectReasonId || savedReasons[app.id];
+    const rejReason = REJECTION_REASONS.find(r => r.id === rejReasonId);
     decisionHtml = `
-      <div class="decision-box">
-        <div class="current-decision decision-rejected">❌ Rejected</div>
-        <button class="qa-btn qa-btn-reverse" onclick="reverseDecision('${app.id}')">↩ Change Decision</button>
+      <div class="decision-box" style="flex-direction:column;align-items:flex-end;gap:6px;">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div class="current-decision decision-rejected">❌ Rejected</div>
+          <button class="qa-btn qa-btn-reverse" onclick="reverseDecision('${app.id}')">↩ Change</button>
+        </div>
+        ${rejReason ? `<div style="font-size:11px;color:#d92130;background:rgba(217,33,48,0.1);padding:4px 10px;border-radius:6px;max-width:280px;text-align:right;">${rejReason.en}${rejReason.resolvable ? ' <span style="color:#00c853;">● Resolvable</span>' : ' <span style="color:#d92130;">● Not resolvable</span>'}</div>` : ''}
       </div>
     `;
   }
@@ -670,7 +777,16 @@ function renderDetail(appId) {
     </div>
   `));
 
-  // 3. KYC Documents
+  // 3. Registration Fee
+  sections.appendChild(makeSection('💳', 'Registration Fee (₹2,000)', rf.paid ? 'Paid' : 'Not Paid', rf.paid ? 'badge-paid' : 'badge-empty', true, `
+    <div class="data-grid">
+      ${field('Amount', '₹' + (rf.amount || 2000).toLocaleString())}
+      ${field('Payment Status', rf.paid ? '✅ Paid' : '❌ Not Paid')}
+      ${field('Refundable', 'Yes — full refund if QA rejected', true)}
+    </div>
+  `));
+
+  // 4. KYC Documents
   const kycLabel = kycCount === 4 ? 'All Uploaded' : kycCount === 0 ? 'None' : `${kycCount}/4`;
   const kycBadge = kycCount === 4 ? 'badge-filled' : kycCount === 0 ? 'badge-empty' : 'badge-partial';
   sections.appendChild(makeSection('📄', 'KYC Documents', kycLabel, kycBadge, true, `
@@ -679,15 +795,6 @@ function renderDetail(appId) {
       ${kycCard('📋', 'Aadhaar Front', k.aadhaarFrontUploaded, app.id, 'aadhaarFront')}
       ${kycCard('📋', 'Aadhaar Back', k.aadhaarBackUploaded, app.id, 'aadhaarBack')}
       ${kycCard('📑', 'GST Certificate', k.gstUploaded, app.id, 'gst')}
-    </div>
-  `));
-
-  // 4. Registration Fee
-  sections.appendChild(makeSection('💳', 'Registration Fee (₹2,000)', rf.paid ? 'Paid' : 'Not Paid', rf.paid ? 'badge-paid' : 'badge-empty', false, `
-    <div class="data-grid">
-      ${field('Amount', '₹' + (rf.amount || 2000).toLocaleString())}
-      ${field('Payment Status', rf.paid ? '✅ Paid' : '❌ Not Paid')}
-      ${field('Refundable', 'Yes — full refund if QA rejected', true)}
     </div>
   `));
 }

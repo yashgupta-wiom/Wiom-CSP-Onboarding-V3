@@ -26,11 +26,17 @@ import com.wiom.csp.ui.theme.*
 import com.wiom.csp.util.t
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.text.style.TextDecoration
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 
 // Screen 0: Phone Entry
 @Composable
 fun PhoneEntryScreen(onNext: () -> Unit) {
     val scenario = OnboardingState.activeScenario
+    var tncAccepted by remember { mutableStateOf(true) }
+    val context = LocalContext.current
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
         AppHeader(title = "Wiom Partner+")
@@ -84,7 +90,7 @@ fun PhoneEntryScreen(onNext: () -> Unit) {
                     Text("\uD83E\uDD1D", fontSize = 32.sp)
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        t("पार्टनर बनें", "Become a Partner"),
+                        t("Wiom पार्टनर बनें", "Become a Wiom Partner"),
                         fontSize = 24.sp, fontWeight = FontWeight.Bold,
                         color = WiomText, textAlign = TextAlign.Center,
                     )
@@ -112,27 +118,37 @@ fun PhoneEntryScreen(onNext: () -> Unit) {
                     ) {
                         Text("+91", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomTextSec)
                     }
+                    val isPhoneError = OnboardingState.phoneNumber.length > 10
                     OutlinedTextField(
                         value = OnboardingState.phoneNumber,
                         onValueChange = { newValue ->
-                            // Filter to digits only, max 10 characters
-                            val filtered = newValue.filter { it.isDigit() }.take(10)
+                            // Filter to digits only, allow typing beyond 10 to show error
+                            val filtered = newValue.filter { it.isDigit() }
                             OnboardingState.phoneNumber = filtered
                         },
                         modifier = Modifier.weight(1f).height(56.dp),
                         shape = RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedBorderColor = WiomBorderInput,
-                            focusedBorderColor = WiomBorderFocus,
+                            unfocusedBorderColor = if (isPhoneError) WiomNegative else WiomBorderInput,
+                            focusedBorderColor = if (isPhoneError) WiomNegative else WiomBorderFocus,
                             unfocusedContainerColor = Color.White,
                         ),
+                        isError = isPhoneError,
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         placeholder = { Text(t("मोबाइल नंबर डालें", "Enter mobile number"), color = WiomHint) }
                     )
                 }
-                // Character count hint
-                if (OnboardingState.phoneNumber.isNotEmpty() && OnboardingState.phoneNumber.length < 10) {
+                // Character count hint or error
+                if (OnboardingState.phoneNumber.length > 10) {
+                    Text(
+                        t("⚠️ नंबर 10 अंक से ज़्यादा नहीं होना चाहिए", "⚠️ Number must not exceed 10 digits"),
+                        fontSize = 12.sp,
+                        color = WiomNegative,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(start = 4.dp, bottom = 8.dp),
+                    )
+                } else if (OnboardingState.phoneNumber.isNotEmpty() && OnboardingState.phoneNumber.length < 10) {
                     Text(
                         t("${OnboardingState.phoneNumber.length}/10 अंक", "${OnboardingState.phoneNumber.length}/10 digits"),
                         fontSize = 12.sp,
@@ -143,12 +159,53 @@ fun PhoneEntryScreen(onNext: () -> Unit) {
                     Spacer(Modifier.height(8.dp))
                 }
                 InfoBox("\uD83D\uDD12", t("OTP आपके नंबर पर भेजा जाएगा", "OTP will be sent to your number"))
+
+                Spacer(Modifier.height(16.dp))
+
+                // ─── T&C Checkbox Section ───
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(WiomBgSec)
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(
+                        checked = tncAccepted,
+                        onCheckedChange = { tncAccepted = it },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = WiomPrimary,
+                            uncheckedColor = WiomBorderInput,
+                        ),
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Column {
+                        Text(
+                            t("मैं सभी नियम व शर्तें स्वीकार करता/करती हूँ", "I accept all Terms & Conditions"),
+                            fontSize = 14.sp,
+                            color = WiomText,
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            t("नियम व शर्तें पढ़ें", "Read T&C"),
+                            fontSize = 12.sp,
+                            color = WiomPrimary,
+                            fontWeight = FontWeight.SemiBold,
+                            textDecoration = TextDecoration.Underline,
+                            modifier = Modifier.clickable {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wiom.in/terms"))
+                                context.startActivity(intent)
+                            },
+                        )
+                    }
+                }
             }
             BottomBar {
                 WiomButton(
                     t("OTP भेजें", "Send OTP"),
                     onClick = onNext,
-                    enabled = OnboardingState.phoneNumber.length == 10,
+                    enabled = OnboardingState.phoneNumber.length == 10 && tncAccepted,
                 )
             }
         }
@@ -333,13 +390,13 @@ fun OtpScreen(onNext: () -> Unit, onBack: () -> Unit) {
 fun PersonalInfoScreen(onNext: () -> Unit, onBack: () -> Unit) {
     // Entity type dropdown state
     var dropdownExpanded by remember { mutableStateOf(false) }
-    val entityOptions = listOf("Individual", "Proprietorship", "Partnership", "Private Limited", "LLP")
+    val entityOptions = listOf("Individual")
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
         AppHeader(
             title = t("रजिस्ट्रेशन", "Registration"),
             onBack = onBack,
-            rightText = t("स्टेप 1/4", "Step 1/4")
+            rightText = t("स्टेप 1/3", "Step 1/3")
         )
         Column(
             modifier = Modifier
@@ -442,7 +499,7 @@ fun LocationScreen(onNext: () -> Unit, onBack: () -> Unit) {
         AppHeader(
             title = t("रजिस्ट्रेशन", "Registration"),
             onBack = onBack,
-            rightText = t("स्टेप 2/4", "Step 2/4")
+            rightText = t("स्टेप 2/3", "Step 2/3")
         )
         Column(
             modifier = Modifier
@@ -462,8 +519,55 @@ fun LocationScreen(onNext: () -> Unit, onBack: () -> Unit) {
             Spacer(Modifier.height(16.dp))
 
             FieldLabel(t("राज्य", "State"))
-            var state by remember { mutableStateOf("Madhya Pradesh") }
-            WiomTextField(value = state, onValueChange = { state = it }, readOnly = true)
+            var stateExpanded by remember { mutableStateOf(false) }
+            val indianStates = listOf(
+                "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar",
+                "Chhattisgarh", "Goa", "Gujarat", "Haryana",
+                "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala",
+                "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya",
+                "Mizoram", "Nagaland", "Odisha", "Punjab",
+                "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana",
+                "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+                "Andaman & Nicobar Islands", "Chandigarh", "Dadra & Nagar Haveli and Daman & Diu",
+                "Delhi", "Jammu & Kashmir", "Ladakh", "Lakshadweep", "Puducherry",
+            )
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = OnboardingState.selectedState,
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { stateExpanded = true },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = WiomBorderInput,
+                        focusedBorderColor = WiomBorderFocus,
+                        unfocusedContainerColor = Color.White,
+                        disabledBorderColor = WiomBorderInput,
+                        disabledTextColor = WiomText,
+                        disabledContainerColor = Color.White,
+                    ),
+                    enabled = false,
+                    trailingIcon = { Text("▼", fontSize = 12.sp, color = WiomHint) },
+                    placeholder = { Text(t("राज्य चुनें", "Select State"), color = WiomHint) },
+                )
+                DropdownMenu(
+                    expanded = stateExpanded,
+                    onDismissRequest = { stateExpanded = false },
+                    modifier = Modifier.heightIn(max = 300.dp),
+                ) {
+                    indianStates.forEach { stateName ->
+                        DropdownMenuItem(
+                            text = { Text(stateName, fontSize = 14.sp) },
+                            onClick = {
+                                OnboardingState.selectedState = stateName
+                                stateExpanded = false
+                            },
+                        )
+                    }
+                }
+            }
 
             FieldLabel(t("शहर", "City"))
             WiomTextField(value = OnboardingState.city, onValueChange = { OnboardingState.city = it })
@@ -504,7 +608,7 @@ fun LocationScreen(onNext: () -> Unit, onBack: () -> Unit) {
         }
         if (scenario != Scenario.AREA_NOT_SERVICEABLE) {
             BottomBar {
-                WiomButton(t("अब KYC दस्तावेज़ दें", "Next: KYC Documents"), onClick = onNext)
+                WiomButton(t("अब registration शुल्क भरें", "Next: Registration Fee"), onClick = onNext)
             }
         }
     }
@@ -786,7 +890,7 @@ fun KycScreen(onNext: () -> Unit, onBack: () -> Unit) {
         AppHeader(
             title = t("KYC दस्तावेज़", "KYC Documents"),
             onBack = onBack,
-            rightText = t("स्टेप 3/4", "Step 3/4")
+            rightText = t("स्टेप 1/5", "Step 1/5")
         )
         Column(
             modifier = Modifier
@@ -926,7 +1030,7 @@ fun KycScreen(onNext: () -> Unit, onBack: () -> Unit) {
                     OnboardingState.aadhaarBackUploaded &&
                     OnboardingState.gstUploaded
             WiomButton(
-                t("अब रजिस्ट्रेशन फ़ीस भरें", "Next: Registration Fee"),
+                t("अब बैंक का विवरण दें", "Next: Bank Details"),
                 onClick = onNext,
                 enabled = !isScenarioDisabled && (scenario != Scenario.NONE || allUploaded),
             )
@@ -1034,7 +1138,6 @@ fun RegFeeScreen(onNext: () -> Unit, onBack: () -> Unit) {
         AppHeader(
             title = t("रजिस्ट्रेशन फ़ीस", "Registration Fee"),
             onBack = onBack,
-            rightText = t("स्टेप 4/4", "Step 4/4")
         )
 
         when (scenario) {
@@ -1175,10 +1278,10 @@ fun RegFeeScreen(onNext: () -> Unit, onBack: () -> Unit) {
                         TrustBadge("\uD83D\uDD12", t("Reject होने पर full refund मिलेगा", "Full refund if rejected"))
                     }
                     Spacer(Modifier.height(8.dp))
-                    InfoBox("\uD83D\uDCB0", t("फ़ीस के बाद QA investigation शुरू होगी", "QA investigation will start after fee payment"))
+                    InfoBox("✓", t("भुगतान के बाद सत्यापन प्रक्रिया शुरू होगी", "Verification process will begin after payment"))
                 }
                 BottomBar {
-                    WiomButton("\u20B92,000 ${t("भुगतान करें", "Pay Now")}", onClick = onNext)
+                    WiomButton("₹2,000 ${t("भुगतान करें", "Pay Now")}", onClick = onNext)
                 }
             }
         }

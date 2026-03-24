@@ -35,7 +35,7 @@
   .btn-green { background: #008043; color: #fff; }
   .btn-outline { background: transparent; border: 1px solid #D9008D; color: #D9008D; }
 
-  .screen-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .screen-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
   .screen-btn { background: #3d2f50; border: 1px solid #4d3f60; border-radius: 8px; padding: 8px 4px; text-align: center; cursor: pointer; transition: all 0.15s; font-size: 11px; color: #a7a1b2; }
   .screen-btn:hover { border-color: #D9008D; color: #fff; }
   .screen-btn.active { background: #D9008D; border-color: #D9008D; color: #fff; }
@@ -91,7 +91,7 @@
       <div class="panel-title">Controls</div>
       <div class="controls">
         <button class="btn btn-red" onclick="send('restart')">Restart App</button>
-        <button class="btn btn-default" onclick="send('reset')">Reset to Screen 0</button>
+        <button class="btn btn-default" onclick="send('reset')">Reset to Pitch</button>
         <button class="btn btn-magenta" onclick="sendLang('hi')">हिंदी</button>
         <button class="btn btn-outline" onclick="sendLang('en')">English</button>
         <button class="btn btn-green" onclick="refreshScreenshot()">Refresh Screenshot</button>
@@ -144,21 +144,24 @@ let currentScreen = 0;
 let activeScenario = null;
 
 const screens = [
+  { num: -1, hi: 'पिच स्क्रीन', en: 'Pitch' },
   { num: 0, hi: 'मोबाइल नंबर', en: 'Phone' },
-  { num: 1, hi: 'OTP वेरिफिकेशन', en: 'OTP' },
+  { num: 1, hi: 'OTP सत्यापन', en: 'OTP' },
   { num: 2, hi: 'व्यक्तिगत जानकारी', en: 'Personal' },
   { num: 3, hi: 'लोकेशन', en: 'Location' },
-  { num: 4, hi: 'KYC दस्तावेज़', en: 'KYC' },
-  { num: 5, hi: 'रजिस्ट्रेशन फ़ीस', en: '₹2K Fee' },
-  { num: 6, hi: 'QA Investigation', en: 'QA' },
-  { num: 7, hi: 'नीतियां और रेट कार्ड', en: 'Policy' },
-  { num: 8, hi: 'Bank + Dedup', en: 'Bank' },
-  { num: 9, hi: 'एग्रीमेंट', en: 'Agreement' },
-  { num: 10, hi: 'तकनीकी समीक्षा', en: 'Tech' },
+  { num: 4, hi: 'रजिस्ट्रेशन फ़ीस', en: '₹2K Fee' },
+  { num: 5, hi: 'KYC दस्तावेज़', en: 'KYC' },
+  { num: 6, hi: 'बैंक विवरण', en: 'Bank' },
+  { num: 7, hi: 'ISP अनुबंध', en: 'ISP' },
+  { num: 8, hi: 'फ़ोटो', en: 'Photos' },
+  { num: 9, hi: 'सत्यापन', en: 'Verify' },
+  { num: 10, hi: 'नीति और SLA', en: 'Policy' },
   { num: 11, hi: 'ऑनबोर्डिंग फ़ीस', en: '₹20K Fee' },
-  { num: 12, hi: 'फ़ाइनेंशियल सेटअप', en: 'Finance' },
-  { num: 13, hi: 'ट्रेनिंग', en: 'Training' },
-  { num: 14, hi: 'Go Live!', en: 'Live' },
+  { num: 12, hi: 'तकनीकी मूल्यांकन', en: 'TechAssess' },
+  { num: 13, hi: 'CSP खाता सेटअप', en: 'Setup' },
+  { num: 14, hi: 'ट्रेनिंग', en: 'Training' },
+  { num: 15, hi: 'नीति प्रश्नोत्तरी', en: 'Quiz' },
+  { num: 16, hi: 'Go Live!', en: 'Live' },
 ];
 
 const scenarios = [
@@ -166,21 +169,23 @@ const scenarios = [
   { name: 'OTP_WRONG', icon: '❌', label: 'Wrong OTP', category: 'registration', screen: 1 },
   { name: 'OTP_EXPIRED', icon: '⏰', label: 'OTP Expired', category: 'registration', screen: 1 },
   { name: 'AREA_NOT_SERVICEABLE', icon: '📍', label: 'Area Not Serviceable', category: 'verification', screen: 3 },
-  { name: 'KYC_PAN_MISMATCH', icon: '🪪', label: 'PAN Name Mismatch', category: 'verification', screen: 4 },
-  { name: 'KYC_AADHAAR_EXPIRED', icon: '⚠️', label: 'Aadhaar Expired', category: 'verification', screen: 4 },
-  { name: 'KYC_PAN_AADHAAR_UNLINKED', icon: '🔗', label: 'PAN-Aadhaar Not Linked', category: 'verification', screen: 4 },
-  { name: 'REGFEE_FAILED', icon: '💳', label: '₹2K Payment Failed', category: 'payment', screen: 5 },
-  { name: 'REGFEE_TIMEOUT', icon: '⏳', label: '₹2K Payment Timeout', category: 'payment', screen: 5 },
-  { name: 'BANK_PENNYDROP_FAIL', icon: '🏦', label: 'Penny Drop Failed', category: 'bank', screen: 8 },
-  { name: 'BANK_NAME_MISMATCH', icon: '👤', label: 'Bank Name Mismatch', category: 'bank', screen: 8 },
-  { name: 'DEDUP_FOUND', icon: '🔍', label: 'Dedup Match Found', category: 'bank', screen: 8 },
-  { name: 'ESIGN_FAILED', icon: '✍️', label: 'e-Sign Failed', category: 'documentation', screen: 9 },
-  { name: 'TECH_DEVICE_INCOMPATIBLE', icon: '📵', label: 'Device Incompatible', category: 'documentation', screen: 10 },
+  { name: 'REGFEE_FAILED', icon: '💳', label: '₹2K Payment Failed', category: 'payment', screen: 4 },
+  { name: 'REGFEE_TIMEOUT', icon: '⏳', label: '₹2K Payment Timeout', category: 'payment', screen: 4 },
+  { name: 'KYC_PAN_MISMATCH', icon: '🪪', label: 'PAN Name Mismatch', category: 'verification', screen: 5 },
+  { name: 'KYC_AADHAAR_EXPIRED', icon: '⚠️', label: 'Aadhaar Expired', category: 'verification', screen: 5 },
+  { name: 'KYC_PAN_AADHAAR_UNLINKED', icon: '🔗', label: 'PAN-Aadhaar Not Linked', category: 'verification', screen: 5 },
+  { name: 'BANK_PENNYDROP_FAIL', icon: '🏦', label: 'Penny Drop Failed', category: 'bank', screen: 6 },
+  { name: 'BANK_NAME_MISMATCH', icon: '👤', label: 'Bank Name Mismatch', category: 'bank', screen: 6 },
+  { name: 'DEDUP_FOUND', icon: '🔍', label: 'Dedup Match Found', category: 'bank', screen: 6 },
+  { name: 'ISP_DOC_INVALID', icon: '📄', label: 'ISP Doc Invalid', category: 'verification', screen: 7 },
+  { name: 'VERIFICATION_REJECTED', icon: '❌', label: 'Verification Rejected', category: 'verification', screen: 9 },
   { name: 'ONBOARDFEE_FAILED', icon: '💸', label: '₹20K Payment Failed', category: 'payment', screen: 11 },
-  { name: 'TRAINING_QUIZ_FAIL', icon: '📝', label: 'Quiz Failed', category: 'training', screen: 13 },
+  { name: 'TECH_ASSESSMENT_REJECTED', icon: '🔧', label: 'Tech Assessment Rejected', category: 'verification', screen: 12 },
+  { name: 'TRAINING_QUIZ_FAIL', icon: '📝', label: 'Training Quiz Failed', category: 'training', screen: 14 },
+  { name: 'POLICY_QUIZ_FAIL', icon: '❓', label: 'Policy Quiz Failed', category: 'training', screen: 15 },
 ];
 
-const categoryNames = { registration: 'Registration', verification: 'Verification', payment: 'Payment', bank: 'Bank', documentation: 'Documentation', training: 'Training' };
+const categoryNames = { registration: 'Registration', verification: 'Verification', payment: 'Payment', bank: 'Bank', training: 'Training' };
 
 function buildScreenGrid() {
   const grid = document.getElementById('screenGrid');

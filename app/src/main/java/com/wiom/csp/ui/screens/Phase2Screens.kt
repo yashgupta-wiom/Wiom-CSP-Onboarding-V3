@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -24,20 +25,26 @@ import com.wiom.csp.ui.theme.*
 import com.wiom.csp.util.t
 import kotlinx.coroutines.delay
 
-// Screen 6: QA Investigation
+// ─── Screen 9: Verification (was QA Investigation) ────────────────────────────
 @Composable
-fun QaInvestigationScreen(onNext: () -> Unit) {
-    val qaRejected = OnboardingState.qaRejected
+fun VerificationScreen(onNext: () -> Unit) {
+    val rejected = OnboardingState.verificationRejected
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
-        AppHeader(title = if (qaRejected) t("Application स्टेटस", "Application Status") else t("Application स्टेटस", "Application Status"))
+        AppHeader(
+            title = t("सत्यापन", "Verification"),
+            rightText = t("स्टेप 5/5", "Step 5/5"),
+        )
         Column(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
         ) {
-            if (qaRejected) {
-                // Rejected state
+            if (rejected) {
+                // Rejected state — show reason + resolution CTA
+                val reasonId = OnboardingState.verificationRejectReasonId
+                val reason = com.wiom.csp.data.REJECTION_REASONS.find { it.id == reasonId }
+
                 Column(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -45,7 +52,7 @@ fun QaInvestigationScreen(onNext: () -> Unit) {
                     Text("\uD83D\uDE14", fontSize = 40.sp)
                     Spacer(Modifier.height(16.dp))
                     Text(
-                        t("Profile अभी स्वीकार नहीं हुई", "Profile not accepted yet"),
+                        t("सत्यापन अस्वीकृत", "Verification Rejected"),
                         fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomNegative,
                         textAlign = TextAlign.Center,
                     )
@@ -55,37 +62,54 @@ fun QaInvestigationScreen(onNext: () -> Unit) {
                         fontSize = 14.sp, color = WiomTextSec, textAlign = TextAlign.Center,
                     )
                     Spacer(Modifier.height(20.dp))
+
+                    // Rejection reason card
                     WiomCard(borderColor = WiomNegative, backgroundColor = WiomNegative100) {
-                        Text(t("कारण", "Reason"), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = WiomNegative)
+                        Text("❌ ${t("अस्वीकृति का कारण", "Reason for Rejection")}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = WiomNegative)
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            t(
-                                "Location इस समय service area में नहीं है। Area infrastructure तैयार होने पर दोबारा apply कर सकते हैं।",
-                                "Location is not in the service area currently. You can re-apply once area infrastructure is ready."
-                            ),
-                            fontSize = 14.sp, color = WiomText, lineHeight = 20.sp,
+                            if (reason != null) t(reason.labelHi, reason.labelEn)
+                            else t("दस्तावेज़ सही नहीं हैं।", "Documents are not correct."),
+                            fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = WiomText, lineHeight = 22.sp,
                         )
                     }
-                    Spacer(Modifier.height(8.dp))
-                    WiomCard(borderColor = WiomPositive, backgroundColor = WiomPositive100) {
-                        Text("\uD83D\uDD12 ${t("Refund शुरू हो गया", "Refund initiated")}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = WiomPositive)
+                    Spacer(Modifier.height(10.dp))
+
+                    // Resolution CTA — if resolvable
+                    if (reason != null && reason.resolvable) {
+                        WiomCard(borderColor = WiomPrimary, backgroundColor = Color(0xFFFFF0F6)) {
+                            Text("🔧 ${t("समाधान", "Resolution")}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = WiomPrimary)
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                t(reason.ctaHi, reason.ctaEn),
+                                fontSize = 14.sp, color = WiomText, lineHeight = 20.sp,
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            WiomButton(
+                                t(reason.ctaHi, reason.ctaEn),
+                                onClick = {
+                                    OnboardingState.verificationRejected = false
+                                    OnboardingState.verificationRejectReasonId = null
+                                    OnboardingState.goTo(reason.resolveScreen)
+                                },
+                            )
+                        }
                         Spacer(Modifier.height(8.dp))
-                        Text(
-                            t("₹2,000 आपके bank account में 5-7 working days में आ जाएगा।", "₹2,000 will be credited to your bank account in 5-7 working days."),
-                            fontSize = 14.sp, color = WiomText, lineHeight = 20.sp,
-                        )
-                        Text("Ref: RFD-2026-0042", fontSize = 12.sp, color = WiomHint)
+                        InfoBox("\uD83D\uDD14", t("दस्तावेज़ सही करें (2 मौके बाकी)", "Fix documents (2 chances remaining)"))
+                    } else {
+                        // Not resolvable — show refund
+                        WiomCard(borderColor = WiomPositive, backgroundColor = WiomPositive100) {
+                            Text("\uD83D\uDD12 ${t("Refund शुरू हो गया", "Refund initiated")}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = WiomPositive)
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                t("₹2,000 आपके bank account में 5-7 working days में आ जाएगा।", "₹2,000 will be credited to your bank account in 5-7 working days."),
+                                fontSize = 14.sp, color = WiomText, lineHeight = 20.sp,
+                            )
+                            Text("Ref: RFD-2026-0042", fontSize = 12.sp, color = WiomHint)
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        InfoBox("ℹ️", t("यह समस्या ऐप से हल नहीं हो सकती। रिफंड प्रक्रिया शुरू हो गई है।", "This issue cannot be resolved from the app. Refund has been initiated."))
                     }
-                    Spacer(Modifier.height(8.dp))
-                    InfoBox("\uD83D\uDD14", t("जब area तैयार हो, तो दोबारा apply कर सकते हैं।", "You can re-apply when the area is ready."))
-                    Spacer(Modifier.height(12.dp))
-                    WiomButton(
-                        "← ${t("Approved Path देखें", "View Approved Path")}",
-                        onClick = {
-                            OnboardingState.qaRejected = false
-                        },
-                        isSecondary = true,
-                    )
                 }
             } else {
                 // Pending/Approved state
@@ -96,7 +120,7 @@ fun QaInvestigationScreen(onNext: () -> Unit) {
                     Text("\uD83D\uDD0D", fontSize = 40.sp)
                     Spacer(Modifier.height(16.dp))
                     Text(
-                        t("Investigation चल रही है", "Investigation in progress"),
+                        t("सत्यापन चल रहा है", "Verification in progress"),
                         fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomText,
                         textAlign = TextAlign.Center,
                     )
@@ -107,33 +131,32 @@ fun QaInvestigationScreen(onNext: () -> Unit) {
                     )
                 }
                 Spacer(Modifier.height(16.dp))
-                ChecklistItem(t("फ़ोन वेरीफाइड", "Phone Verified"))
-                ChecklistItem(t("व्यक्तिगत जानकारी", "Personal Information"))
-                ChecklistItem(t("लोकेशन सबमिट", "Location Submitted"))
                 ChecklistItem(t("KYC दस्तावेज़ वेरीफाइड", "KYC Documents Verified"))
-                ChecklistItem(t("₹2,000 रजिस्ट्रेशन फ़ीस", "₹2,000 Registration Fee"))
+                ChecklistItem(t("Bank वेरीफाइड", "Bank Verified"))
+                ChecklistItem(t("ISP अनुबंध", "ISP Agreement"))
+                ChecklistItem(t("फ़ोटो जमा", "Photos Submitted"))
                 ChecklistItem(
-                    "QA Investigation",
+                    t("सत्यापन", "Verification"),
                     subtitle = t("Business/QA team review कर रही है...", "Business/QA team is reviewing..."),
                     isDone = false,
                     isWaiting = true,
                 )
                 Column(modifier = Modifier.padding(16.dp)) {
-                    InfoBox("⏳", t("Review में 2-3 business days लग सकते हैं। Notification मिलेगा।", "Review may take 2-3 business days. You will be notified."), type = InfoBoxType.WARNING)
+                    InfoBox("\u23F3", t("Review में 2-3 business days लग सकते हैं। Notification मिलेगा।", "Review may take 2-3 business days. You will be notified."), type = InfoBoxType.WARNING)
                 }
             }
         }
     }
 }
 
-// Screen 7: Policy + Rate Card
+// ─── Screen 10: Policy + Rate Card ────────────────────────────────────────────
 @Composable
 fun PolicyRateCardScreen(onNext: () -> Unit, onBack: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
         AppHeader(
             title = t("नीतियां और रेट कार्ड", "Policy & Rate Card"),
             onBack = onBack,
-            rightText = t("स्टेप 5", "Step 5")
+            rightText = t("स्टेप 1/7", "Step 1/7")
         )
         Column(
             modifier = Modifier
@@ -147,7 +170,7 @@ fun PolicyRateCardScreen(onNext: () -> Unit, onBack: () -> Unit) {
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                t("QA Approved ✓ — अब policies समझें", "QA Approved ✓ — now review policies"),
+                t("सत्यापन Approved \u2713 — अब policies समझें", "Verification Approved \u2713 — now review policies"),
                 fontSize = 14.sp, color = WiomTextSec,
             )
             Spacer(Modifier.height(16.dp))
@@ -165,7 +188,7 @@ fun PolicyRateCardScreen(onNext: () -> Unit, onBack: () -> Unit) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(t("नया कनेक्शन", "New Connection"), fontSize = 14.sp, color = WiomTextSec)
-                    Text("₹300/${t("कनेक्शन", "conn")}", fontWeight = FontWeight.Bold, color = WiomPositive, fontSize = 14.sp)
+                    Text("\u20B9300/${t("कनेक्शन", "conn")}", fontWeight = FontWeight.Bold, color = WiomPositive, fontSize = 14.sp)
                 }
                 HorizontalDivider(color = WiomBorder)
                 Row(
@@ -173,7 +196,7 @@ fun PolicyRateCardScreen(onNext: () -> Unit, onBack: () -> Unit) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(t("रिचार्ज कमीशन", "Recharge Commission"), fontSize = 14.sp, color = WiomTextSec)
-                    Text("₹300", fontWeight = FontWeight.Bold, color = WiomPositive, fontSize = 14.sp)
+                    Text("\u20B9300", fontWeight = FontWeight.Bold, color = WiomPositive, fontSize = 14.sp)
                 }
             }
             Spacer(Modifier.height(8.dp))
@@ -194,7 +217,7 @@ fun PolicyRateCardScreen(onNext: () -> Unit, onBack: () -> Unit) {
                 )
                 slaItems.forEach { item ->
                     Text(
-                        "• $item",
+                        "\u2022 $item",
                         fontSize = 14.sp, color = WiomTextSec,
                         lineHeight = 22.sp,
                         modifier = Modifier.padding(vertical = 1.dp),
@@ -208,7 +231,7 @@ fun PolicyRateCardScreen(onNext: () -> Unit, onBack: () -> Unit) {
     }
 }
 
-// Screen 8: Bank + Dedup Check
+// ─── Screen 6: Bank + Dedup Check ─────────────────────────────────────────────
 @Composable
 fun BankDedupScreen(onNext: () -> Unit, onBack: () -> Unit) {
     val scenario = OnboardingState.activeScenario
@@ -234,7 +257,7 @@ fun BankDedupScreen(onNext: () -> Unit, onBack: () -> Unit) {
             AppHeader(
                 title = t("Bank वेरिफिकेशन", "Bank Verification"),
                 onBack = onBack,
-                rightText = t("स्टेप 6", "Step 6")
+                rightText = t("स्टेप 2/5", "Step 2/5")
             )
 
             when (scenario) {
@@ -276,8 +299,8 @@ fun BankDedupScreen(onNext: () -> Unit, onBack: () -> Unit) {
 
                         Spacer(Modifier.height(8.dp))
                         ErrorCard(
-                            icon = "🏦",
-                            titleHi = "₹1 credit नहीं हो पाया",
+                            icon = "\uD83C\uDFE6",
+                            titleHi = "\u20B91 credit नहीं हो पाया",
                             titleEn = "Penny drop failed",
                             messageHi = "अकाउंट नंबर गलत हो सकता है या बैंक सर्वर डाउन है।",
                             messageEn = "Account number may be wrong or bank server is down.",
@@ -323,7 +346,7 @@ fun BankDedupScreen(onNext: () -> Unit, onBack: () -> Unit) {
                         }
                         Spacer(Modifier.height(8.dp))
                         ErrorCard(
-                            icon = "👤",
+                            icon = "\uD83D\uDC64",
                             titleHi = "Penny Drop — नाम मेल नहीं खाता",
                             titleEn = "Penny Drop — Name Mismatch",
                             messageHi = "Bank account का नाम और आपका नाम अलग है।",
@@ -351,18 +374,18 @@ fun BankDedupScreen(onNext: () -> Unit, onBack: () -> Unit) {
                         // Penny drop verified
                         WiomCard(borderColor = WiomPositive300, backgroundColor = WiomPositive100) {
                             Text(
-                                "✓ ${t("पेनी ड्रॉप वेरीफाइड", "PENNY DROP VERIFIED")}",
+                                "\u2713 ${t("पेनी ड्रॉप वेरीफाइड", "PENNY DROP VERIFIED")}",
                                 fontSize = 12.sp, fontWeight = FontWeight.Bold, color = WiomPositive,
                             )
                             Spacer(Modifier.height(4.dp))
                             Text(
-                                t("₹1 क्रेडिट और वेरीफाइड — नाम मैच कन्फ़र्म", "₹1 credited & verified — Name match confirmed"),
+                                t("\u20B91 क्रेडिट और वेरीफाइड — नाम मैच कन्फ़र्म", "\u20B91 credited & verified — Name match confirmed"),
                                 fontSize = 14.sp, color = WiomTextSec, lineHeight = 20.sp,
                             )
                         }
                         Spacer(Modifier.height(12.dp))
                         ErrorCard(
-                            icon = "🔍",
+                            icon = "\uD83D\uDD0D",
                             titleHi = "DEDUP CHECK — Match Found!",
                             titleEn = "DEDUP CHECK — Match Found!",
                             messageHi = "इस PAN और Bank Account से पहले से एक पार्टनर रजिस्टर्ड है।",
@@ -450,19 +473,19 @@ fun BankDedupScreen(onNext: () -> Unit, onBack: () -> Unit) {
                         if (bankVerified) {
                             WiomCard(borderColor = WiomPositive300, backgroundColor = WiomPositive100) {
                                 Text(
-                                    "✓ ${t("पेनी ड्रॉप वेरीफाइड", "PENNY DROP VERIFIED")}",
+                                    "\u2713 ${t("पेनी ड्रॉप वेरीफाइड", "PENNY DROP VERIFIED")}",
                                     fontSize = 12.sp, fontWeight = FontWeight.Bold, color = WiomPositive,
                                 )
                                 Spacer(Modifier.height(4.dp))
                                 Text(
-                                    t("₹1 क्रेडिट और वेरीफाइड — नाम मैच कन्फ़र्म", "₹1 credited & verified — Name match confirmed"),
+                                    t("\u20B91 क्रेडिट और वेरीफाइड — नाम मैच कन्फ़र्म", "\u20B91 credited & verified — Name match confirmed"),
                                     fontSize = 14.sp, color = WiomTextSec, lineHeight = 20.sp,
                                 )
                             }
                             Spacer(Modifier.height(8.dp))
                             WiomCard(borderColor = WiomPositive300, backgroundColor = WiomPositive100) {
                                 Text(
-                                    "✓ ${t("डीडप चेक पास", "DEDUP CHECK PASSED")}",
+                                    "\u2713 ${t("डीडप चेक पास", "DEDUP CHECK PASSED")}",
                                     fontSize = 12.sp, fontWeight = FontWeight.Bold, color = WiomPositive,
                                 )
                                 Spacer(Modifier.height(4.dp))
@@ -472,15 +495,15 @@ fun BankDedupScreen(onNext: () -> Unit, onBack: () -> Unit) {
                                 )
                             }
                         } else if (!allFieldsFilled) {
-                            InfoBox("📝", t("सभी बैंक डिटेल्स भरें", "Fill all bank details to proceed"))
+                            InfoBox("\uD83D\uDCDD", t("सभी बैंक डिटेल्स भरें", "Fill all bank details to proceed"))
                         }
                     }
                     BottomBar {
                         if (bankVerified) {
-                            WiomButton(t("अब Agreement करें", "Next: Agreement"), onClick = onNext)
+                            WiomButton(t("अब ISP अनुबंध अपलोड करें", "Next: ISP Agreement"), onClick = onNext)
                         } else {
                             WiomButton(
-                                t("Penny Drop Verify करें", "Verify via Penny Drop"),
+                                t("अब ISP अनुबंध अपलोड करें", "Next: ISP Agreement"),
                                 onClick = { isVerifying = true },
                                 enabled = allFieldsFilled,
                             )
@@ -499,332 +522,326 @@ fun BankDedupScreen(onNext: () -> Unit, onBack: () -> Unit) {
     }
 }
 
-// Screen 9: Agreement Signing
+// ─── Screen 7: ISP Agreement ──────────────────────────────────────────────────
 @Composable
-fun AgreementScreen(onNext: () -> Unit, onBack: () -> Unit) {
-    val scenario = OnboardingState.activeScenario
-    var agreed by remember { mutableStateOf(true) }
-    var isEsigning by remember { mutableStateOf(false) }
-
-    // e-Sign loading simulation
-    if (isEsigning) {
-        LaunchedEffect(Unit) {
-            delay(2000)
-            isEsigning = false
-            onNext()
-        }
-    }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
-            AppHeader(
-                title = t("पार्टनर एग्रीमेंट", "Partner Agreement"),
-                onBack = onBack,
-                rightText = t("स्टेप 7", "Step 7")
-            )
-
-            if (scenario == Scenario.ESIGN_FAILED) {
-                // ─── ESIGN_FAILED error screen ───
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Spacer(Modifier.height(32.dp))
-                    Text("✍\uFE0F", fontSize = 40.sp)
-                    Spacer(Modifier.height(16.dp))
-                    Text(
-                        t("e-Sign नहीं हो पाया", "e-Sign could not be completed"),
-                        fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomWarning700,
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    ErrorCard(
-                        icon = "✍\uFE0F",
-                        titleHi = "Aadhaar e-Sign कनेक्शन एरर",
-                        titleEn = "Aadhaar e-Sign Connection Error",
-                        messageHi = "UIDAI सर्वर से कनेक्ट नहीं हो पाया। कृपया दोबारा कोशिश करें।",
-                        messageEn = "Could not connect to UIDAI server. Please try again.",
-                        type = "warning",
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    WiomCard {
-                        Text(t("क्या करें?", "What to do?"), fontWeight = FontWeight.Bold, fontSize = 14.sp, color = WiomText)
-                        Spacer(Modifier.height(8.dp))
-                        Text("1. ${t("इंटरनेट कनेक्शन चेक करें", "Check internet connection")}", fontSize = 14.sp, color = WiomTextSec, lineHeight = 22.sp)
-                        Text("2. ${t("2-3 मिनट इंतज़ार करें", "Wait 2-3 minutes")}", fontSize = 14.sp, color = WiomTextSec, lineHeight = 22.sp)
-                        Text("3. ${t("दोबारा कोशिश करें", "Retry")}", fontSize = 14.sp, color = WiomTextSec, lineHeight = 22.sp)
-                    }
-                    Spacer(Modifier.height(16.dp))
-                    WiomButton(t("e-Sign Retry करें", "Retry e-Sign"), onClick = {})
-                    Spacer(Modifier.height(8.dp))
-                    WiomButton(t("हमसे बात करें", "Talk to us"), onClick = {}, isSecondary = true)
-                }
-            } else {
-                // ─── Normal happy path ───
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        t("पार्टनर एग्रीमेंट", "Partner Agreement"),
-                        fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomText,
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        t("Review और e-Sign करें", "Review and e-Sign"),
-                        fontSize = 14.sp, color = WiomTextSec,
-                    )
-                    Spacer(Modifier.height(16.dp))
-
-                    // Agreement text box
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 140.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .border(1.dp, WiomBorder, RoundedCornerShape(12.dp))
-                            .background(Color.White)
-                            .padding(12.dp)
-                            .verticalScroll(rememberScrollState())
-                    ) {
-                        Text(
-                            "WIOM CHANNEL SALES PARTNER AGREEMENT\n\n" +
-                            "This Agreement is entered between Wiom Technologies Pvt. Ltd. (\"Company\") and the Partner identified herein.\n\n" +
-                            "1. SCOPE: Partner shall act as authorized CSP for Wiom internet services in designated territory.\n\n" +
-                            "2. RESPONSIBILITIES: Customer acquisition, service activation, first-level support, equipment care.\n\n" +
-                            "3. COMMISSION: As per Rate Card shared and acknowledged. Subject to SLA compliance.\n\n" +
-                            "4. TERM: 12 months, auto-renewable. 30-day notice for termination.\n\n" +
-                            "5. COMPLIANCE: Partner shall comply with ISP license terms (DOT/TRAI) and Wiom brand guidelines.",
-                            fontSize = 12.sp, color = WiomTextSec, lineHeight = 18.sp,
-                        )
-                    }
-                    Spacer(Modifier.height(12.dp))
-
-                    WiomCard(borderColor = WiomPositive300, backgroundColor = WiomPositive100) {
-                        VerificationItem(t("ISP License: DOT Compliance वेरीफाइड", "ISP License: DOT Compliance Verified"))
-                        VerificationItem(t("TRAI Guidelines: स्वीकृत", "TRAI Guidelines: Acknowledged"))
-                    }
-                    Spacer(Modifier.height(12.dp))
-
-                    // Checkbox
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { agreed = !agreed }
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(24.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(if (agreed) WiomPositive else Color.Transparent)
-                                .border(
-                                    2.dp,
-                                    if (agreed) WiomPositive else WiomBorderInput,
-                                    RoundedCornerShape(8.dp)
-                                ),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            if (agreed) Text("✓", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        }
-                        Text(
-                            t("मैंने सभी नियम और शर्तें पढ़ लिए और accept करता हूं", "I have read and accept all terms and conditions"),
-                            fontSize = 14.sp, color = WiomText, lineHeight = 20.sp,
-                        )
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    InfoBox("\uD83D\uDD12", t("Aadhaar e-Sign से agreement sign होगा", "Agreement will be signed via Aadhaar e-Sign"))
-                }
-                BottomBar {
-                    WiomButton(t("e-Sign करें", "e-Sign"), onClick = { isEsigning = true }, enabled = agreed && !isEsigning)
-                }
-            }
-        }
-
-        // Loading overlay
-        LoadingOverlay(
-            messageHi = "e-Sign प्रोसेस हो रहा है...",
-            messageEn = "Processing e-Sign...",
-            isVisible = isEsigning,
-        )
-    }
-}
-
-// Screen 10: Technical Review
-@Composable
-fun TechReviewScreen(onNext: () -> Unit) {
-    val scenario = OnboardingState.activeScenario
-    val shopPhotoUploaded = OnboardingState.shopPhotoUploaded
-    val equipmentReviewed = OnboardingState.equipmentReviewed
-    val internetSetupType = OnboardingState.internetSetupType
-    var dropdownExpanded by remember { mutableStateOf(false) }
-    val internetOptions = listOf("Fiber (FTTH)", "Cable", "Wireless")
-
-    val allDone = shopPhotoUploaded && equipmentReviewed && internetSetupType.isNotBlank()
+fun IspAgreementScreen(onNext: () -> Unit, onBack: () -> Unit) {
+    var ispUploaded by remember { mutableStateOf(OnboardingState.ispAgreementUploaded) }
+    var isUploading by remember { mutableStateOf(false) }
+    val isIspInvalid = OnboardingState.activeScenario == Scenario.ISP_DOC_INVALID
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
-        AppHeader(title = t("तकनीकी समीक्षा", "Technical Review"))
+        AppHeader(
+            title = t("ISP अनुबंध", "ISP Agreement"),
+            onBack = onBack,
+            rightText = t("स्टेप 3/5", "Step 3/5")
+        )
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+        ) {
+            // ISP_DOC_INVALID error screen
+            if (isIspInvalid) {
+                WiomCard(borderColor = WiomNegative, backgroundColor = WiomNegative100) {
+                    Text(
+                        "⚠️ ${t("ISP दस्तावेज़ अमान्य", "ISP Document Invalid")}",
+                        fontWeight = FontWeight.Bold, fontSize = 15.sp, color = WiomNegative,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        t("अपलोड किया गया दस्तावेज़ अमान्य है। कृपया सही ISP अनुबंध अपलोड करें।",
+                           "The uploaded document is invalid. Please upload a valid ISP agreement."),
+                        fontSize = 14.sp, color = WiomTextSec, lineHeight = 20.sp,
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    WiomButton(
+                        t("दोबारा अपलोड करें", "Re-upload"),
+                        onClick = {
+                            OnboardingState.clearScenario()
+                            OnboardingState.ispAgreementUploaded = false
+                            ispUploaded = false
+                        },
+                    )
+                }
+                Spacer(Modifier.height(16.dp))
+            }
 
-        if (scenario == Scenario.TECH_DEVICE_INCOMPATIBLE) {
-            // ─── TECH_DEVICE_INCOMPATIBLE error screen ───
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Spacer(Modifier.height(24.dp))
-                Text("\uD83D\uDCF5", fontSize = 40.sp)
-                Spacer(Modifier.height(16.dp))
+            Text(
+                t("ISP अनुबंध अपलोड", "ISP Agreement Upload"),
+                fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomText,
+            )
+            Spacer(Modifier.height(12.dp))
+
+            // DOT compliance info card
+            WiomCard(borderColor = WiomPositive300, backgroundColor = WiomPositive100) {
                 Text(
-                    t("Device Compatible नहीं है", "Device is not compatible"),
-                    fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomNegative,
-                    textAlign = TextAlign.Center,
+                    "\u2139\uFE0F ${t("DOT अनुपालन के लिए अनिवार्य", "Mandatory for DOT Compliance")}",
+                    fontWeight = FontWeight.Bold, fontSize = 14.sp, color = WiomPositive,
                 )
-                Spacer(Modifier.height(16.dp))
-                ErrorCard(
-                    icon = "📵",
-                    titleHi = "DEVICE CHECK FAILED",
-                    titleEn = "DEVICE CHECK FAILED",
-                    messageHi = "आपका device minimum requirements पूरी नहीं करता।",
-                    messageEn = "Your device does not meet minimum requirements.",
-                    type = "error",
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    t("ISP अनुबंध दूरसंचार विभाग की जांच के लिए आवश्यक है।",
+                       "ISP Agreement is required for Department of Telecom verification."),
+                    fontSize = 14.sp, color = WiomTextSec, lineHeight = 20.sp,
+                )
+            }
+            Spacer(Modifier.height(12.dp))
+
+            // Trust badges
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TrustBadge("\uD83D\uDD12", t("DOT अनुपालन", "DOT Compliance"))
+                TrustBadge("\u2713", t("TRAI दिशानिर्देश", "TRAI Guidelines"))
+            }
+            Spacer(Modifier.height(16.dp))
+
+            // ISP Agreement upload card
+            WiomCard {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Spacer(Modifier.height(4.dp))
-                    HorizontalDivider(color = WiomNegative200)
-                    Spacer(Modifier.height(4.dp))
-                    Text("Samsung Galaxy J2 Core", fontSize = 13.sp, color = WiomText)
-                    Text("Android 8.1 (Min: 11)", fontSize = 13.sp, color = WiomNegative)
-                    Text("RAM 1GB (Min: 3GB)", fontSize = 13.sp, color = WiomNegative)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("\uD83D\uDCC4", fontSize = 20.sp)
+                        Spacer(Modifier.width(8.dp))
+                        Column {
+                            Text(
+                                t("ISP अनुबंध", "ISP Agreement"),
+                                fontSize = 14.sp, fontWeight = FontWeight.Bold, color = WiomText,
+                            )
+                            Text(
+                                if (ispUploaded) t("अपलोड हो गया \u2705", "Uploaded \u2705")
+                                else t("अपलोड करें", "Upload"),
+                                fontSize = 12.sp,
+                                color = if (ispUploaded) WiomPositive else WiomTextSec,
+                            )
+                        }
+                    }
+                    if (!ispUploaded) {
+                        Button(
+                            onClick = {
+                                isUploading = true
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White,
+                                contentColor = WiomPrimary,
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, WiomPrimary),
+                        ) {
+                            Text(t("अपलोड", "Upload"), fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                        }
+                    } else {
+                        Text("\u2705", fontSize = 24.sp)
+                    }
+                }
+            }
+
+            // Simulate upload
+            if (isUploading) {
+                LaunchedEffect(Unit) {
+                    delay(1500)
+                    ispUploaded = true
+                    OnboardingState.ispAgreementUploaded = true
+                    isUploading = false
                 }
                 Spacer(Modifier.height(12.dp))
                 WiomCard {
-                    Text(t("Recommended Devices", "Recommended Devices"), fontWeight = FontWeight.Bold, fontSize = 14.sp, color = WiomText)
-                    Spacer(Modifier.height(8.dp))
-                    Text("• Samsung M34", fontSize = 14.sp, color = WiomTextSec)
-                    Text("• Redmi Note 12", fontSize = 14.sp, color = WiomTextSec)
-                    Text("• Realme Narzo 60", fontSize = 14.sp, color = WiomTextSec)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = WiomPrimary,
+                            strokeWidth = 2.dp,
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            t("अपलोड हो रहा है...", "Uploading..."),
+                            fontSize = 14.sp, color = WiomTextSec,
+                        )
+                    }
                 }
-                Spacer(Modifier.height(8.dp))
-                InfoBox("\uD83D\uDCF1", t("नया device लेने के बाद यहीं से आगे बढ़ सकते हैं", "You can continue from here after getting a new device"))
-                Spacer(Modifier.height(16.dp))
-                WiomButton(t("Device बदलें और Retry", "Change Device and Retry"), onClick = {})
             }
-        } else {
-            // ─── Normal happy path (interactive) ───
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+
+            Spacer(Modifier.height(12.dp))
+            InfoBox("\uD83D\uDCA1", t("साफ़ फ़ोटो लें — सारा टेक्स्ट दिखना चाहिए", "Take a clear photo — all text should be visible"), type = InfoBoxType.WARNING)
+        }
+
+        BottomBar {
+            WiomButton(
+                if (ispUploaded) t("आगे बढ़ें", "Proceed")
+                else t("ISP अनुबंध अपलोड करें", "Upload ISP Agreement"),
+                onClick = if (ispUploaded) onNext else ({}),
+                enabled = ispUploaded,
+            )
+        }
+    }
+}
+
+// ─── Screen 8: Shop Photos ────────────────────────────────────────────────────
+@Composable
+fun ShopPhotosScreen(onNext: () -> Unit, onBack: () -> Unit) {
+    var shopUploaded by remember { mutableStateOf(OnboardingState.shopFrontPhotoUploaded) }
+    var routerUploaded by remember { mutableStateOf(OnboardingState.routerPhotoUploaded) }
+    var isUploadingShop by remember { mutableStateOf(false) }
+    var isUploadingRouter by remember { mutableStateOf(false) }
+
+    val bothUploaded = shopUploaded && routerUploaded
+
+    // Simulate shop upload
+    if (isUploadingShop) {
+        LaunchedEffect(Unit) {
+            delay(1500)
+            shopUploaded = true
+            OnboardingState.shopFrontPhotoUploaded = true
+            isUploadingShop = false
+        }
+    }
+    // Simulate router upload
+    if (isUploadingRouter) {
+        LaunchedEffect(Unit) {
+            delay(1500)
+            routerUploaded = true
+            OnboardingState.routerPhotoUploaded = true
+            isUploadingRouter = false
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
+        AppHeader(
+            title = t("फ़ोटो", "Photos"),
+            onBack = onBack,
+            rightText = t("स्टेप 4/5", "Step 4/5"),
+        )
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+        ) {
+            Text(
+                t("फ़ोटो अपलोड करें", "Upload Photos"),
+                fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomText,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                t("दुकान और उपकरण की फ़ोटो अपलोड करें", "Upload shop and equipment photos"),
+                fontSize = 14.sp, color = WiomTextSec,
+            )
+            Spacer(Modifier.height(16.dp))
+
+            // Shop Front Photo card
+            WiomCard {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Text("\uD83D\uDEE0\uFE0F", fontSize = 40.sp)
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        if (allDone) t("दस्तावेज़ पूरे!", "Documentation complete!")
-                        else t("Technical Review", "Technical Review"),
-                        fontSize = 20.sp, fontWeight = FontWeight.Bold,
-                        color = if (allDone) WiomPositive else WiomText,
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        if (allDone) t("अब Technical Review हो रही है", "Technical Review in progress")
-                        else t("फ़ोटो अपलोड करें और setup चुनें", "Upload photos and select setup"),
-                        fontSize = 14.sp, color = WiomTextSec,
-                    )
-                }
-                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    WiomCard {
-                        Text(
-                            t("डिवाइस चेक", "DEVICE CHECK"),
-                            fontSize = 12.sp, fontWeight = FontWeight.Bold, color = WiomTextSec,
-                            letterSpacing = 0.5.sp,
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        VerificationItem("Samsung Galaxy M34")
-                        VerificationItem("Android 14 — ${t("संगत", "Compatible")}")
-                        VerificationItem("Wiom OS: ${t("तैयार", "Ready")}")
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    WiomCard {
-                        Text(
-                            t("इन्फ्रा चेक", "INFRA CHECK"),
-                            fontSize = 12.sp, fontWeight = FontWeight.Bold, color = WiomTextSec,
-                            letterSpacing = 0.5.sp,
-                        )
-                        Spacer(Modifier.height(8.dp))
-
-                        // Internet Setup Dropdown
-                        FieldLabel(t("इंटरनेट सेटअप", "Internet Setup"))
-                        Box {
-                            WiomTextField(
-                                value = if (internetSetupType.isNotBlank()) internetSetupType else "",
-                                onValueChange = {},
-                                readOnly = true,
-                                placeholder = t("चुनें", "Select"),
-                                isVerified = internetSetupType.isNotBlank(),
-                                modifier = Modifier.clickable { dropdownExpanded = true },
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                        Text("\uD83D\uDCF7", fontSize = 24.sp)
+                        Spacer(Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                t("दुकान की फ़ोटो", "Shop Front Photo"),
+                                fontSize = 14.sp, fontWeight = FontWeight.Bold, color = WiomText,
                             )
-                            DropdownMenu(
-                                expanded = dropdownExpanded,
-                                onDismissRequest = { dropdownExpanded = false },
-                            ) {
-                                internetOptions.forEach { option ->
-                                    DropdownMenuItem(
-                                        text = { Text(option, fontSize = 14.sp) },
-                                        onClick = {
-                                            OnboardingState.internetSetupType = option
-                                            dropdownExpanded = false
-                                        },
-                                    )
-                                }
-                            }
+                            Text(
+                                if (shopUploaded) t("अपलोड हो गया \u2705", "Uploaded \u2705")
+                                else if (isUploadingShop) t("अपलोड हो रहा है...", "Uploading...")
+                                else t("दुकान के सामने से साफ़ फ़ोटो — बोर्ड दिखना चाहिए", "Clear front photo — signboard must be visible"),
+                                fontSize = 12.sp,
+                                color = if (shopUploaded) WiomPositive else WiomTextSec,
+                            )
                         }
-
-                        // Shop photo upload
-                        UploadRow(
-                            "\uD83D\uDCF7",
-                            t("दुकान की फ़ोटो", "Shop Front Photo"),
-                            if (shopPhotoUploaded) t("रिव्यूड ✓", "Reviewed ✓")
-                            else t("अपलोड करें", "Upload"),
-                            isVerified = shopPhotoUploaded,
-                            onClick = { OnboardingState.shopPhotoUploaded = true },
-                        )
-                        Spacer(Modifier.height(8.dp))
-
-                        // Router/Equipment upload
-                        UploadRow(
-                            "\uD83D\uDCF7",
-                            t("राऊटर / उपकरण", "Router / Equipment"),
-                            if (equipmentReviewed) t("रिव्यूड ✓", "Reviewed ✓")
-                            else t("अपलोड करें", "Upload"),
-                            isVerified = equipmentReviewed,
-                            onClick = { OnboardingState.equipmentReviewed = true },
-                        )
                     }
-                    Spacer(Modifier.height(8.dp))
-                    if (allDone) {
-                        InfoBox("✓", t("Tech review पूरी! अब onboarding fee भरें।", "Tech review complete! Now pay the onboarding fee."), type = InfoBoxType.SUCCESS)
+                    if (isUploadingShop) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = WiomPrimary,
+                            strokeWidth = 2.dp,
+                        )
+                    } else if (!shopUploaded) {
+                        Button(
+                            onClick = { isUploadingShop = true },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White,
+                                contentColor = WiomPrimary,
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, WiomPrimary),
+                        ) {
+                            Text(t("अपलोड", "Upload"), fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                        }
                     } else {
-                        InfoBox("📝", t("सभी आइटम पूरे करें", "Complete all items to proceed"))
+                        Text("\u2705", fontSize = 24.sp)
                     }
-                    Spacer(Modifier.height(8.dp))
                 }
             }
-            BottomBar {
-                WiomButton(t("Onboarding Fee भरें", "Pay Onboarding Fee"), onClick = onNext, enabled = allDone)
+            Spacer(Modifier.height(8.dp))
+
+            // Router/Equipment Photo card
+            WiomCard {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                        Text("\uD83D\uDCF7", fontSize = 24.sp)
+                        Spacer(Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                t("राउटर/उपकरण फ़ोटो", "Router/Equipment Photo"),
+                                fontSize = 14.sp, fontWeight = FontWeight.Bold, color = WiomText,
+                            )
+                            Text(
+                                if (routerUploaded) t("अपलोड हो गया \u2705", "Uploaded \u2705")
+                                else if (isUploadingRouter) t("अपलोड हो रहा है...", "Uploading...")
+                                else t("इंटरनेट उपकरण (राउटर, केबल) की फ़ोटो", "Internet equipment (router, cables) photo"),
+                                fontSize = 12.sp,
+                                color = if (routerUploaded) WiomPositive else WiomTextSec,
+                            )
+                        }
+                    }
+                    if (isUploadingRouter) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = WiomPrimary,
+                            strokeWidth = 2.dp,
+                        )
+                    } else if (!routerUploaded) {
+                        Button(
+                            onClick = { isUploadingRouter = true },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White,
+                                contentColor = WiomPrimary,
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, WiomPrimary),
+                        ) {
+                            Text(t("अपलोड", "Upload"), fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                        }
+                    } else {
+                        Text("\u2705", fontSize = 24.sp)
+                    }
+                }
             }
+
+            Spacer(Modifier.height(12.dp))
+
+            if (bothUploaded) {
+                InfoBox("\u2713", t("दोनों फ़ोटो अपलोड हो गई!", "Both photos uploaded!"), type = InfoBoxType.SUCCESS)
+            } else {
+                InfoBox("\uD83D\uDCF7", t("दोनों फ़ोटो अपलोड करें", "Upload both photos to proceed"))
+            }
+        }
+
+        BottomBar {
+            WiomButton(
+                t("सत्यापन के लिए जमा करें", "Submit for Verification"),
+                onClick = onNext,
+                enabled = bothUploaded,
+            )
         }
     }
 }

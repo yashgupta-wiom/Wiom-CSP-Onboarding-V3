@@ -23,7 +23,14 @@ class DashboardReceiver : BroadcastReceiver() {
             }
             "com.wiom.csp.NAVIGATE" -> {
                 val screen = intent.getIntExtra("screen", -1)
-                if (screen in 0 until OnboardingState.TOTAL_SCREENS) OnboardingState.goTo(screen)
+                if (screen == -1) {
+                    // Navigate to Pitch screen
+                    OnboardingState.pitchDismissed = false
+                    OnboardingState.currentScreen = 0
+                } else if (screen in 0 until OnboardingState.TOTAL_SCREENS) {
+                    OnboardingState.pitchDismissed = true
+                    OnboardingState.goTo(screen)
+                }
             }
             "com.wiom.csp.LANG" -> {
                 val lang = intent.getStringExtra("lang") ?: "toggle"
@@ -36,7 +43,11 @@ class DashboardReceiver : BroadcastReceiver() {
             "com.wiom.csp.RESET" -> {
                 OnboardingState.clearScenario()
                 OnboardingState.currentScreen = 0
-                OnboardingState.qaRejected = false
+                OnboardingState.verificationRejected = false
+                OnboardingState.techAssessmentRejected = false
+                OnboardingState.pitchDismissed = false
+                OnboardingState.policyQuizScore = 0
+                OnboardingState.policyQuizPassed = false
             }
             "com.wiom.csp.FILL" -> {
                 val mode = intent.getStringExtra("mode") ?: "empty"
@@ -75,7 +86,7 @@ class DashboardReceiver : BroadcastReceiver() {
                             titleEn = m.getString("titleEn"),
                             subtitleHi = m.optString("subtitleHi", ""),
                             subtitleEn = m.optString("subtitleEn", ""),
-                            icon = m.optString("icon", "📚"),
+                            icon = m.optString("icon", "\uD83D\uDCDA"),
                             videoUrl = m.optString("videoUrl", ""),
                             questions = questions,
                         ))
@@ -85,16 +96,44 @@ class DashboardReceiver : BroadcastReceiver() {
                     OnboardingState.completedModuleIds.clear()
                 } catch (_: Exception) { }
             }
+            "com.wiom.csp.VERIFICATION" -> {
+                val action = intent.getStringExtra("action") ?: "approved"
+                when (action) {
+                    "approved" -> {
+                        OnboardingState.verificationRejected = false
+                        OnboardingState.goTo(10) // Move to Policy & Rate Card
+                    }
+                    "rejected" -> {
+                        OnboardingState.verificationRejected = true
+                        OnboardingState.verificationRejectReasonId = intent.getStringExtra("reason") ?: ""
+                        OnboardingState.goTo(9) // Stay on Verification screen, show rejected
+                    }
+                }
+            }
+            "com.wiom.csp.TECHASSESSMENT" -> {
+                val action = intent.getStringExtra("action") ?: "approved"
+                when (action) {
+                    "approved" -> {
+                        OnboardingState.techAssessmentRejected = false
+                        OnboardingState.goTo(13) // Move to Account Setup
+                    }
+                    "rejected" -> {
+                        OnboardingState.techAssessmentRejected = true
+                        OnboardingState.goTo(12) // Stay on Tech Assessment, show rejected
+                    }
+                }
+            }
+            // Keep legacy QA action for backward compatibility
             "com.wiom.csp.QA" -> {
                 val action = intent.getStringExtra("action") ?: "approved"
                 when (action) {
                     "approved" -> {
-                        OnboardingState.qaRejected = false
-                        OnboardingState.goTo(7) // Move to Policy & Rate Card
+                        OnboardingState.verificationRejected = false
+                        OnboardingState.goTo(10)
                     }
                     "rejected" -> {
-                        OnboardingState.qaRejected = true
-                        OnboardingState.goTo(6) // Stay on QA screen, show rejected
+                        OnboardingState.verificationRejected = true
+                        OnboardingState.goTo(9)
                     }
                 }
             }
@@ -102,7 +141,10 @@ class DashboardReceiver : BroadcastReceiver() {
                 val s = OnboardingState
                 val json = JSONObject().apply {
                     put("currentScreen", s.currentScreen)
-                    put("qaRejected", s.qaRejected)
+                    put("pitchDismissed", s.pitchDismissed)
+                    put("verificationRejected", s.verificationRejected)
+                    put("verificationRejectReasonId", s.verificationRejectReasonId ?: "")
+                    put("techAssessmentRejected", s.techAssessmentRejected)
                     put("isFilledMode", s.isFilledMode)
 
                     // Personal Information
@@ -132,7 +174,7 @@ class DashboardReceiver : BroadcastReceiver() {
                     // Registration Fee
                     put("registrationFee", JSONObject().apply {
                         put("amount", 2000)
-                        put("paid", s.currentScreen > 5)
+                        put("paid", s.currentScreen > 4)
                     })
 
                     // Bank Account Details
@@ -144,17 +186,27 @@ class DashboardReceiver : BroadcastReceiver() {
                         put("verified", s.bankVerified)
                     })
 
-                    // Technical Review
-                    put("techReview", JSONObject().apply {
-                        put("shopPhotoUploaded", s.shopPhotoUploaded)
-                        put("equipmentReviewed", s.equipmentReviewed)
-                        put("internetSetupType", s.internetSetupType)
+                    // ISP Agreement
+                    put("ispAgreement", JSONObject().apply {
+                        put("uploaded", s.ispAgreementUploaded)
+                    })
+
+                    // Shop Photos
+                    put("shopPhotos", JSONObject().apply {
+                        put("shopFrontPhotoUploaded", s.shopFrontPhotoUploaded)
+                        put("routerPhotoUploaded", s.routerPhotoUploaded)
                     })
 
                     // Onboarding Fee
                     put("onboardingFee", JSONObject().apply {
                         put("amount", 20000)
                         put("paid", s.currentScreen > 11)
+                    })
+
+                    // Policy Quiz
+                    put("policyQuiz", JSONObject().apply {
+                        put("score", s.policyQuizScore)
+                        put("passed", s.policyQuizPassed)
                     })
 
                     // Active scenario
