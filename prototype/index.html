@@ -841,6 +841,9 @@ function addLog(text,type='info'){
   if(activityLog.length>20) activityLog.pop();
 }
 
+function showBizNameInfo(){
+  toast(t('वह नाम डालें जिससे आप अपना व्यापार चलाते हैं','Enter the name with which you operate your business'),'p');
+}
 function toast(msg,type='g'){
   const t=document.getElementById('toast');
   t.className='toast toast-'+type+' show';
@@ -902,7 +905,7 @@ const screens = [
       <div class="lbl">${t('पूरा नाम (आधार अनुसार)','Full Name (as per Aadhaar)')}</div><input class="finp" type="text" value="${t('राजेश कुमार','Rajesh Kumar')}">
       <div class="lbl">${t('ईमेल आईडी','Email ID')}</div><input class="finp" type="email" value="rajesh@email.com">
       <div class="lbl">${t('व्यापार इकाई प्रकार','Business Entity Type')}</div><select class="finp"><option selected>${t('प्रोप्राइटरशिप (Proprietorship)','Proprietorship')}</option></select>
-      <div class="lbl" style="display:flex;align-items:center;gap:4px;">${t('व्यापार का नाम','Business Name')} <span style="color:var(--info);cursor:pointer;font-size:14px;" onclick="toast('${t('वह नाम डालें जिससे आप अपना व्यापार चलाते हैं','Enter the name with which you operate your business')}','p')">ℹ️</span></div><input class="finp" type="text" value="Rajesh Telecom">
+      <div class="lbl" style="display:flex;align-items:center;gap:4px;">${t('व्यापार का नाम','Business Name')} <span style="color:var(--info);cursor:pointer;font-size:14px;" onclick="showBizNameInfo()">ℹ️</span></div><input class="finp" type="text" value="Rajesh Telecom">
     </div>
     <div class="bbar"><button class="cta" onclick="next()">${t('व्यापार स्थान जोड़ें','Add Business Location')}</button></div>
     </div>`},
