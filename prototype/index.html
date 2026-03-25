@@ -329,7 +329,7 @@ body.dash-light .tgl-knob{transform:translateX(16px);background:var(--pri);}
       <h2>Admin Dashboard</h2>
       <div style="display:flex;align-items:center;gap:12px;">
         <span class="rh-time" id="dashTime">Live — synced with partner flow</span>
-        <button onclick="toggleLang()" id="langBtn" style="padding:4px 12px;border-radius:var(--r-pill);font:700 11px/16px inherit;cursor:pointer;border:1px solid var(--pri);background:var(--pri-light);color:var(--pri);white-space:nowrap;">हि / En</button>
+        <button onclick="toggleLang()" id="langBtn" style="padding:6px 14px;border-radius:var(--r-pill);font:700 12px/18px inherit;cursor:pointer;border:1px solid var(--pri);background:var(--pri-light);color:var(--pri);white-space:nowrap;display:flex;align-items:center;gap:6px;">🌐 <span id="langBtnText">हिंदी → English</span></button>
         <div class="theme-toggle" onclick="toggleDashTheme()">
           <span class="tgl-icon" id="themeIcon">&#9790;</span>
           <div class="tgl-track"><div class="tgl-knob"></div></div>
@@ -354,6 +354,8 @@ let lang = 'hi'; // 'hi' (default per Wiom guidelines) or 'en'
 function t(hi, en){ return lang==='hi' ? hi : en; }
 function toggleLang(){
   lang = lang==='hi' ? 'en' : 'hi';
+  const langBtnText = document.getElementById('langBtnText');
+  if(langBtnText) langBtnText.textContent = lang==='hi' ? 'हिंदी → English' : 'English → हिंदी';
   renderPhone();
   renderDashboard();
   toast(lang==='hi'?'भाषा: हिंदी':'Language: English','p');
@@ -375,6 +377,9 @@ let activeScenario = null; // tracks which error/corner case is active
 
 // ===== SCENARIO DEFINITIONS =====
 const scenarios = {
+  // Welcome Screen
+  'welcome-no-internet': {screen:-1, label:'No Internet Connection', icon:'📡', cat:'welcome'},
+  'welcome-server-error': {screen:-1, label:'App Not Loading / Server Error', icon:'⚠️', cat:'welcome'},
   // OTP & Registration
   'phone-duplicate': {screen:0, label:'Phone Already Registered', icon:'📱', cat:'registration'},
   'otp-wrong': {screen:1, label:'Wrong OTP Entered', icon:'❌', cat:'registration'},
@@ -401,6 +406,42 @@ const scenarios = {
 
 // Error screen renderers — Wiom-style: no blame, reassuring, benefit-first
 const errorScreens = {
+  'welcome-no-internet': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">Wiom Partner+</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:48px;margin:32px 0 16px;">📡</div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);line-height:28px;">${t('इंटरनेट कनेक्शन नहीं है','No Internet Connection')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('चिंता न करें! कृपया अपना इंटरनेट कनेक्शन चेक करें और दोबारा कोशिश करें।','Don\\'t worry! Please check your internet connection and try again.')}</div>
+      <div class="card" style="text-align:left;border-color:var(--info);background:var(--info-100);">
+        <div style="font-size:12px;font-weight:700;color:var(--info);margin-bottom:4px;">${t('💡 कुछ चीज़ें जो आप कर सकते हैं','💡 Things you can try')}</div>
+        <div style="font-size:13px;color:var(--text);line-height:20px;">
+          ${t('• WiFi या मोबाइल डेटा ऑन करें','• Turn on WiFi or mobile data')}<br>
+          ${t('• एयरप्लेन मोड बंद करें','• Turn off airplane mode')}<br>
+          ${t('• राउटर को रीस्टार्ट करें','• Restart your router')}
+        </div>
+      </div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="clearScenario();showPitch=true;renderPhone();">${t('🔄 दोबारा कोशिश करें','🔄 Try Again')}</button>
+    <button class="cta sec" style="margin-top:8px;" onclick="window.open('tel:7836811111')">📞 ${t('हेल्पलाइन: 7836811111','Helpline: 7836811111')}</button></div>
+    </div>`,
+  'welcome-server-error': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">Wiom Partner+</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:48px;margin:32px 0 16px;">⚠️</div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);line-height:28px;">${t('ऐप लोड नहीं हो पा रहा','App is not loading')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('चिंता न करें! हमारी टीम इस पर काम कर रही है। कृपया थोड़ी देर बाद दोबारा कोशिश करें।','Don\\'t worry! Our team is working on this. Please try again in a few moments.')}</div>
+      <div class="card" style="text-align:left;border-color:var(--warning);background:var(--warn-200);">
+        <div style="font-size:12px;font-weight:700;color:var(--warn-700);margin-bottom:4px;">${t('🔧 क्या हो रहा है?','🔧 What\\'s happening?')}</div>
+        <div style="font-size:13px;color:var(--text);line-height:20px;">
+          ${t('सर्वर से कनेक्शन में दिक्कत आ रही है। यह अस्थायी है और जल्द ठीक हो जाएगा।','There is a temporary issue connecting to the server. This will be resolved shortly.')}
+        </div>
+      </div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="clearScenario();showPitch=true;renderPhone();">${t('🔄 दोबारा कोशिश करें','🔄 Try Again')}</button>
+    <button class="cta sec" style="margin-top:8px;" onclick="window.open('tel:7836811111')">📞 ${t('हेल्पलाइन: 7836811111','Helpline: 7836811111')}</button></div>
+    </div>`,
   'phone-duplicate': ()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
     <div class="hdr"><span class="htitle">Wiom Partner+</span></div>
@@ -766,7 +807,12 @@ function triggerScenario(key){
   const scn = scenarios[key];
   if(!scn) return;
   activeScenario = key;
-  currentScreen = scn.screen;
+  if(scn.screen === -1){
+    showPitch = true;
+  } else {
+    showPitch = false;
+    currentScreen = scn.screen;
+  }
   addLog('⚠ SCENARIO: '+scn.label,'error');
   toast('Error scenario: '+scn.label,'r');
   renderPhone();
@@ -1200,23 +1246,34 @@ function renderPhone(){
 
   // Show pitch screen if not dismissed
   if(showPitch){
+    // Check for welcome screen error scenarios
+    if(activeScenario && errorScreens[activeScenario] && scenarios[activeScenario] && scenarios[activeScenario].screen === -1){
+      phone.innerHTML = `<div class="phone-content-enter">${errorScreens[activeScenario]()}</div>`;
+      document.getElementById('stepInfo').textContent = 'Welcome — ' + scenarios[activeScenario].label;
+      document.getElementById('lhPhase').textContent = t('स्वागत स्क्रीन','Welcome Screen');
+      document.getElementById('lhTitle').textContent = 'Wiom';
+      return;
+    }
     phone.innerHTML = `<div class="phone-content-enter">
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="scontent" style="height:calc(720px - 32px - 72px);overflow-y:auto;">
+    <div class="hdr" style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;">
+      <span class="htitle">Wiom Partner+</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button onclick="window.open('tel:7836811111')" style="padding:4px 10px;border-radius:var(--r-pill);font:600 11px/16px inherit;cursor:pointer;border:1px solid var(--positive);background:var(--pos-100);color:var(--positive);white-space:nowrap;display:flex;align-items:center;gap:4px;">📞 ${t('मदद','Help')}</button>
+        <button onclick="toggleLang()" style="padding:4px 10px;border-radius:var(--r-pill);font:600 11px/16px inherit;cursor:pointer;border:1px solid var(--pri);background:var(--pri-light);color:var(--pri);white-space:nowrap;">${lang==='hi'?'English':'हिंदी'}</button>
+      </div>
+    </div>
+    <div class="scontent" style="height:calc(720px - 32px - 44px - 72px);overflow-y:auto;">
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:24px;text-align:center;">
-        <div style="width:72px;height:72px;border-radius:18px;background:var(--pri);display:flex;align-items:center;justify-content:center;margin-bottom:16px;"><span style="font-size:32px;font-weight:700;color:#fff;">W</span></div>
+        <div style="width:72px;height:72px;border-radius:18px;background:var(--pri);display:flex;align-items:center;justify-content:center;margin-bottom:16px;"><span style="font-size:42px;font-weight:700;color:#fff;">∞</span></div>
         <div style="font-size:28px;font-weight:700;color:var(--pri);line-height:36px;">Wiom Partner+</div>
         <div style="font-size:14px;color:var(--text-sec);margin-top:6px;line-height:20px;">${t('\u092D\u093E\u0930\u0924 \u0915\u093E \u0938\u092C\u0938\u0947 \u092D\u0930\u094B\u0938\u0947\u092E\u0902\u0926 \u0907\u0902\u091F\u0930\u0928\u0947\u091F \u092A\u093E\u0930\u094D\u091F\u0928\u0930 \u0928\u0947\u091F\u0935\u0930\u094D\u0915','India\u2019s most trusted internet partner network')}</div>
         <div style="height:24px;"></div>
         <div style="width:100%;text-align:left;">
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg-sec);border-radius:12px;margin-bottom:8px;"><span style="font-size:20px;">🌐</span><span style="font-size:14px;font-weight:600;color:var(--text);">${t('अपने एरिया में इंटरनेट सेवा प्रदाता बनें','Become an internet service provider in your area')}</span></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg-sec);border-radius:12px;margin-bottom:8px;"><span style="font-size:20px;">🌐</span><span style="font-size:14px;font-weight:600;color:var(--text);">${t('अपने एरिया में कनेक्शन सर्विस प्रोवाइडर बनें','Become a connection service provider in your area')}</span></div>
           <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg-sec);border-radius:12px;margin-bottom:8px;"><span style="font-size:20px;">💰</span><span style="font-size:14px;font-weight:600;color:var(--text);">${t('हर कनेक्शन और रीचार्ज पर कमाई करें','Earn on every connection & recharge')}</span></div>
           <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg-sec);border-radius:12px;margin-bottom:8px;"><span style="font-size:20px;">🎓</span><span style="font-size:14px;font-weight:600;color:var(--text);">${t('पूरी ट्रेनिंग और निरंतर सपोर्ट','Complete training & ongoing support')}</span></div>
           <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg-sec);border-radius:12px;margin-bottom:8px;"><span style="font-size:20px;">🚀</span><span style="font-size:14px;font-weight:600;color:var(--text);">${t('कम निवेश में अपना खुद का बिजनेस','Your own business with low investment')}</span></div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:16px;">
-          <span class="trust-badge">\uD83D\uDD12 ${t('DOT \u0905\u0928\u0941\u092A\u093E\u0932\u0928','DOT Compliant')}</span>
-          <span class="trust-badge">\u2713 ${t('TRAI \u0938\u094D\u0935\u0940\u0915\u0943\u0924','TRAI Approved')}</span>
         </div>
       </div>
     </div>
@@ -1289,6 +1346,7 @@ function renderDashboard(){
 
   // Build scenario panel
   const scnCategories = {
+    welcome: {label:'Welcome Screen', icon:'🏠'},
     registration: {label:'Registration & OTP', icon:'📱'},
     verification: {label:'KYC & Location', icon:'🪪'},
     payment: {label:'Payment Failures', icon:'💳'},
