@@ -869,7 +869,16 @@ function validateRegForm(){
   if(err && emailVal.includes('@') && emailVal.includes('.')) { err.style.display = 'none'; if(email.style) email.style.borderColor = ''; }
 }
 function showBizNameInfo(){
-  toast(t('वह नाम डालें जिससे आप अपना व्यापार चलाते हैं','Enter the name with which you operate your business'),'p');
+  var existing = document.getElementById('bizNameTooltip');
+  if(existing){ existing.remove(); return; }
+  var el = document.getElementById('regBizName');
+  if(!el) return;
+  var tip = document.createElement('div');
+  tip.id = 'bizNameTooltip';
+  tip.style.cssText = 'background:var(--info-100);border:1px solid var(--info);border-radius:8px;padding:8px 12px;margin:-8px 0 8px;font-size:12px;color:var(--info);line-height:16px;';
+  tip.textContent = t('वह नाम डालें जिससे आप अपना व्यापार चलाते हैं','Enter the name with which you operate your business');
+  el.parentNode.insertBefore(tip, el.nextSibling);
+  setTimeout(function(){ if(tip.parentNode) tip.remove(); }, 4000);
 }
 function toast(msg,type='g'){
   const t=document.getElementById('toast');
