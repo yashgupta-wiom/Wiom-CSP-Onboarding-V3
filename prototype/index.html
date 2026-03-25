@@ -841,6 +841,33 @@ function addLog(text,type='info'){
   if(activityLog.length>20) activityLog.pop();
 }
 
+function validateEmail(){
+  var el = document.getElementById('regEmail');
+  var err = document.getElementById('emailError');
+  if(!el || !err) return;
+  var val = el.value.trim();
+  if(val.length > 0 && (!val.includes('@') || !val.includes('.'))){
+    err.style.display = 'block';
+    el.style.borderColor = 'var(--negative)';
+  } else {
+    err.style.display = 'none';
+    el.style.borderColor = '';
+  }
+}
+function validateRegForm(){
+  var name = document.getElementById('regName');
+  var email = document.getElementById('regEmail');
+  var bizName = document.getElementById('regBizName');
+  var cta = document.getElementById('regCta');
+  if(!name || !email || !bizName || !cta) return;
+  var emailVal = email.value.trim();
+  var valid = name.value.trim().length > 0 && emailVal.length > 0 && emailVal.includes('@') && emailVal.includes('.') && bizName.value.trim().length > 0;
+  cta.style.opacity = valid ? '1' : '0.4';
+  cta.style.pointerEvents = valid ? 'auto' : 'none';
+  // Clear email error if now valid
+  var err = document.getElementById('emailError');
+  if(err && emailVal.includes('@') && emailVal.includes('.')) { err.style.display = 'none'; if(email.style) email.style.borderColor = ''; }
+}
 function showBizNameInfo(){
   toast(t('वह नाम डालें जिससे आप अपना व्यापार चलाते हैं','Enter the name with which you operate your business'),'p');
 }
@@ -902,12 +929,12 @@ const screens = [
     <div class="scontent"><div class="pad">
       <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('व्यक्तिगत और व्यापार जानकारी','Personal & Business Info')}</div>
       <div style="font-size:13px;color:var(--text-sec);margin-bottom:16px;line-height:18px;">${t('आपका Wiom अकाउंट बनाने के लिए हमें इन विवरणों की आवश्यकता है','We require these details for creating your Wiom Account')}</div>
-      <div class="lbl">${t('पूरा नाम (आधार अनुसार)','Full Name (as per Aadhaar)')}</div><input class="finp" type="text" value="${t('राजेश कुमार','Rajesh Kumar')}">
-      <div class="lbl">${t('ईमेल आईडी','Email ID')}</div><input class="finp" type="email" value="rajesh@email.com">
-      <div class="lbl">${t('व्यापार इकाई प्रकार','Business Entity Type')}</div><select class="finp"><option selected>${t('प्रोप्राइटरशिप (Proprietorship)','Proprietorship')}</option></select>
-      <div class="lbl" style="display:flex;align-items:center;gap:4px;">${t('व्यापार का नाम','Business Name')} <span style="color:var(--info);cursor:pointer;font-size:14px;" onclick="showBizNameInfo()">ℹ️</span></div><input class="finp" type="text" value="Rajesh Telecom">
+      <div class="lbl">${t('पूरा नाम (आधार अनुसार)','Full Name (as per Aadhaar)')} <span style="color:var(--negative);">*</span></div><input class="finp" id="regName" type="text" value="${t('राजेश कुमार','Rajesh Kumar')}" oninput="validateRegForm()">
+      <div class="lbl">${t('ईमेल आईडी','Email ID')} <span style="color:var(--negative);">*</span></div><input class="finp" id="regEmail" type="email" value="rajesh@email.com" oninput="validateRegForm()" onblur="validateEmail()"><div id="emailError" style="display:none;font-size:12px;color:var(--negative);margin:-8px 0 8px;line-height:16px;">${t('कृपया सही ईमेल आईडी डालें (@ और . होना ज़रूरी है)','Please enter a valid Email ID (must contain @ and .)')}</div>
+      <div class="lbl">${t('व्यापार इकाई प्रकार','Business Entity Type')} <span style="color:var(--negative);">*</span></div><select class="finp" id="regEntity" onchange="validateRegForm()"><option selected>${t('प्रोप्राइटरशिप (Proprietorship)','Proprietorship')}</option></select>
+      <div class="lbl" style="display:flex;align-items:center;gap:4px;">${t('व्यापार का नाम','Business Name')} <span style="color:var(--negative);">*</span> <span style="color:var(--info);cursor:pointer;font-size:14px;" onclick="showBizNameInfo()">ℹ️</span></div><input class="finp" id="regBizName" type="text" value="Rajesh Telecom" oninput="validateRegForm()">
     </div>
-    <div class="bbar"><button class="cta" onclick="next()">${t('व्यापार स्थान जोड़ें','Add Business Location')}</button></div>
+    <div class="bbar"><button class="cta" id="regCta" onclick="next()">${t('व्यापार स्थान जोड़ें','Add Business Location')}</button></div>
     </div>`},
 
   // 3: Business Location
