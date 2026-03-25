@@ -901,8 +901,8 @@ const screens = [
       <div style="font-size:13px;color:var(--text-sec);margin-bottom:16px;line-height:18px;">${t('आपका Wiom अकाउंट बनाने के लिए हमें इन विवरणों की आवश्यकता है','We require these details for creating your Wiom Account')}</div>
       <div class="lbl">${t('पूरा नाम (आधार अनुसार)','Full Name (as per Aadhaar)')}</div><input class="finp" type="text" value="${t('राजेश कुमार','Rajesh Kumar')}">
       <div class="lbl">${t('ईमेल आईडी','Email ID')}</div><input class="finp" type="email" value="rajesh@email.com">
-      <div class="lbl">${t('व्यापार इकाई प्रकार','Business Entity Type')}</div><select class="finp"><option value="" selected disabled>${t('-- चुनें --','-- Select --')}</option><option>${t('प्रोप्राइटरशिप (Proprietorship)','Proprietorship')}</option><option>${t('पार्टनरशिप (Partnership)','Partnership')}</option><option>${t('प्राइवेट लिमिटेड (Pvt Ltd)','Pvt Ltd')}</option></select>
-      <div class="lbl" style="display:flex;align-items:center;gap:4px;">${t('व्यापार का नाम','Business Name')} <span style="color:var(--info);cursor:pointer;font-size:14px;" title="${t('वह नाम डालें जिससे आप अपना व्यापार चलाते हैं','Enter the name with which you operate your business')}">ℹ️</span></div><input class="finp" type="text" value="Rajesh Telecom">
+      <div class="lbl">${t('व्यापार इकाई प्रकार','Business Entity Type')}</div><select class="finp"><option selected>${t('प्रोप्राइटरशिप (Proprietorship)','Proprietorship')}</option></select>
+      <div class="lbl" style="display:flex;align-items:center;gap:4px;">${t('व्यापार का नाम','Business Name')} <span style="color:var(--info);cursor:pointer;font-size:14px;" onclick="toast('${t('वह नाम डालें जिससे आप अपना व्यापार चलाते हैं','Enter the name with which you operate your business')}','p')">ℹ️</span></div><input class="finp" type="text" value="Rajesh Telecom">
     </div>
     <div class="bbar"><button class="cta" onclick="next()">${t('व्यापार स्थान जोड़ें','Add Business Location')}</button></div>
     </div>`},
