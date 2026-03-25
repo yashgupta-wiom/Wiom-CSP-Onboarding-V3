@@ -356,8 +356,10 @@ function toggleLang(){
   lang = lang==='hi' ? 'en' : 'hi';
   const langBtnText = document.getElementById('langBtnText');
   if(langBtnText) langBtnText.textContent = lang==='hi' ? 'हिंदी → English' : 'English → हिंदी';
+  skipAnim = true;
   renderPhone();
   renderDashboard();
+  skipAnim = false;
   toast(lang==='hi'?'भाषा: हिंदी':'Language: English','p');
 }
 let partnerState = {
@@ -374,6 +376,7 @@ let verificationRejected = false;
 let techAssessmentRejected = false;
 let activityLog = [];
 let activeScenario = null; // tracks which error/corner case is active
+let skipAnim = false; // skip slide animation on language toggle
 
 // ===== SCENARIO DEFINITIONS =====
 const scenarios = {
@@ -1243,18 +1246,19 @@ function dismissPitch(){ showPitch=false; renderPhone(); renderDashboard(); upda
 
 function renderPhone(){
   const phone = document.getElementById('phoneFrame');
+  const animClass = skipAnim ? '' : 'phone-content-enter';
 
   // Show pitch screen if not dismissed
   if(showPitch){
     // Check for welcome screen error scenarios
     if(activeScenario && errorScreens[activeScenario] && scenarios[activeScenario] && scenarios[activeScenario].screen === -1){
-      phone.innerHTML = `<div class="phone-content-enter">${errorScreens[activeScenario]()}</div>`;
+      phone.innerHTML = `<div class="${animClass}">${errorScreens[activeScenario]()}</div>`;
       document.getElementById('stepInfo').textContent = 'Welcome — ' + scenarios[activeScenario].label;
       document.getElementById('lhPhase').textContent = t('स्वागत स्क्रीन','Welcome Screen');
       document.getElementById('lhTitle').textContent = 'Wiom';
       return;
     }
-    phone.innerHTML = `<div class="phone-content-enter">
+    phone.innerHTML = `<div class="${animClass}">
     <div class="sbar"><span>9:41</span><span>100%</span></div>
     <div class="hdr" style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;">
       <span class="htitle">Wiom Partner+</span>
@@ -1288,9 +1292,9 @@ function renderPhone(){
   const s = screens[currentScreen];
   // Check for active error scenario
   if(activeScenario && errorScreens[activeScenario]){
-    phone.innerHTML = `<div class="phone-content-enter">${errorScreens[activeScenario]()}</div>`;
+    phone.innerHTML = `<div class="${animClass}">${errorScreens[activeScenario]()}</div>`;
   } else {
-    phone.innerHTML = `<div class="phone-content-enter">${s.render()}</div>`;
+    phone.innerHTML = `<div class="${animClass}">${s.render()}</div>`;
   }
   document.getElementById('stepInfo').textContent = `${s.phase} — ${s.title}`;
   document.getElementById('lhPhase').textContent = `Screen ${currentScreen+1} of ${totalScreens}`;
