@@ -1242,6 +1242,17 @@ function updateState(idx){
 }
 
 // ===== RENDER =====
+function hdrBtns(){
+  return `<div style="display:flex;align-items:center;gap:4px;margin-left:auto;flex-shrink:0;"><button onclick="window.open('tel:7836811111')" style="padding:2px 6px;border-radius:var(--r-pill);font:600 10px/14px inherit;cursor:pointer;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:var(--surface);white-space:nowrap;display:flex;align-items:center;gap:3px;">📞 ${t('मदद','Help')}</button><button onclick="toggleLang()" style="padding:2px 6px;border-radius:var(--r-pill);font:600 10px/14px inherit;cursor:pointer;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:var(--surface);white-space:nowrap;">${lang==='hi'?'English':'हिंदी'}</button></div>`;
+}
+function addHdrBtns(html){
+  // Remove step counter (hright) and inject Help + Lang buttons into the header
+  return html.replace(/<div class="hdr">(.*?)<\/div>/, function(match, inner){
+    // Remove hright span since step info is in the left panel
+    var cleaned = inner.replace(/<span class="hright">.*?<\/span>/g, '');
+    return '<div class="hdr" style="display:flex;align-items:center;">' + cleaned + hdrBtns() + '</div>';
+  });
+}
 function dismissPitch(){ showPitch=false; renderPhone(); renderDashboard(); updateProgress(); }
 
 function renderPhone(){
@@ -1252,7 +1263,7 @@ function renderPhone(){
   if(showPitch){
     // Check for welcome screen error scenarios
     if(activeScenario && errorScreens[activeScenario] && scenarios[activeScenario] && scenarios[activeScenario].screen === -1){
-      phone.innerHTML = `<div class="${animClass}">${errorScreens[activeScenario]()}</div>`;
+      phone.innerHTML = addHdrBtns(`<div class="${animClass}">${errorScreens[activeScenario]()}</div>`);
       document.getElementById('stepInfo').textContent = 'Welcome — ' + scenarios[activeScenario].label;
       document.getElementById('lhPhase').textContent = t('स्वागत स्क्रीन','Welcome Screen');
       document.getElementById('lhTitle').textContent = 'Wiom';
@@ -1292,9 +1303,9 @@ function renderPhone(){
   const s = screens[currentScreen];
   // Check for active error scenario
   if(activeScenario && errorScreens[activeScenario]){
-    phone.innerHTML = `<div class="${animClass}">${errorScreens[activeScenario]()}</div>`;
+    phone.innerHTML = addHdrBtns(`<div class="${animClass}">${errorScreens[activeScenario]()}</div>`);
   } else {
-    phone.innerHTML = `<div class="${animClass}">${s.render()}</div>`;
+    phone.innerHTML = addHdrBtns(`<div class="${animClass}">${s.render()}</div>`);
   }
   document.getElementById('stepInfo').textContent = `${s.phase} — ${s.title}`;
   document.getElementById('lhPhase').textContent = `Screen ${currentScreen+1} of ${totalScreens}`;
