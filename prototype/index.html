@@ -454,15 +454,14 @@ const errorScreens = {
       <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('+91 98765 43210 से पहले ही अकाउंट बनाया गया है','An account already exists with +91 98765 43210')}</div>
       <div class="card" style="text-align:left;border-color:var(--info);background:var(--info-100);">
         <div style="font-size:12px;font-weight:700;color:var(--info);margin-bottom:4px;">${t('ℹ️ क्या करें?','ℹ️ What to do?')}</div>
-        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('अगर यह आपका नंबर है, तो लॉगिन करें। अगर नया अकाउंट चाहिए, तो दूसरा नंबर इस्तेमाल करें।','If this is your number, please login. If you need a new account, use a different number.')}</div>
+        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('अगर यह आपका नंबर है, तो कृपया Wiom Partner Plus ऐप में लॉगिन करें।\nअगर आप Wiom के साथ जुड़ना चाहते हैं, तो एक अलग नंबर का उपयोग करें।','If this is your number, please login in Wiom Partner Plus app.\nIf you wish to get onboarded with Wiom, use a different number.')}</div>
       </div>
       <div style="height:16px;"></div>
-      <div class="lbl" style="text-align:left;">${t('दूसरा नंबर','Different Number')}</div>
-      <div class="phone-inp-wrap"><span class="phone-prefix">+91</span><input class="finp" type="tel" maxlength="10" placeholder="${t('नया नंबर डालें','Enter new number')}"></div>
+      <div class="lbl" style="text-align:left;">${t('मोबाइल नंबर','Mobile Number')}</div>
+      <div class="phone-inp-wrap"><span class="phone-prefix">+91</span><input class="finp" type="tel" maxlength="10" placeholder="${t('नया नंबर डालें','Enter new number')}" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)"></div>
     </div>
     <div class="bbar">
       <button class="cta" onclick="clearScenario()">${t('नया नंबर से OTP भेजें','Send OTP with new number')}</button>
-      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('लॉगिन करें','Login')}</button>
     </div>
     </div>`,
 
@@ -507,7 +506,7 @@ const errorScreens = {
       </div>
     </div>
     <div class="bbar">
-      <button class="cta" onclick="clearScenario()">${t('नया OTP भेजें','Send new OTP')}</button>
+      <button class="cta" onclick="clearScenario()">${t('OTP दोबारा भेजें','Resend OTP')}</button>
       <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('नंबर बदलें','Change number')}</button>
     </div>
     </div>`,
@@ -863,10 +862,10 @@ const screens = [
       </div>
       <div style="height:24px;"></div>
       <div class="lbl">${t('मोबाइल नंबर','Mobile Number')}</div>
-      <div class="phone-inp-wrap"><span class="phone-prefix">+91</span><input class="finp" type="tel" maxlength="10" value="9876543210" placeholder="${t('10 अंकों का नंबर','10 digit number')}"></div>
+      <div class="phone-inp-wrap"><span class="phone-prefix">+91</span><input class="finp" type="tel" maxlength="10" value="9876543210" placeholder="${t('10 अंकों का नंबर','10 digit number')}" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)"></div>
       <div class="ibox ibox-p"><span class="ii">&#128274;</span><span>${t('OTP आपके नंबर पर भेजा जाएगा','OTP will be sent to your number')}</span></div>
     </div>
-    <div class="bbar"><div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;"><div class="chk-box checked" style="width:18px;height:18px;border-radius:4px;font-size:10px;">&#10003;</div><span style="font-size:11px;color:var(--text-sec);line-height:14px;">${t('मैं','I accept the')} <span style="color:var(--pri);text-decoration:underline;cursor:pointer;">${t('नियम व शर्तें','Terms & Conditions')}</span> ${t('स्वीकार करता/करती हूँ','')}</span></div><button class="cta" onclick="next()">${t('OTP भेजें','Send OTP')}</button></div>
+    <div class="bbar"><div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;"><div class="chk-box checked" style="width:18px;height:18px;border-radius:4px;font-size:10px;">&#10003;</div><span style="font-size:11px;color:var(--text-sec);line-height:14px;">${t('आगे बढ़कर, मैं','By Continuing, I accept the')} <a href="#" onclick="event.preventDefault();toast('${t('नियम व शर्तें खुल रही हैं','Opening Terms & Conditions')}','p')" style="color:var(--pri);text-decoration:underline;cursor:pointer;">${t('नियम व शर्तें','Terms and Conditions')}</a> ${t('स्वीकार करता/करती हूँ','')}</span></div><button class="cta" onclick="next()">${t('OTP भेजें','Send OTP')}</button></div>
     </div>`},
 
   // 1: OTP + T&C
