@@ -850,16 +850,11 @@ function showPaymentSuccess(){
     <div class="sbar"><span>9:41</span><span>100%</span></div>
     <div class="hdr"><span class="htitle">${t('भुगतान स्टेटस','Payment Status')}</span></div>
     <div class="scontent"><div class="pad" style="text-align:center;">
-      <div style="font-size:64px;margin:32px 0 16px;">🎉</div>
+      <div style="font-size:64px;margin:40px 0 16px;">🎉</div>
       <div style="font-size:24px;font-weight:700;color:var(--positive);line-height:32px;">${t('भुगतान सफल!','Payment Successful!')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('₹2,000 पंजीकरण शुल्क प्राप्त हुआ','₹2,000 Registration Fee received')}</div>
-      <div class="card" style="text-align:left;border-color:var(--pos-300);background:var(--pos-100);">
-        <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:8px;">✓ ${t('भुगतान विवरण','Payment Details')}</div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--pos-200);font-size:12px;"><span style="color:var(--text-sec);">${t('राशि','Amount')}</span><b>₹2,000</b></div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--pos-200);font-size:12px;"><span style="color:var(--text-sec);">${t('माध्यम','Mode')}</span><b>UPI</b></div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span style="color:var(--text-sec);">Txn ID</span><b>UPI${Date.now().toString().slice(-8)}</b></div>
-      </div>
-      <div style="font-size:13px;color:var(--text-sec);margin-top:16px;line-height:18px;">${t('अगले चरण पर ले जा रहे हैं...','Moving to next step...')}</div>
+      <div style="font-size:16px;color:var(--text);margin:8px 0 4px;font-weight:600;">₹2,000</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:32px;line-height:20px;">${t('पंजीकरण शुल्क प्राप्त हुआ','Registration Fee received')}</div>
+      <div style="font-size:13px;color:var(--text-sec);line-height:18px;">${t('अगले चरण पर ले जा रहे हैं...','Moving to next step...')}</div>
       <div class="spinner" style="margin:12px auto;border-top-color:var(--positive);"></div>
     </div>
   </div>`;
@@ -992,9 +987,8 @@ const screens = [
           <div style="display:flex;gap:6px;margin-bottom:6px;"><span>1.</span><span>${t('पंजीकरण शुल्क भुगतान के बाद दस्तावेज़ सत्यापन प्रक्रिया शुरू होगी।','Document Verification process will start after Registration fee payment.')}</span></div>
           <div style="display:flex;gap:6px;"><span>2.</span><span>${t('कृपया भुगतान के 3 दिनों के भीतर सभी आवश्यक दस्तावेज़ जमा करें, अन्यथा आवेदन अस्वीकार कर दिया जाएगा।','Please Submit all required documents within 3 days of payment else the application will be rejected.')}</span></div>
         </div>
-        <div style="margin-top:12px;"><span class="trust-badge">&#128274; ${t('आवेदन अस्वीकार होने पर पूरा रिफंड मिलेगा','You will get Full Refund if application is rejected')}</span></div>
+        <div style="margin-top:12px;padding:8px 12px;background:var(--pos-100);border:1px solid var(--pos-200);border-radius:var(--r-sm);display:flex;align-items:center;gap:8px;"><span style="font-size:16px;flex-shrink:0;">🔒</span><span style="font-size:12px;font-weight:600;color:var(--positive);line-height:16px;">${t('आवेदन अस्वीकार होने पर पूरा रिफंड मिलेगा','You will get Full Refund if application is rejected')}</span></div>
       </div>
-      <div class="ibox ibox-p"><span class="ii">💳</span><span>${t('भुगतान केवल UPI से होगा','Payment will be through UPI only')}</span></div>
     </div>
     <div class="bbar"><button class="cta" onclick="showPaymentSuccess()">${t('₹2,000 अभी भुगतान करें','Pay ₹2,000 Now')}</button></div>
     </div>`},
