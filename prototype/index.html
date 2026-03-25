@@ -388,7 +388,6 @@ const scenarios = {
   'otp-wrong': {screen:1, label:'Wrong OTP Entered', icon:'❌', cat:'registration'},
   'otp-expired': {screen:1, label:'OTP Expired', icon:'⏰', cat:'registration'},
   // Location & KYC
-  'area-not-serviceable': {screen:3, label:'Area Not Serviceable', icon:'📍', cat:'verification'},
   'kyc-pan-mismatch': {screen:5, label:'PAN Name Mismatch', icon:'🪪', cat:'verification'},
   'kyc-aadhaar-expired': {screen:5, label:'Aadhaar Expired', icon:'⚠️', cat:'verification'},
   
@@ -511,29 +510,6 @@ const errorScreens = {
     <div class="bbar">
       <button class="cta" onclick="clearScenario()">${t('OTP दोबारा भेजें','Resend OTP')}</button>
       <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('नंबर बदलें','Change number')}</button>
-    </div>
-    </div>`,
-
-  'area-not-serviceable': ()=>`
-    <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('रजिस्ट्रेशन','Registration')}</span><span class="hright">${t('स्टेप 2/4','Step 2/4')}</span></div>
-    <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('लोकेशन जानकारी','Location Details')}</div>
-      <div class="lbl">${t('State','State')}</div><select class="finp"><option selected>Jharkhand</option></select>
-      <div class="lbl">${t('शहर','City')}</div><input class="finp" type="text" value="Deoghar" style="border-color:var(--warning);">
-      <div class="lbl">${t('पिनकोड','Pincode')}</div><input class="finp" type="tel" value="814112" style="border-color:var(--warning);">
-      <div style="background:var(--warn-200);border:1px solid var(--warning);border-radius:var(--r-input);padding:12px;margin-top:8px;">
-        <div style="font-size:14px;font-weight:700;color:var(--warn-700);line-height:20px;">${t('📍 यह इलाका अभी सर्विस एरिया में नहीं है','📍 This area is not yet serviceable')}</div>
-        <div style="font-size:12px;color:var(--text-sec);line-height:18px;margin-top:4px;">
-          ${t('Deoghar (814112) में अभी Wiom की सेवा शुरू नहीं हुई है।','Wiom service has not started in Deoghar (814112) yet.')}<br>
-          ${t('चिंता न करें — जब यह इलाका खुलेगा, आपको notification मिलेगा।','Don\'t worry — you\'ll be notified when this area opens up.')}
-        </div>
-      </div>
-      <div class="ibox ibox-p" style="margin-top:12px;"><span class="ii">🔔</span><span>${t('Waitlist में जुड़ें — area ready होने पर सबसे पहले खबर मिलेगी','Join the waitlist — be the first to know when this area is ready')}</span></div>
-    </div>
-    <div class="bbar">
-      <button class="cta" onclick="clearScenario()">${t('Waitlist में जुड़ें','Join Waitlist')}</button>
-      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('दूसरा पिनकोड डालें','Try a different pincode')}</button>
     </div>
     </div>`,
 
@@ -868,6 +844,17 @@ function validateRegForm(){
   var err = document.getElementById('emailError');
   if(err && emailVal.includes('@') && emailVal.includes('.')) { err.style.display = 'none'; if(email.style) email.style.borderColor = ''; }
 }
+function validateLocForm(){
+  var state = document.getElementById('locState');
+  var city = document.getElementById('locCity');
+  var pin = document.getElementById('locPin');
+  var addr = document.getElementById('locAddr');
+  var cta = document.getElementById('locCta');
+  if(!state || !city || !pin || !addr || !cta) return;
+  var valid = state.value.trim().length > 0 && city.value.trim().length > 0 && pin.value.trim().length === 6 && addr.value.trim().length > 0;
+  cta.style.opacity = valid ? '1' : '0.4';
+  cta.style.pointerEvents = valid ? 'auto' : 'none';
+}
 function showBizNameInfo(){
   var existing = document.getElementById('bizNameTooltip');
   if(existing){ existing.remove(); return; }
@@ -955,13 +942,14 @@ const screens = [
     <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('पंजीकरण','Registration')}</span><span class="hright">${t('स्टेप 2/3','Step 2/3')}</span></div>
     <div class="scontent"><div class="pad">
       <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('व्यापार स्थान','Business Location')}</div>
-      <div class="lbl">${t('राज्य','State')}</div><select class="finp"><option selected>${t('मध्य प्रदेश','Madhya Pradesh')}</option></select>
-      <div class="lbl">${t('शहर','City')}</div><input class="finp" type="text" value="Indore">
-      <div class="lbl">${t('पिनकोड','Pincode')}</div><input class="finp" type="tel" maxlength="6" value="452010">
-      <div class="lbl">${t('पूरा पता','Full Address')}</div><textarea class="finp">123, Vijay Nagar, Indore</textarea>
+      <div style="font-size:13px;color:var(--text-sec);margin-bottom:16px;line-height:18px;">${t('आपकी पूरी पता जानकारी चाहिए ताकि हम आपकी लोकैलिटी जान सकें और Wiom इंटरनेट ग्राहक दे सकें','We need your complete address details to know your locality and provide Wiom Internet customers')}</div>
+      <div class="lbl">${t('राज्य','State')}</div><input class="finp" id="locState" type="text" placeholder="${t('उदा: उत्तर प्रदेश','For ex: Uttar Pradesh')}" oninput="validateLocForm()">
+      <div class="lbl">${t('शहर','City')}</div><input class="finp" id="locCity" type="text" placeholder="${t('उदा: बरेली','For ex: Bareilly')}" oninput="validateLocForm()">
+      <div class="lbl">${t('पिनकोड','Pincode')}</div><input class="finp" id="locPin" type="tel" maxlength="6" placeholder="${t('उदा: 243001','For ex: 243001')}" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,6);validateLocForm()">
+      <div class="lbl">${t('पूरा पता','Full Address')}</div><textarea class="finp" id="locAddr" placeholder="${t('उदा: 123, विजय नगर','For ex: 123, Vijay Nagar')}" oninput="validateLocForm()"></textarea>
       <div style="display:flex;gap:8px;align-items:center;margin-top:8px;"><span class="trust-badge">&#128205; ${t('GPS कैप्चर हुआ','GPS Captured')}</span><span style="font-size:12px;color:var(--hint);">22.71° N, 75.85° E</span></div>
     </div>
-    <div class="bbar"><button class="cta" onclick="next()">${t('अब पंजीकरण शुल्क भरें','Next: Registration Fee')}</button></div>
+    <div class="bbar"><button class="cta" id="locCta" style="opacity:0.4;pointer-events:none;" onclick="next()">${t('पंजीकरण शुल्क भरें','Pay Registration Fee')}</button></div>
     </div>`},
 
   // 4: Registration Fee ₹2,000
