@@ -738,7 +738,7 @@ const errorScreens = {
         <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--hint);">${t('Amount','Amount')}</span><b>₹20,000</b></div>
         <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span style="color:var(--hint);">Error</span><b style="color:var(--negative);">UPI_LIMIT_EXCEEDED</b></div>
       </div>
-      <div class="ibox ibox-o" style="text-align:left;"><span class="ii">💡</span><span>${t('UPI limit ₹1L/day है। NEFT/RTGS या card से try करें','UPI limit is ₹1L/day. Try NEFT/RTGS or card instead')}</span></div>
+      <div class="ibox ibox-o" style="text-align:left;"><span class="ii">💡</span><span>${t('UPI limit ₹1L/day है। कृपया 2-3 मिनट बाद दोबारा कोशिश करें','UPI limit is ₹1L/day. Please try again in 2-3 minutes')}</span></div>
     </div>
     <div class="bbar">
       <button class="cta" onclick="clearScenario()">${t('दोबारा भुगतान करें','Retry Payment')}</button>
@@ -843,6 +843,30 @@ function validateRegForm(){
   // Clear email error if now valid
   var err = document.getElementById('emailError');
   if(err && emailVal.includes('@') && emailVal.includes('.')) { err.style.display = 'none'; if(email.style) email.style.borderColor = ''; }
+}
+function showPaymentSuccess(){
+  var phone = document.getElementById('phoneFrame');
+  phone.innerHTML = `<div class="phone-content-enter">
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('भुगतान स्टेटस','Payment Status')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:64px;margin:32px 0 16px;">🎉</div>
+      <div style="font-size:24px;font-weight:700;color:var(--positive);line-height:32px;">${t('भुगतान सफल!','Payment Successful!')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('₹2,000 पंजीकरण शुल्क प्राप्त हुआ','₹2,000 Registration Fee received')}</div>
+      <div class="card" style="text-align:left;border-color:var(--pos-300);background:var(--pos-100);">
+        <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:8px;">✓ ${t('भुगतान विवरण','Payment Details')}</div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--pos-200);font-size:12px;"><span style="color:var(--text-sec);">${t('राशि','Amount')}</span><b>₹2,000</b></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--pos-200);font-size:12px;"><span style="color:var(--text-sec);">${t('माध्यम','Mode')}</span><b>UPI</b></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span style="color:var(--text-sec);">Txn ID</span><b>UPI${Date.now().toString().slice(-8)}</b></div>
+      </div>
+      <div style="font-size:13px;color:var(--text-sec);margin-top:16px;line-height:18px;">${t('अगले चरण पर ले जा रहे हैं...','Moving to next step...')}</div>
+      <div class="spinner" style="margin:12px auto;border-top-color:var(--positive);"></div>
+    </div>
+  </div>`;
+  document.getElementById('stepInfo').textContent = t('भुगतान सफल','Payment Successful');
+  addLog('✓ ₹2,000 registration fee paid via UPI','payment');
+  toast(t('भुगतान सफल! 🎉','Payment Successful! 🎉'),'g');
+  setTimeout(function(){ next(); }, 3000);
 }
 function validateLocForm(){
   var state = document.getElementById('locState');
@@ -962,10 +986,17 @@ const screens = [
     <div class="scontent"><div class="pad">
       <div style="font-size:14px;color:var(--text-sec);margin-bottom:12px;">${t('पंजीकरण शुल्क','Registration Fee')}</div>
       <div class="amt-box"><div class="amt">₹2,000</div><div class="amt-lbl">${t('पंजीकरण शुल्क','Registration Fee')}</div></div>
-      <div class="card" style="background:#fff;"><div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;">ℹ️ ${t('जरूरी जानकारी','Important Information')}</div><div style="font-size:14px;color:var(--text);line-height:20px;">${t('शुल्क भुगतान के बाद सत्यापन प्रक्रिया शुरू होगी।','Verification process will start after fee payment.')}</div><div style="margin-top:8px;"><span class="trust-badge">&#128274; ${t('रिजेक्ट होने पर पूरा रिफंड','Full refund if rejected')}</span></div></div>
-      <div class="ibox ibox-p"><span class="ii">&#128176;</span><span>${t('शुल्क भुगतान के बाद आपके दस्तावेज़ जमा किए जाएंगे','Your documents will be collected after fee payment')}</span></div>
+      <div class="card" style="background:#fff;">
+        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;">ℹ️ ${t('जरूरी जानकारी','Important Information')}</div>
+        <div style="font-size:13px;color:var(--text);line-height:20px;">
+          <div style="display:flex;gap:6px;margin-bottom:6px;"><span>1.</span><span>${t('पंजीकरण शुल्क भुगतान के बाद दस्तावेज़ सत्यापन प्रक्रिया शुरू होगी।','Document Verification process will start after Registration fee payment.')}</span></div>
+          <div style="display:flex;gap:6px;"><span>2.</span><span>${t('कृपया भुगतान के 3 दिनों के भीतर सभी आवश्यक दस्तावेज़ जमा करें, अन्यथा आवेदन अस्वीकार कर दिया जाएगा।','Please Submit all required documents within 3 days of payment else the application will be rejected.')}</span></div>
+        </div>
+        <div style="margin-top:12px;"><span class="trust-badge">&#128274; ${t('आवेदन अस्वीकार होने पर पूरा रिफंड मिलेगा','You will get Full Refund if application is rejected')}</span></div>
+      </div>
+      <div class="ibox ibox-p"><span class="ii">💳</span><span>${t('भुगतान केवल UPI से होगा','Payment will be through UPI only')}</span></div>
     </div>
-    <div class="bbar"><button class="cta" onclick="next()">₹2,000 ${t('भुगतान करें','Pay Now')}</button></div>
+    <div class="bbar"><button class="cta" onclick="showPaymentSuccess()">${t('₹2,000 अभी भुगतान करें','Pay ₹2,000 Now')}</button></div>
     </div>`},
 
   // 5: KYC Documents
