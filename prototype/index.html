@@ -380,9 +380,9 @@ let skipAnim = false; // skip slide animation on language toggle
 
 // ===== SCENARIO DEFINITIONS =====
 const scenarios = {
-  // Welcome Screen
-  'welcome-no-internet': {screen:-1, label:'No Internet Connection', icon:'📡', cat:'welcome'},
-  'welcome-server-error': {screen:-1, label:'App Not Loading / Server Error', icon:'⚠️', cat:'welcome'},
+  // Global (any screen)
+  'no-internet': {screen:'any', label:'No Internet Connection', icon:'📡', cat:'global'},
+  'server-error': {screen:'any', label:'App Not Loading / Server Error', icon:'⚠️', cat:'global'},
   // OTP & Registration
   'phone-duplicate': {screen:0, label:'Phone Already Registered', icon:'📱', cat:'registration'},
   'otp-wrong': {screen:1, label:'Wrong OTP Entered', icon:'❌', cat:'registration'},
@@ -409,7 +409,7 @@ const scenarios = {
 
 // Error screen renderers — Wiom-style: no blame, reassuring, benefit-first
 const errorScreens = {
-  'welcome-no-internet': ()=>`
+  'no-internet': ()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
     <div class="hdr"><span class="htitle">Wiom Partner+</span></div>
     <div class="scontent"><div class="pad" style="text-align:center;">
@@ -425,10 +425,10 @@ const errorScreens = {
         </div>
       </div>
     </div>
-    <div class="bbar"><button class="cta" onclick="clearScenario();showPitch=true;renderPhone();">${t('🔄 दोबारा कोशिश करें','🔄 Try Again')}</button>
+    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('🔄 दोबारा कोशिश करें','🔄 Try Again')}</button>
     <button class="cta sec" style="margin-top:8px;" onclick="window.open('tel:7836811111')">📞 ${t('हेल्पलाइन: 7836811111','Helpline: 7836811111')}</button></div>
     </div>`,
-  'welcome-server-error': ()=>`
+  'server-error': ()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
     <div class="hdr"><span class="htitle">Wiom Partner+</span></div>
     <div class="scontent"><div class="pad" style="text-align:center;">
@@ -442,7 +442,7 @@ const errorScreens = {
         </div>
       </div>
     </div>
-    <div class="bbar"><button class="cta" onclick="clearScenario();showPitch=true;renderPhone();">${t('🔄 दोबारा कोशिश करें','🔄 Try Again')}</button>
+    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('🔄 दोबारा कोशिश करें','🔄 Try Again')}</button>
     <button class="cta sec" style="margin-top:8px;" onclick="window.open('tel:7836811111')">📞 ${t('हेल्पलाइन: 7836811111','Helpline: 7836811111')}</button></div>
     </div>`,
   'phone-duplicate': ()=>`
@@ -810,8 +810,8 @@ function triggerScenario(key){
   const scn = scenarios[key];
   if(!scn) return;
   activeScenario = key;
-  if(scn.screen === -1){
-    showPitch = true;
+  if(scn.screen === 'any'){
+    // Global error — stay on current screen, just show the error overlay
   } else {
     showPitch = false;
     currentScreen = scn.screen;
@@ -1261,8 +1261,8 @@ function renderPhone(){
 
   // Show pitch screen if not dismissed
   if(showPitch){
-    // Check for welcome screen error scenarios
-    if(activeScenario && errorScreens[activeScenario] && scenarios[activeScenario] && scenarios[activeScenario].screen === -1){
+    // Check for global error scenarios (no internet, server error) on welcome screen
+    if(activeScenario && errorScreens[activeScenario] && scenarios[activeScenario] && scenarios[activeScenario].screen === 'any'){
       phone.innerHTML = addHdrBtns(`<div class="${animClass}">${errorScreens[activeScenario]()}</div>`);
       document.getElementById('stepInfo').textContent = 'Welcome — ' + scenarios[activeScenario].label;
       document.getElementById('lhPhase').textContent = t('स्वागत स्क्रीन','Welcome Screen');
@@ -1361,7 +1361,7 @@ function renderDashboard(){
 
   // Build scenario panel
   const scnCategories = {
-    welcome: {label:'Welcome Screen', icon:'🏠'},
+    global: {label:'Network / App Errors', icon:'📡'},
     registration: {label:'Registration & OTP', icon:'📱'},
     verification: {label:'KYC & Location', icon:'🪪'},
     payment: {label:'Payment Failures', icon:'💳'},
