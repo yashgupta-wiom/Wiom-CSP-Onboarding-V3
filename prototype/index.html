@@ -1339,8 +1339,8 @@ const screens = [
     const showAccReErr = accReBlurred && accReVal.length>0 && !accMatch;
     const showIfscErr = ifscBlurred && !ifscValid;
     const canProceed = accValid && accMatch && ifscValid;
-    // Mask account number: show first 2 and last 4, rest as X
-    const maskedAcc = accVal.length>6 ? accVal.slice(0,2)+'X'.repeat(accVal.length-6)+accVal.slice(-4) : accVal.length>0 ? 'X'.repeat(accVal.length) : '';
+    // Fully mask account number with bullets
+    const maskedAcc = accVal.length>0 ? '●'.repeat(accVal.length) : '';
     return `
     <div class="sbar"><span>9:41</span><span>100%</span></div>
     <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
@@ -1348,7 +1348,7 @@ const screens = [
       <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">🏦 ${t('बैंक विवरण','Bank Details')}</div>
       <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('अपने बैंक खाते की जानकारी दर्ज करें','Enter your bank account details')}</div>
       <div class="lbl">${t('बैंक खाता संख्या','Bank Account Number')}</div>
-      <input class="finp ${accValid?'ok':''}" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="18" placeholder="${t('बैंक खाता संख्या दर्ज करें','Enter bank account number')}" value="${window.bankAccFocused?accVal:maskedAcc}" oninput="let v=this.value.replace(/[^0-9]/g,'').slice(0,18);window.bankAccVal=v;this.value=v;window.bankAccBlurred=false;" onfocus="window.bankAccFocused=true;this.value=window.bankAccVal||'';" onblur="window.bankAccFocused=false;window.bankAccBlurred=true;validateBankField();">
+      <input class="finp ${accValid?'ok':''}" type="${accBlurred&&accValid?'password':'tel'}" inputmode="numeric" pattern="[0-9]*" maxlength="18" placeholder="${t('बैंक खाता संख्या दर्ज करें','Enter bank account number')}" value="${accVal}" oninput="let v=this.value.replace(/[^0-9]/g,'').slice(0,18);window.bankAccVal=v;this.value=v;window.bankAccBlurred=false;" onfocus="this.type='tel';" onblur="window.bankAccBlurred=true;validateBankField();">
       <div class="lbl">${t('बैंक खाता संख्या दोबारा दर्ज करें','Re-enter Bank Account Number')}</div>
       <input class="finp ${accMatch&&accReVal.length>0?'ok':showAccReErr?'err':''}" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="18" placeholder="${t('बैंक खाता संख्या दोबारा दर्ज करें','Re-enter bank account number')}" value="${accReVal}" oninput="let v=this.value.replace(/[^0-9]/g,'').slice(0,18);window.bankAccReVal=v;this.value=v;window.bankAccReBlurred=false;" onblur="window.bankAccReBlurred=true;validateBankField();">
       ${showAccReErr?`<div style="font-size:11px;color:var(--negative);margin:-8px 0 8px 4px;">${t('बैंक खाता संख्या मेल नहीं खाती','Bank account number mismatch')}</div>`:''}
