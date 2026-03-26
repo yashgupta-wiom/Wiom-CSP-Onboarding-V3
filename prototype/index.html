@@ -706,11 +706,11 @@ const errorScreens = {
         <div style="font-size:12px;font-weight:700;color:var(--warn-700);margin-bottom:4px;">⏳ Payment Confirmation Pending</div>
         <div style="font-size:14px;color:var(--text);line-height:20px;">${t('बैंक से response देर से आ रहा है। कभी-कभी 2-5 मिनट लग सकते हैं।','Bank response is delayed. Sometimes it can take 2-5 minutes.')}</div>
       </div>
-      <div class="card" style="text-align:left;">
-        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;">${t('Transaction Details','Transaction Details')}</div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--text-sec);">${t('Amount','Amount')}</span><b>₹2,000</b></div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--text-sec);">UPI Ref</span><b>UPI29384756</b></div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span style="color:var(--text-sec);">Status</span><b style="color:var(--warning);">Pending ⏳</b></div>
+      <div class="card" style="text-align:left;border-color:var(--border-input);background:var(--surface);">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">${t('लेन-देन विवरण','Transaction Details')}</div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--text-sec);font-weight:500;">${t('राशि','Amount')}</span><b style="color:var(--text);">₹2,000</b></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--text-sec);font-weight:500;">UPI Ref</span><b style="color:var(--text);">UPI29384756</b></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span style="color:var(--text-sec);font-weight:500;">Status</span><b style="color:var(--warning);">Pending ⏳</b></div>
       </div>
       <div class="ibox ibox-g" style="text-align:left;"><span class="ii">🛡️</span><span>${t('अगर पैसा कटा है तो 48 hrs में auto-refund या auto-reconcile हो जाएगा','If money was deducted, it will be auto-refunded or auto-reconciled within 48 hrs')}</span></div>
     </div>
