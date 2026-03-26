@@ -796,20 +796,14 @@ const errorScreens = {
     </div>
     </div>`,
 
-  'bank-pennydrop-fail': ()=>`
-    <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
-    <div class="scontent"><div class="pad" style="text-align:center;">
-      <div style="font-size:48px;margin:20px 0 12px;">❌</div>
-      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('पेनी ड्रॉप विफल','Penny Drop Failed')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('₹1 क्रेडिट नहीं हो पाया — बैंक खाता संख्या या IFSC कोड गलत हो सकता है','₹1 could not be credited — bank account number or IFSC code may be incorrect')}</div>
-      <div class="card" style="text-align:left;border-color:var(--negative);background:var(--neg-100);">
-        <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:6px;">❌ ${t('सत्यापन विफल','Verification Failed')}</div>
-        <div style="font-size:13px;color:var(--text);line-height:18px;">${t('कृपया बैंक खाता संख्या और IFSC कोड दोबारा जांचें और सही विवरण दर्ज करें','Please re-check bank account number and IFSC code, and enter correct details')}</div>
-      </div>
-    </div>
-    <div class="bbar"><button class="cta" onclick="window.bankAccVal='';window.bankAccReVal='';window.bankIfscVal='';window.bankAccBlurred=false;window.bankAccReBlurred=false;window.bankIfscBlurred=false;clearScenario();">${t('बैंक विवरण दोबारा दर्ज करें','Re-enter Bank Details')}</button></div>
-    </div>`,
+  'bank-pennydrop-fail': ()=>{
+    // Handled inline in bank details render — this is a fallback redirect
+    window.bankPennyDropFail = true;
+    activeScenario = null;
+    window._dedupTriggered = false;
+    setTimeout(()=>renderPhone(),0);
+    return `<div class="sbar"><span>9:41</span><span>100%</span></div><div class="scontent"><div class="pad"></div></div>`;
+  },
 
   'bank-name-mismatch': ()=>{
     // This scenario is now handled inline in the bank details render via bankNameMismatch state
@@ -1999,15 +1993,13 @@ function startBankVerification(){
     // Check if name mismatch scenario is active
     if(activeScenario==='bank-name-mismatch'){
       window.bankNameMismatch = true;
-      clearScenario();
-      window.bankNameMismatch = true; // re-set after clearScenario resets
-      currentScreen = 6;
+      activeScenario = null;
+      window._dedupTriggered = false;
       renderPhone();
     } else if(activeScenario==='bank-pennydrop-fail'){
       window.bankPennyDropFail = true;
-      clearScenario();
-      window.bankPennyDropFail = true;
-      currentScreen = 6;
+      activeScenario = null;
+      window._dedupTriggered = false;
       renderPhone();
     } else {
       // Success — show verified delight
