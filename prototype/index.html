@@ -1317,7 +1317,7 @@ const screens = [
         ${upRow('kycGst','📋',t('GST प्रमाणपत्र','GST Certificate'))}
         <div style="margin-top:8px;"><span style="font-size:13px;font-weight:600;">📋 ${t('','')}<a onclick="showSampleDoc('gst')" style="color:var(--pri);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">${t('सैंपल दस्तावेज़ देखें','View sample document')}</a></span></div>
       </div>
-      <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycGstNum=true;window.kycSub=0;next();"':''}>${canProceed?t('अब बैंक विवरण दें','Next: Bank Details'):t('GST विवरण भरें','Complete GST details')}</button></div>
+      <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycGstNum=true;window.kycSub=0;next();"':''}>${canProceed?t('बैंक विवरण जोड़ें','Add Bank Details'):t('GST विवरण भरें','Complete GST details')}</button></div>
       </div>`;
     }
    }},
