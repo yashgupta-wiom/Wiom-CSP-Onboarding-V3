@@ -425,7 +425,6 @@ const scenarios = {
   'bank-name-mismatch': {screen:6, label:'Bank Name Mismatch', icon:'👤', cat:'bank', deferred:true},
   'bank-dedup': {screen:6, label:'Bank Account Dedup', icon:'🔍', cat:'bank', deferred:true},
   // Agreement & Tech
-  'isp-doc-invalid': {screen:7, label:'ISP Doc Invalid', icon:'✍️', cat:'documentation'},
   'verification-rejected': {screen:9, label:'Verification Rejected', icon:'📵', cat:'documentation'},
   // Onboarding & Training
   'onboardfee-failed': {screen:11, label:'₹20K Payment Failed', icon:'💸', cat:'payment'},
@@ -785,20 +784,6 @@ const errorScreens = {
   },
 
 
-  'isp-doc-invalid': ()=>`
-    <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('ISP अनुबंध','ISP Agreement')}</span><span class="hright">${t('स्टेप 3/5','Step 3/5')}</span></div>
-    <div class="scontent"><div class="pad" style="text-align:center;">
-      <div style="font-size:40px;margin:16px 0;">📄</div>
-      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('ISP अनुबंध अमान्य है','ISP Agreement Invalid')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('चिंता न करें — सही दस्तावेज़ अपलोड करें','Don\'t worry — upload the correct document')}</div>
-      <div class="card" style="text-align:left;border-color:var(--negative);background:var(--neg-100);">
-        <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:4px;">❌ ${t('दस्तावेज़ अमान्य','Document Invalid')}</div>
-        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('कृपया सही ISP अनुबंध अपलोड करें — DOT अनुपालन के लिए यह अनिवार्य है।','Please upload a valid ISP Agreement — this is mandatory for DOT compliance.')}</div>
-      </div>
-    </div>
-    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('दोबारा अपलोड करें','Re-upload')}</button></div>
-    </div>`,
 
   'verification-rejected': ()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
