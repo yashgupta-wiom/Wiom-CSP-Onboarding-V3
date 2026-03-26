@@ -590,7 +590,7 @@ const errorScreens = {
       </div>
       <div class="ibox ibox-g" style="margin-top:12px;"><span class="ii">🔒</span><span>${t('राशि आपके बैंक खाते में जमा हो गई है','Amount has been credited to your bank account')}</span></div>
     </div>
-    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('ठीक है','OK')}</button></div>
+    <div class="bbar"><button class="cta" onclick="clearScenario();currentScreen=0;renderPhone();">${t('लॉगआउट करें','Logout')}</button></div>
     </div>`,
 
   'refund-in-progress': ()=>`
