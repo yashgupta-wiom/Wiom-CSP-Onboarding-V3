@@ -418,9 +418,9 @@ const scenarios = {
   // KYC — document errors
   'kyc-pan-mismatch': {screen:5, label:'PAN Name Mismatch', icon:'🪪', cat:'kyc'},
   'kyc-aadhaar-expired': {screen:5, label:'Aadhaar Expired', icon:'⚠️', cat:'kyc'},
-  'kyc-pan-dedup': {screen:5, label:'PAN Dedup — Already Linked', icon:'🔍', cat:'kyc'},
-  'kyc-aadhaar-dedup': {screen:5, label:'Aadhaar Dedup — Already Linked', icon:'🔍', cat:'kyc'},
-  'kyc-gst-dedup': {screen:5, label:'GST Dedup — Already Linked', icon:'🔍', cat:'kyc'},
+  'kyc-pan-dedup': {screen:5, label:'PAN Dedup — Already Linked', icon:'🔍', cat:'kyc', deferred:true},
+  'kyc-aadhaar-dedup': {screen:5, label:'Aadhaar Dedup — Already Linked', icon:'🔍', cat:'kyc', deferred:true},
+  'kyc-gst-dedup': {screen:5, label:'GST Dedup — Already Linked', icon:'🔍', cat:'kyc', deferred:true},
   // Bank & Dedup
   'bank-pennydrop-fail': {screen:6, label:'Penny Drop Failed', icon:'🏦', cat:'bank'},
   'bank-name-mismatch': {screen:6, label:'Bank Name Mismatch', icon:'👤', cat:'bank'},
@@ -709,8 +709,8 @@ const errorScreens = {
       </div>
     </div>
     <div class="bbar">
-      <button class="cta" onclick="clearScenario()">${t('अलग PAN डालें','Enter Different PAN')}</button>
-      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('Wiom ऐप में लॉगिन करें','Login in Wiom App')}</button>
+      <button class="cta" onclick="window.kycPanVal='';window.kycPanNum=false;window.kycPan=false;window.kycPanBlurred=false;window.kycSub=0;clearScenario();">${t('अलग PAN डालें','Enter Different PAN')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario();currentScreen=0;renderPhone();">${t('Wiom ऐप में लॉगिन करें','Login in Wiom App')}</button>
     </div>
     </div>`,
 
@@ -730,8 +730,8 @@ const errorScreens = {
       </div>
     </div>
     <div class="bbar">
-      <button class="cta" onclick="clearScenario()">${t('अलग आधार डालें','Enter Different Aadhaar')}</button>
-      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('Wiom ऐप में लॉगिन करें','Login in Wiom App')}</button>
+      <button class="cta" onclick="window.kycAadhaarVal='';window.kycAadhaarNum=false;window.kycAadhaarF=false;window.kycAadhaarB=false;window.kycAadhaarBlurred=false;window.kycSub=1;clearScenario();">${t('अलग आधार डालें','Enter Different Aadhaar')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario();currentScreen=0;renderPhone();">${t('Wiom ऐप में लॉगिन करें','Login in Wiom App')}</button>
     </div>
     </div>`,
 
@@ -751,8 +751,8 @@ const errorScreens = {
       </div>
     </div>
     <div class="bbar">
-      <button class="cta" onclick="clearScenario()">${t('अलग GST डालें','Enter Different GST')}</button>
-      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('Wiom ऐप में लॉगिन करें','Login in Wiom App')}</button>
+      <button class="cta" onclick="window.kycGstVal='';window.kycGstNum=false;window.kycGst=false;window.kycGstBlurred=false;window.kycSub=2;clearScenario();">${t('अलग GST डालें','Enter Different GST')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario();currentScreen=0;renderPhone();">${t('Wiom ऐप में लॉगिन करें','Login in Wiom App')}</button>
     </div>
     </div>`,
 
@@ -990,6 +990,7 @@ function triggerScenario(key){
   const scn = scenarios[key];
   if(!scn) return;
   activeScenario = key;
+  window._dedupTriggered = false;
   if(scn.screen === 'any'){
     // Global error — stay on current screen, just show the error overlay
   } else {
@@ -1005,6 +1006,7 @@ function triggerScenario(key){
 
 function clearScenario(){
   activeScenario = null;
+  window._dedupTriggered = false;
   addLog('✓ Scenario cleared — back to normal flow','info');
   toast('Scenario cleared ✓','g');
   renderPhone();
@@ -1657,8 +1659,9 @@ function renderPhone(){
   }
 
   const s = screens[currentScreen];
-  // Check for active error scenario
-  if(activeScenario && errorScreens[activeScenario]){
+  // Check for active error scenario (skip deferred scenarios — they trigger on blur)
+  const scnMeta = activeScenario && scenarios[activeScenario];
+  if(activeScenario && errorScreens[activeScenario] && !(scnMeta && scnMeta.deferred && !window._dedupTriggered)){
     phone.innerHTML = addHdrBtns(`<div class="${animClass}">${errorScreens[activeScenario]()}</div>`);
   } else {
     phone.innerHTML = addHdrBtns(`<div class="${animClass}">${s.render()}</div>`);
@@ -1852,7 +1855,26 @@ let _kycValidateTimer=null;
 function validateKycField(type){
   clearTimeout(_kycValidateTimer);
   _kycValidateTimer=setTimeout(()=>{
-    // Save cursor position info
+    // Check for dedup scenario trigger
+    const dedupMap = {pan:'kyc-pan-dedup', aadhaar:'kyc-aadhaar-dedup', gst:'kyc-gst-dedup'};
+    const dedupKey = dedupMap[type];
+    if(dedupKey && activeScenario===dedupKey){
+      // Check if the number is valid
+      let isValid = false;
+      if(type==='pan') isValid = /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(window.kycPanVal||'');
+      if(type==='aadhaar') isValid = /^[0-9]{12}$/.test((window.kycAadhaarVal||'').replace(/\s/g,''));
+      if(type==='gst'){
+        const gv=window.kycGstVal||'', pv=window.kycPanVal||'';
+        isValid = gv.length===15 && /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]{3}$/.test(gv) && gv.substring(2,12)===pv;
+      }
+      if(isValid){
+        // Trigger dedup error screen
+        window._dedupTriggered = true;
+        renderPhone();
+        return;
+      }
+    }
+    // Normal validation — save cursor position info
     const activeEl=document.activeElement;
     const isInput=activeEl&&activeEl.tagName==='INPUT';
     const cursorPos=isInput?activeEl.selectionStart:0;
