@@ -1326,19 +1326,39 @@ const screens = [
   {phase:'Stage 2',title:'बैंक विवरण',
    solves:['Bank verification','Dedup check'],
    types:[{label:'User Entry',cls:'user-entry',icon:'✏️'},{label:'System Verify',cls:'sys-check',icon:'⚡'}],
-   render:()=>`
+   render:()=>{
+    const accVal = window.bankAccVal||'';
+    const accReVal = window.bankAccReVal||'';
+    const ifscVal = window.bankIfscVal||'';
+    const accValid = accVal.length>=9 && /^[0-9]+$/.test(accVal);
+    const accMatch = accValid && accReVal===accVal;
+    const ifscValid = /^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifscVal);
+    const accBlurred = window.bankAccBlurred && accVal.length>0;
+    const accReBlurred = window.bankAccReBlurred && accReVal.length>0;
+    const ifscBlurred = window.bankIfscBlurred && ifscVal.length>0;
+    const showAccReErr = accReBlurred && accReVal.length>0 && !accMatch;
+    const showIfscErr = ifscBlurred && !ifscValid;
+    const canProceed = accValid && accMatch && ifscValid;
+    // Mask account number: show first 2 and last 4, rest as X
+    const maskedAcc = accVal.length>6 ? accVal.slice(0,2)+'X'.repeat(accVal.length-6)+accVal.slice(-4) : accVal.length>0 ? 'X'.repeat(accVal.length) : '';
+    return `
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('बैंक विवरण','Bank Details')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
     <div class="scontent"><div class="pad">
-      <div class="lbl">${t('खाताधारक का नाम','Account Holder')}</div><input class="finp ok" type="text" value="${t('राजेश कुमार','Rajesh Kumar')}">
-      <div class="lbl">${t('बैंक का नाम','Bank Name')}</div><input class="finp ok" type="text" value="State Bank of India">
-      <div class="lbl">${t('खाता संख्या','Account Number')}</div><input class="finp ok" type="text" value="XXXX XXXX 4521">
-      <div class="lbl">IFSC</div><input class="finp ok" type="text" value="SBIN0001234">
-      <div class="card" style="border-color:var(--positive);background:var(--pos-100);"><div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">✓ ${t('पेनी ड्रॉप सत्यापित','PENNY DROP VERIFIED')}</div><div style="font-size:14px;color:var(--text);">${t('₹1 क्रेडिट — नाम मैच कन्फ़र्म','₹1 credited — Name match confirmed')}</div></div>
-      <div class="card" style="border-color:var(--positive);background:var(--pos-100);"><div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">✓ ${t('डुप्लीकेट जांच पास','DEDUP CHECK PASSED')}</div><div style="font-size:14px;color:var(--text);">PAN, Aadhaar, GST, Bank — ${t('कोई डुप्लिकेट नहीं','No duplicates')}</div></div>
+      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">🏦 ${t('बैंक विवरण','Bank Details')}</div>
+      <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('अपने बैंक खाते की जानकारी दर्ज करें','Enter your bank account details')}</div>
+      <div class="lbl">${t('बैंक खाता संख्या','Bank Account Number')}</div>
+      <input class="finp ${accValid?'ok':''}" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="18" placeholder="${t('बैंक खाता संख्या दर्ज करें','Enter bank account number')}" value="${accVal}" oninput="let v=this.value.replace(/[^0-9]/g,'').slice(0,18);window.bankAccVal=v;this.value=v;window.bankAccBlurred=false;" onblur="window.bankAccBlurred=true;validateBankField();">
+      ${accValid&&accVal.length>0?`<div style="font-size:11px;color:var(--text-sec);margin:-8px 0 8px 4px;">🔒 ${maskedAcc}</div>`:''}
+      <div class="lbl">${t('बैंक खाता संख्या दोबारा दर्ज करें','Re-enter Bank Account Number')}</div>
+      <input class="finp ${accMatch&&accReVal.length>0?'ok':showAccReErr?'err':''}" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="18" placeholder="${t('बैंक खाता संख्या दोबारा दर्ज करें','Re-enter bank account number')}" value="${accReVal}" oninput="let v=this.value.replace(/[^0-9]/g,'').slice(0,18);window.bankAccReVal=v;this.value=v;window.bankAccReBlurred=false;" onblur="window.bankAccReBlurred=true;validateBankField();">
+      ${showAccReErr?`<div style="font-size:11px;color:var(--negative);margin:-8px 0 8px 4px;">${t('बैंक खाता संख्या मेल नहीं खाती','Bank account number mismatch')}</div>`:''}
+      <div class="lbl">${t('IFSC कोड','IFSC Code')}</div>
+      <input class="finp ${ifscValid?'ok':showIfscErr?'err':''}" type="text" maxlength="11" placeholder="${t('उदा. SBIN0001234','e.g. SBIN0001234')}" value="${ifscVal}" oninput="let v=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,11);window.bankIfscVal=v;this.value=v;window.bankIfscBlurred=false;" onblur="window.bankIfscBlurred=true;validateBankField();" style="text-transform:uppercase;letter-spacing:1px;">
+      ${showIfscErr?`<div style="font-size:11px;color:var(--negative);margin:-8px 0 8px 4px;">${t('कृपया सही IFSC कोड दर्ज करें','Please enter valid IFSC code')}</div>`:''}
     </div>
-    <div class="bbar"><button class="cta" onclick="next()">${t('अब ISP अनुबंध अपलोड करें','Next: ISP Agreement')}</button></div>
-    </div>`},
+    <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="next()"':''}>${canProceed?t('ISP अनुबंध जोड़ें','Add ISP Agreement'):t('बैंक विवरण भरें','Complete bank details')}</button></div>
+    </div>`;}},
 
   // 7: ISP Agreement Upload (NEW)
   {phase:'Stage 2',title:'ISP अनुबंध',
@@ -1589,7 +1609,7 @@ function updateState(idx){
     3:()=>{s.locationDone=true;s.phase='Location Done';addLog('Location submitted: Indore, MP','info');},
     4:()=>{s.regFeePaid=true;s.status='documenting';s.phase='Reg Fee Paid';p.regFee=2000;p.phase='KYC';p.status='pending';addLog('₹2,000 registration fee paid','payment');toast('भुगतान सफल! अब दस्तावेज़ जमा करें','g');},
     5:()=>{s.kycDone=true;s.phase='KYC Verified';p.kyc='verified';window.kycPanVal='CEVPG6375L';window.kycPanNum=true;window.kycPan=true;window.kycAadhaarVal='369689164553';window.kycAadhaarNum=true;window.kycAadhaarF=true;window.kycAadhaarB=true;window.kycGstVal='09CEVPG6375L1Z4';window.kycGstNum=true;window.kycGst=true;window.kycSub=2;addLog('KYC auto-verified: PAN, Aadhaar, GST','kyc');toast('KYC verified ✓','g');},
-    6:()=>{s.phase='Bank Verified';p.bank='verified';addLog('Bank verified via penny-drop. Dedup clear.','kyc');toast('Bank verified, dedup clear ✓','g');},
+    6:()=>{s.phase='Bank Verified';p.bank='verified';window.bankAccVal='12345678901234';window.bankAccReVal='12345678901234';window.bankIfscVal='SBIN0001234';window.bankAccBlurred=true;window.bankAccReBlurred=true;window.bankIfscBlurred=true;addLog('Bank verified via penny-drop. Dedup clear.','kyc');toast('Bank verified, dedup clear ✓','g');},
     7:()=>{s.phase='ISP Agreement';addLog('ISP Agreement uploaded — DOT compliance ready','info');toast('ISP Agreement uploaded ✓','g');},
     8:()=>{s.phase='Photos Submitted';addLog('Shop & equipment photos uploaded','info');toast('Photos uploaded ✓','g');},
     9:()=>{s.qaStatus='approved';s.phase='Verification Approved';p.qa='approved';p.phase='Policy Review';p.status='review';addLog('✓ VERIFICATION APPROVED — Activation phase','approval');toast('Verification Approved! Activation phase next','g');},
@@ -1875,6 +1895,11 @@ function validateKycField(type){
     }
   }
   // Normal validation
+  renderPhone();
+}
+
+// Bank field validation
+function validateBankField(){
   renderPhone();
 }
 
