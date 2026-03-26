@@ -1338,33 +1338,8 @@ const screens = [
     }
     // Show penny drop fail as bottom sheet overlay on the entry form
     if(window.bankPennyDropFail){
-      const accVal = window.bankAccVal||'';
-      const accReVal = window.bankAccReVal||'';
-      const ifscVal = window.bankIfscVal||'';
-      return `
-      <div class="sbar"><span>9:41</span><span>100%</span></div>
-      <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
-      <div class="scontent"><div class="pad">
-        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">🏦 ${t('बैंक विवरण','Bank Details')}</div>
-        <div style="font-size:13px;color:var(--text-sec);margin-bottom:8px;line-height:18px;">${t('अपने बैंक खाते की जानकारी दर्ज करें','Enter your bank account details')}</div>
-        <div class="lbl">${t('बैंक खाता संख्या','Bank Account Number')}</div>
-        <input class="finp" type="password" value="${accVal}" disabled style="opacity:0.6;">
-        <div class="lbl">${t('बैंक खाता संख्या दोबारा दर्ज करें','Re-enter Bank Account Number')}</div>
-        <input class="finp" type="password" value="${accReVal}" disabled style="opacity:0.6;">
-        <div class="lbl">${t('IFSC कोड','IFSC Code')}</div>
-        <input class="finp" type="text" value="${ifscVal}" disabled style="opacity:0.6;text-transform:uppercase;letter-spacing:1px;">
-      </div>
-      <div class="upload-overlay" style="pointer-events:auto;">
-        <div class="upload-sheet">
-          <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 12px;"></div>
-          <div style="text-align:center;margin-bottom:14px;">
-            <div style="font-size:16px;font-weight:700;color:var(--negative);">${t('बैंक खाता सत्यापन विफल','Bank Account Verification Failed')} ✗</div>
-            <div style="font-size:13px;color:var(--text-sec);margin-top:6px;line-height:18px;">${t('हम आपके बैंक विवरण सत्यापित नहीं कर पाए','We could not verify your bank details')}</div>
-          </div>
-          <button class="cta" onclick="window.bankPennyDropFail=false;window.bankAccVal='';window.bankAccReVal='';window.bankIfscVal='';window.bankAccBlurred=false;window.bankAccReBlurred=false;window.bankIfscBlurred=false;renderPhone();" style="width:100%;margin-bottom:8px;">${t('बैंक विवरण बदलें','Change Bank Details')}</button>
-          <button class="cta sec" onclick="window.bankPennyDropFail=false;window.bankSupportDoc=true;window.bankSupportDocType='pennydrop';renderPhone();" style="width:100%;">${t('सहायक बैंक दस्तावेज़ अपलोड करें','Upload Supporting Bank Document')}</button>
-        </div>
-      </div>`;
+      // Render happens in post-render hook via showBankFailSheet()
+      window._showBankFailSheet = true;
     }
     // Show name mismatch state
     if(window.bankNameMismatch){
@@ -1804,6 +1779,29 @@ function renderPhone(){
       </div>`:''}
     </div>
   `;
+
+  // Post-render: show bank fail bottom sheet overlay
+  if(window._showBankFailSheet){
+    window._showBankFailSheet = false;
+    setTimeout(()=>{
+      const existing = document.getElementById('bankFailSheet');
+      if(existing) existing.remove();
+      const overlay = document.createElement('div');
+      overlay.className = 'upload-overlay';
+      overlay.id = 'bankFailSheet';
+      overlay.innerHTML = `<div class="upload-sheet" style="padding:24px 20px;">
+        <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 16px;"></div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
+          <span style="font-size:20px;color:var(--negative);font-weight:700;">✗</span>
+          <span style="font-size:17px;font-weight:700;color:var(--negative);">${t('बैंक खाता सत्यापन विफल','Bank Account Verification Failed')}</span>
+        </div>
+        <div style="font-size:13px;color:var(--text-sec);text-align:center;margin-bottom:20px;line-height:18px;">${t('हम आपके बैंक विवरण सत्यापित नहीं कर पाए','We could not verify your bank details')}</div>
+        <button class="cta" onclick="window.bankPennyDropFail=false;window.bankAccVal='';window.bankAccReVal='';window.bankIfscVal='';window.bankAccBlurred=false;window.bankAccReBlurred=false;window.bankIfscBlurred=false;document.getElementById('bankFailSheet').remove();renderPhone();" style="width:100%;margin-bottom:8px;">${t('बैंक विवरण बदलें','Change Bank Details')}</button>
+        <button class="cta sec" onclick="window.bankPennyDropFail=false;window.bankSupportDoc=true;window.bankSupportDocType='pennydrop';document.getElementById('bankFailSheet').remove();renderPhone();" style="width:100%;">${t('सहायक बैंक दस्तावेज़ अपलोड करें','Upload Supporting Bank Document')}</button>
+      </div>`;
+      document.getElementById('phoneFrame').appendChild(overlay);
+    },50);
+  }
 }
 
 function updateProgress(){
