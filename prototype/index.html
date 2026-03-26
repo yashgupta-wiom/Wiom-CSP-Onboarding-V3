@@ -392,6 +392,9 @@ const scenarios = {
   'kyc-day2-reminder': {screen:5, label:'Day 2 — 1 day left', icon:'⚠️', cat:'verification'},
   'kyc-day3-reminder': {screen:5, label:'Day 3 — Last day to upload', icon:'🚨', cat:'verification'},
   'kyc-day4-autoreject': {screen:5, label:'Day 4 — Auto Reject + Refund', icon:'❌', cat:'verification'},
+  'refund-success': {screen:5, label:'Refund Success', icon:'✅', cat:'verification'},
+  'refund-in-progress': {screen:5, label:'Refund In Progress', icon:'⏳', cat:'verification'},
+  'refund-failed': {screen:5, label:'Refund Failed', icon:'❌', cat:'verification'},
   'kyc-pan-mismatch': {screen:5, label:'PAN Name Mismatch', icon:'🪪', cat:'verification'},
   'kyc-aadhaar-expired': {screen:5, label:'Aadhaar Expired', icon:'⚠️', cat:'verification'},
   
@@ -561,13 +564,80 @@ const errorScreens = {
         <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">🔒 ${t('रिफंड शुरू हो गया','Refund initiated')}</div>
         <div style="font-size:14px;color:var(--text);line-height:20px;">${t('₹2,000 पूरा रिफंड 5-7 कार्य दिवसों में आपके खाते में आ जाएगा।','₹2,000 full refund will be credited to your account in 5-7 working days.')}</div>
       </div>
-      <div class="card" style="text-align:left;border-color:var(--info);background:var(--info-100);margin-top:8px;">
-        <div style="font-size:12px;font-weight:700;color:var(--info);margin-bottom:4px;">💡 ${t('दोबारा आवेदन करें','Apply again')}</div>
-        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('चिंता न करें! आप कभी भी दोबारा आवेदन कर सकते हैं।','No worries! You can apply again anytime.')}</div>
-      </div>
     </div>
-    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('दोबारा आवेदन करें','Apply Again')}</button></div>
+    <div class="bbar"><button class="cta" onclick="triggerScenario('refund-in-progress')">${t('रिफंड स्टेटस देखें','Check Refund Status')}</button></div>
     </div>`,
+
+  'refund-success': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="triggerScenario('kyc-day4-autoreject')">&larr;</span><span class="htitle">${t('रिफंड स्टेटस','Refund Status')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:48px;margin:24px 0 16px;">✅</div>
+      <div style="font-size:20px;font-weight:700;color:var(--positive);line-height:28px;">${t('रिफंड सफल','Refund Successful')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('आपका रिफंड सफलतापूर्वक प्रोसेस हो गया है','Your refund has been processed successfully')}</div>
+      <div class="card" style="text-align:left;border-color:var(--pos-300);background:var(--pos-100);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--pos-200);">
+          <span style="font-size:12px;color:var(--text-sec);">${t('रिफंड राशि','Refund Amount')}</span>
+          <span style="font-size:18px;font-weight:700;color:var(--positive);">₹2,000</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--pos-200);">
+          <span style="font-size:12px;color:var(--text-sec);">${t('UTR नंबर','UTR Number')}</span>
+          <span style="font-size:13px;font-weight:600;color:var(--text);">UTIB26032600184729</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:var(--text-sec);">${t('रिफंड तिथि','Refund Date')}</span>
+          <span style="font-size:13px;font-weight:600;color:var(--text);">26 Mar 2026, 2:30 PM</span>
+        </div>
+      </div>
+      <div class="ibox ibox-g" style="margin-top:12px;"><span class="ii">🔒</span><span>${t('राशि आपके बैंक खाते में जमा हो गई है','Amount has been credited to your bank account')}</span></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('ठीक है','OK')}</button></div>
+    </div>`,
+
+  'refund-in-progress': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="triggerScenario('kyc-day4-autoreject')">&larr;</span><span class="htitle">${t('रिफंड स्टेटस','Refund Status')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:48px;margin:24px 0 16px;">⏳</div>
+      <div style="font-size:20px;font-weight:700;color:var(--warning);line-height:28px;">${t('रिफंड प्रोसेस हो रहा है','Refund In Progress')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('आपका रिफंड प्रोसेस किया जा रहा है','Your refund is being processed')}</div>
+      <div class="card" style="text-align:left;border-color:var(--warning);background:var(--warn-200);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--warning);">
+          <span style="font-size:12px;color:var(--text-sec);">${t('रिफंड राशि','Refund Amount')}</span>
+          <span style="font-size:18px;font-weight:700;color:var(--text);">₹2,000</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:var(--text-sec);">${t('अनुमानित समय','Estimated Time')}</span>
+          <span style="font-size:13px;font-weight:600;color:var(--warning);">${t('5-6 कार्य दिवस','5-6 working days')}</span>
+        </div>
+      </div>
+      <div class="ibox ibox-p" style="margin-top:12px;"><span class="ii">💡</span><span>${t('चिंता न करें — आपका पैसा सुरक्षित है और जल्द ही आपके खाते में आ जाएगा','Don\'t worry — your money is safe and will be credited to your account soon')}</span></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('ठीक है','OK')}</button></div>
+    </div>`,
+
+  'refund-failed': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="triggerScenario('kyc-day4-autoreject')">&larr;</span><span class="htitle">${t('रिफंड स्टेटस','Refund Status')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:48px;margin:24px 0 16px;">😔</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('रिफंड नहीं हो पाया','Refund Failed')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('बैंक में तकनीकी समस्या आ रही है','Facing technical issues with bank')}</div>
+      <div class="card" style="text-align:left;border-color:var(--negative);background:var(--neg-100);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--negative);">
+          <span style="font-size:12px;color:var(--text-sec);">${t('रिफंड राशि','Refund Amount')}</span>
+          <span style="font-size:18px;font-weight:700;color:var(--text);">₹2,000</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:var(--text-sec);">${t('स्टेटस','Status')}</span>
+          <span style="font-size:13px;font-weight:600;color:var(--negative);">${t('बैंक तकनीकी समस्या','Bank Technical Issue')}</span>
+        </div>
+      </div>
+      <div class="ibox ibox-p" style="margin-top:12px;"><span class="ii">🙏</span><span>${t('चिंता न करें — हमारी टीम से बात करें, हम मदद करेंगे','Don\'t worry — talk to our team, we will help')}</span></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="window.open('tel:7836811111')" style="background:var(--negative);">${t('हमसे बात करें','Talk to Us')}</button></div>
+    </div>`,
+
   'kyc-pan-mismatch': ()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
     <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('KYC Documents','KYC Documents')}</span><span class="hright">${t('स्टेप 3/4','Step 3/4')}</span></div>
@@ -740,7 +810,7 @@ const errorScreens = {
         <div style="font-size:14px;color:var(--text);line-height:20px;">${t('₹2,000 5-7 कार्य दिवसों में वापस होंगे','₹2,000 will be credited in 5-7 working days')}</div>
       </div>
     </div>
-    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('ठीक है','OK')}</button></div>
+    <div class="bbar"><button class="cta" onclick="triggerScenario('refund-in-progress')">${t('रिफंड स्टेटस देखें','Check Refund Status')}</button></div>
     </div>`,
 
   'tech-assessment-rejected': ()=>`
@@ -1060,7 +1130,6 @@ const screens = [
     <div class="scontent"><div class="pad">
       <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
       <div style="font-size:13px;color:var(--text-sec);margin-bottom:12px;line-height:18px;">${t('दस्तावेज़ जमा करें और Wiom पार्टनर बनने के करीब पहुँचें!','Submit your documents to move closer to becoming a Wiom Partner!')}</div>
-      <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--warn-200);border:1px solid var(--warning);border-radius:var(--r-sm);margin-bottom:12px;"><span style="font-size:16px;flex-shrink:0;">⏳</span><span style="font-size:12px;font-weight:600;color:var(--warn-700);line-height:16px;">${t('दस्तावेज़ जमा करने के लिए 3 दिन शेष','3 days remaining to submit documents')}</span></div>
       <div class="upload-row ${window.kycPan?'verified':''}" onclick="window.kycPan=!window.kycPan;renderPhone();"><div><div class="uname">🪪 ${t('PAN कार्ड','PAN Card')}</div><div class="ustatus" style="color:${window.kycPan?'var(--positive)':'var(--hint)'};">${window.kycPan?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycPan?'done':''}">${window.kycPan?'✓':t('अपलोड','Upload')}</button></div>
       <div class="upload-row ${window.kycAadhaarF?'verified':''}" onclick="window.kycAadhaarF=!window.kycAadhaarF;renderPhone();"><div><div class="uname">📄 ${t('आधार कार्ड — सामने','Aadhaar — Front')}</div><div class="ustatus" style="color:${window.kycAadhaarF?'var(--positive)':'var(--hint)'};">${window.kycAadhaarF?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycAadhaarF?'done':''}">${window.kycAadhaarF?'✓':t('अपलोड','Upload')}</button></div>
       <div class="upload-row ${window.kycAadhaarB?'verified':''}" onclick="window.kycAadhaarB=!window.kycAadhaarB;renderPhone();"><div><div class="uname">📄 ${t('आधार कार्ड — पीछे','Aadhaar — Back')}</div><div class="ustatus" style="color:${window.kycAadhaarB?'var(--positive)':'var(--hint)'};">${window.kycAadhaarB?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycAadhaarB?'done':''}">${window.kycAadhaarB?'✓':t('अपलोड','Upload')}</button></div>
