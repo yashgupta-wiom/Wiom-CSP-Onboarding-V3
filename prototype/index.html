@@ -173,6 +173,7 @@ textarea.finp{height:auto;min-height:72px;padding:12px;resize:vertical;line-heig
 .upload-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:20;display:flex;align-items:flex-end;}
 .upload-sheet{width:100%;background:#fff;border-radius:20px 20px 0 0;padding:20px 16px 24px;animation:slideUp .25s ease;}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .upload-sheet-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px;text-align:center;}
 .upload-sheet-option{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-input);margin-bottom:8px;cursor:pointer;}
 .upload-sheet-option:hover{border-color:var(--pri);background:var(--pri-light);}
@@ -422,8 +423,8 @@ const scenarios = {
   'kyc-aadhaar-dedup': {screen:5, label:'Aadhaar Dedup — Already Linked', icon:'🔍', cat:'kyc', deferred:true},
   'kyc-gst-dedup': {screen:5, label:'GST Dedup — Already Linked', icon:'🔍', cat:'kyc', deferred:true},
   // Bank & Dedup
-  'bank-pennydrop-fail': {screen:6, label:'Penny Drop Failed', icon:'🏦', cat:'bank'},
-  'bank-name-mismatch': {screen:6, label:'Bank Name Mismatch', icon:'👤', cat:'bank'},
+  'bank-pennydrop-fail': {screen:6, label:'Penny Drop Failed', icon:'🏦', cat:'bank', deferred:true},
+  'bank-name-mismatch': {screen:6, label:'Bank Name Mismatch', icon:'👤', cat:'bank', deferred:true},
   'dedup-found': {screen:6, label:'Dedup Match Found', icon:'🔍', cat:'bank'},
   // Agreement & Tech
   'isp-doc-invalid': {screen:7, label:'ISP Doc Invalid', icon:'✍️', cat:'documentation'},
@@ -797,39 +798,25 @@ const errorScreens = {
 
   'bank-pennydrop-fail': ()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('Bank वेरिफिकेशन','Bank Verification')}</span><span class="hright">${t('स्टेप 6','Step 6')}</span></div>
-    <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('बैंक खाता जानकारी','Bank Account Details')}</div>
-      <div class="lbl">${t('अकाउंट होल्डर नाम','Account Holder Name')}</div><div class="inp-wrap"><input class="finp ok" type="text" value="Rajesh Kumar"><span class="inp-check">✓</span></div>
-      <div class="lbl">${t('बैंक नाम','Bank Name')}</div><select class="finp"><option selected>State Bank of India</option></select>
-      <div class="lbl">${t('अकाउंट नंबर','Account Number')}</div><div class="inp-wrap"><input class="finp" type="text" value="XXXX XXXX 4521" style="border-color:var(--negative);"><span class="inp-check" style="color:var(--negative);">✗</span></div>
-      <div class="lbl">IFSC Code</div><div class="inp-wrap"><input class="finp ok" type="text" value="SBIN0001234"><span class="inp-check">✓</span></div>
-      <div class="card" style="border-color:var(--negative);background:var(--neg-100);">
-        <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:4px;">✗ PENNY DROP FAILED</div>
-        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('₹1 credit नहीं हो पाया — अकाउंट नंबर गलत हो सकता है','₹1 could not be credited — account number may be incorrect')}</div>
-        <div style="font-size:12px;color:var(--text-sec);margin-top:6px;line-height:16px;">${t('👉 अकाउंट नंबर दोबारा check करें और re-enter करें','👉 Please re-check and re-enter the account number')}</div>
+    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:48px;margin:20px 0 12px;">❌</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('पेनी ड्रॉप विफल','Penny Drop Failed')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('₹1 क्रेडिट नहीं हो पाया — बैंक खाता संख्या या IFSC कोड गलत हो सकता है','₹1 could not be credited — bank account number or IFSC code may be incorrect')}</div>
+      <div class="card" style="text-align:left;border-color:var(--negative);background:var(--neg-100);">
+        <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:6px;">❌ ${t('सत्यापन विफल','Verification Failed')}</div>
+        <div style="font-size:13px;color:var(--text);line-height:18px;">${t('कृपया बैंक खाता संख्या और IFSC कोड दोबारा जांचें और सही विवरण दर्ज करें','Please re-check bank account number and IFSC code, and enter correct details')}</div>
       </div>
     </div>
-    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('अकाउंट नंबर Fix करें','Fix Account Number')}</button></div>
+    <div class="bbar"><button class="cta" onclick="window.bankAccVal='';window.bankAccReVal='';window.bankIfscVal='';window.bankAccBlurred=false;window.bankAccReBlurred=false;window.bankIfscBlurred=false;clearScenario();">${t('बैंक विवरण दोबारा दर्ज करें','Re-enter Bank Details')}</button></div>
     </div>`,
 
-  'bank-name-mismatch': ()=>`
-    <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('Bank वेरिफिकेशन','Bank Verification')}</span><span class="hright">${t('स्टेप 6','Step 6')}</span></div>
-    <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('बैंक खाता जानकारी','Bank Account Details')}</div>
-      <div class="lbl">${t('अकाउंट होल्डर नाम','Account Holder Name')}</div><div class="inp-wrap"><input class="finp" type="text" value="Rajesh Kumar" style="border-color:var(--warning);background:var(--warn-200);"><span class="inp-check" style="color:var(--warn-700);">!</span></div>
-      <div class="card" style="border-color:var(--warning);background:var(--warn-200);">
-        <div style="font-size:12px;font-weight:700;color:var(--warn-700);margin-bottom:4px;">⚠️ PENNY DROP — Name Mismatch</div>
-        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('₹1 credit हुआ, लेकिन नाम मेल नहीं खाता:','₹1 was credited, but the name does not match:')}</div>
-        <div style="font-size:12px;color:var(--text-sec);line-height:18px;margin-top:6px;">${t('बैंक रिकॉर्ड:','Bank record:')} <b>Rajesh Kumar Sharma</b><br>${t('आपने दर्ज किया:','You entered:')} <b>Rajesh Kumar</b></div>
-        <div style="font-size:12px;color:var(--text-sec);line-height:16px;margin-top:6px;">${t('👉 बैंक में जो नाम है, वही यहां लिखें','👉 Please enter the exact name as in bank records')}</div>
-      </div>
-      <div class="lbl">${t('बैंक नाम','Bank Name')}</div><select class="finp"><option selected>State Bank of India</option></select>
-      <div class="lbl">${t('अकाउंट नंबर','Account Number')}</div><div class="inp-wrap"><input class="finp ok" type="text" value="XXXX XXXX 4521"><span class="inp-check">✓</span></div>
-    </div>
-    <div class="bbar"><button class="cta" onclick="clearScenario()">${t('नाम Fix करें और Retry','Fix Name and Retry')}</button></div>
-    </div>`,
+  'bank-name-mismatch': ()=>{
+    // This scenario is now handled inline in the bank details render via bankNameMismatch state
+    // This error screen is a fallback if triggered directly
+    window.bankNameMismatch = true;
+    return `<div class="sbar"><span>9:41</span><span>100%</span></div><div class="scontent"><div class="pad" style="text-align:center;padding-top:80px;"><div style="font-size:48px;">⏳</div><div style="font-size:14px;color:var(--text-sec);margin-top:12px;">${t('लोड हो रहा है...','Loading...')}</div></div></div>`;
+  },
 
   'dedup-found': ()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
@@ -1327,6 +1314,72 @@ const screens = [
    solves:['Bank verification','Dedup check'],
    types:[{label:'User Entry',cls:'user-entry',icon:'✏️'},{label:'System Verify',cls:'sys-check',icon:'⚡'}],
    render:()=>{
+    // Show verifying state
+    if(window.bankVerifying){
+      return `
+      <div class="sbar"><span>9:41</span><span>100%</span></div>
+      <div class="hdr"><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
+      <div class="scontent"><div class="pad" style="text-align:center;padding-top:80px;">
+        <div style="font-size:48px;margin-bottom:16px;animation:spin 1.5s linear infinite;">⏳</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;">${t('बैंक विवरण सत्यापित हो रहे हैं...','Verifying bank details...')}</div>
+        <div style="font-size:13px;color:var(--text-sec);line-height:18px;">${t('पेनी ड्रॉप सत्यापन जारी है','Penny drop verification in progress')}</div>
+      </div></div>`;
+    }
+    // Show verified success state
+    if(window.bankVerified){
+      return `
+      <div class="sbar"><span>9:41</span><span>100%</span></div>
+      <div class="hdr"><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
+      <div class="scontent"><div class="pad" style="text-align:center;padding-top:60px;">
+        <div style="font-size:48px;margin-bottom:16px;">✅</div>
+        <div style="font-size:20px;font-weight:700;color:var(--positive);margin-bottom:8px;">${t('बैंक विवरण सत्यापित!','Bank Details Verified!')}</div>
+        <div style="font-size:13px;color:var(--text-sec);margin-bottom:20px;line-height:18px;">${t('पेनी ड्रॉप सफल — नाम मैच कन्फ़र्म','Penny drop successful — name match confirmed')}</div>
+        <div class="card" style="text-align:left;border-color:var(--positive);background:var(--pos-100);">
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--pos-200);font-size:13px;"><span style="color:var(--text-sec);">${t('खाताधारक','Account Holder')}</span><span style="color:var(--text);font-weight:700;">Rajesh Kumar</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--pos-200);font-size:13px;"><span style="color:var(--text-sec);">${t('बैंक','Bank')}</span><span style="color:var(--text);font-weight:700;">State Bank of India</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span style="color:var(--text-sec);">${t('स्टेटस','Status')}</span><span style="color:var(--positive);font-weight:700;">✓ ${t('सत्यापित','Verified')}</span></div>
+        </div>
+      </div></div>
+      <div class="bbar"><button class="cta" onclick="window.bankVerified=false;next();">${t('ISP अनुबंध जोड़ें','Add ISP Agreement')}</button></div>`;
+    }
+    // Show name mismatch state
+    if(window.bankNameMismatch){
+      return `
+      <div class="sbar"><span>9:41</span><span>100%</span></div>
+      <div class="hdr"><span class="back" onclick="window.bankNameMismatch=false;renderPhone();">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
+      <div class="scontent"><div class="pad">
+        <div style="font-size:18px;font-weight:700;color:var(--warning);margin-bottom:8px;">⚠️ ${t('नाम मेल नहीं खाता','Name does not match')}</div>
+        <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('पेनी ड्रॉप सफल हुआ, लेकिन बैंक खाताधारक का नाम मेल नहीं खाता','Penny drop was successful, but bank account holder name does not match')}</div>
+        <div class="card" style="border-color:var(--warning);background:var(--warn-200);">
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--warning);font-size:13px;"><span style="color:var(--text-sec);">${t('बैंक में नाम','Name in Bank')}</span><span style="color:var(--text);font-weight:700;">Rajesh Kumar Sharma</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--warning);font-size:13px;"><span style="color:var(--text-sec);">${t('व्यक्तिगत नाम','Personal Name')}</span><span style="color:var(--text);font-weight:700;">Rajesh Kumar</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span style="color:var(--text-sec);">${t('व्यापार नाम','Business Name')}</span><span style="color:var(--text);font-weight:700;">Kumar Electronics</span></div>
+        </div>
+        <div class="ibox ibox-p" style="margin-top:8px;"><span class="ii">💡</span><span>${t('बैंक खाता बदलें या सहायक बैंक दस्तावेज़ अपलोड करें','Change bank details or upload supporting bank document')}</span></div>
+      </div>
+      <div class="bbar">
+        <button class="cta" onclick="window.bankNameMismatch=false;window.bankAccVal='';window.bankAccReVal='';window.bankIfscVal='';window.bankAccBlurred=false;window.bankAccReBlurred=false;window.bankIfscBlurred=false;renderPhone();">${t('बैंक विवरण बदलें','Change Bank Details')}</button>
+        <button class="cta sec" style="margin-top:8px;" onclick="window.bankNameMismatch=false;window.bankSupportDoc=true;renderPhone();">${t('सहायक बैंक दस्तावेज़ अपलोड करें','Upload Supporting Bank Document')}</button>
+      </div>`;
+    }
+    // Show supporting document upload state
+    if(window.bankSupportDoc){
+      return `
+      <div class="sbar"><span>9:41</span><span>100%</span></div>
+      <div class="hdr"><span class="back" onclick="window.bankSupportDoc=false;window.bankNameMismatch=true;renderPhone();">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
+      <div class="scontent"><div class="pad">
+        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">📄 ${t('सहायक बैंक दस्तावेज़','Supporting Bank Document')}</div>
+        <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('मैन्युअल सत्यापन के लिए नीचे दिए गए किसी भी दस्तावेज़ को अपलोड करें','Upload any of the below documents for manual verification')}</div>
+        <div class="upload-row ${window.bankDoc?'verified':''}" onclick="showUploadSheet('bankDoc')"><div><div class="uname">📋 ${t('बैंक पासबुक','Bank Passbook')}</div><div class="ustatus" style="color:${window.bankDoc?'var(--positive)':'var(--hint)'};">${window.bankDoc?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.bankDoc?'done':''}">${window.bankDoc?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
+        <div style="font-size:11px;color:var(--text-sec);margin:-4px 0 8px 12px;">${t('या','or')}</div>
+        <div class="upload-row ${window.bankCheque?'verified':''}" onclick="showUploadSheet('bankCheque')"><div><div class="uname">📝 ${t('कैंसल्ड चेक','Cancelled Cheque')}</div><div class="ustatus" style="color:${window.bankCheque?'var(--positive)':'var(--hint)'};">${window.bankCheque?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.bankCheque?'done':''}">${window.bankCheque?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
+        <div style="font-size:11px;color:var(--text-sec);margin:-4px 0 8px 12px;">${t('या','or')}</div>
+        <div class="upload-row ${window.bankStmt?'verified':''}" onclick="showUploadSheet('bankStmt')"><div><div class="uname">📑 ${t('बैंक स्टेटमेंट','Bank Statement')}</div><div class="ustatus" style="color:${window.bankStmt?'var(--positive)':'var(--hint)'};">${window.bankStmt?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.bankStmt?'done':''}">${window.bankStmt?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
+        <div class="ibox ibox-p" style="margin-top:8px;"><span class="ii">💡</span><span>${t('किसी भी एक दस्तावेज़ को अपलोड करें','Upload any one document')}</span></div>
+      </div>
+      <div class="bbar"><button class="cta ${(window.bankDoc||window.bankCheque||window.bankStmt)?'':'dis'}" ${(window.bankDoc||window.bankCheque||window.bankStmt)?'onclick="window.bankSupportDoc=false;next();"':''}>${(window.bankDoc||window.bankCheque||window.bankStmt)?t('ISP अनुबंध जोड़ें','Add ISP Agreement'):t('दस्तावेज़ अपलोड करें','Upload document')}</button></div>`;
+    }
+    // Default: entry form
     const accVal = window.bankAccVal||'';
     const accReVal = window.bankAccReVal||'';
     const ifscVal = window.bankIfscVal||'';
@@ -1339,14 +1392,13 @@ const screens = [
     const showAccReErr = accReBlurred && accReVal.length>0 && !accMatch;
     const showIfscErr = ifscBlurred && !ifscValid;
     const canProceed = accValid && accMatch && ifscValid;
-    // Fully mask account number with bullets
-    const maskedAcc = accVal.length>0 ? '●'.repeat(accVal.length) : '';
     return `
     <div class="sbar"><span>9:41</span><span>100%</span></div>
     <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
     <div class="scontent"><div class="pad">
       <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">🏦 ${t('बैंक विवरण','Bank Details')}</div>
-      <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('अपने बैंक खाते की जानकारी दर्ज करें','Enter your bank account details')}</div>
+      <div style="font-size:13px;color:var(--text-sec);margin-bottom:8px;line-height:18px;">${t('अपने बैंक खाते की जानकारी दर्ज करें','Enter your bank account details')}</div>
+      <div style="font-size:12px;color:var(--info);margin-bottom:14px;line-height:16px;padding:8px 10px;background:var(--info-100);border:1px solid var(--info);border-radius:var(--r-sm);">ℹ️ ${t('बैंक विवरण','Bank details should belong to')} <b>${t('राजेश कुमार','Rajesh Kumar')}</b> ${t('या','or')} <b>${t('कुमार इलेक्ट्रॉनिक्स','Kumar Electronics')}</b> ${t('के नाम पर होने चाहिए','')}</div>
       <div class="lbl">${t('बैंक खाता संख्या','Bank Account Number')}</div>
       <input class="finp ${accValid?'ok':''}" type="${accBlurred&&accValid?'password':'tel'}" inputmode="numeric" pattern="[0-9]*" maxlength="18" placeholder="${t('बैंक खाता संख्या दर्ज करें','Enter bank account number')}" value="${accVal}" oninput="let v=this.value.replace(/[^0-9]/g,'').slice(0,18);window.bankAccVal=v;this.value=v;window.bankAccBlurred=false;" onfocus="this.type='tel';" onblur="window.bankAccBlurred=true;validateBankField();">
       <div class="lbl">${t('बैंक खाता संख्या दोबारा दर्ज करें','Re-enter Bank Account Number')}</div>
@@ -1356,7 +1408,7 @@ const screens = [
       <input class="finp ${ifscValid?'ok':showIfscErr?'err':''}" type="text" maxlength="11" placeholder="${t('उदा. SBIN0001234','e.g. SBIN0001234')}" value="${ifscVal}" oninput="let v=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,11);window.bankIfscVal=v;this.value=v;window.bankIfscBlurred=false;" onblur="window.bankIfscBlurred=true;validateBankField();" style="text-transform:uppercase;letter-spacing:1px;">
       ${showIfscErr?`<div style="font-size:11px;color:var(--negative);margin:-8px 0 8px 4px;">${t('कृपया सही IFSC कोड दर्ज करें','Please enter valid IFSC code')}</div>`:''}
     </div>
-    <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="next()"':''}>${t('बैंक विवरण सत्यापित करें','Verify Bank Details')}</button></div>
+    <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="startBankVerification()"':''}>${t('बैंक विवरण सत्यापित करें','Verify Bank Details')}</button></div>
     </div>`;}},
 
   // 7: ISP Agreement Upload (NEW)
@@ -1902,6 +1954,32 @@ function validateBankField(){
   renderPhone();
 }
 
+// Bank verification flow — show verifying, then resolve based on scenario
+function startBankVerification(){
+  window.bankVerifying = true;
+  renderPhone();
+  setTimeout(()=>{
+    window.bankVerifying = false;
+    // Check if name mismatch scenario is active
+    if(activeScenario==='bank-name-mismatch'){
+      window.bankNameMismatch = true;
+      clearScenario();
+      window.bankNameMismatch = true; // re-set after clearScenario resets
+      currentScreen = 6;
+      renderPhone();
+    } else if(activeScenario==='bank-pennydrop-fail'){
+      // Show penny drop fail error screen directly
+      window._dedupTriggered = true;
+      renderPhone();
+    } else {
+      // Success — show verified delight
+      window.bankVerified = true;
+      renderPhone();
+      toast(t('बैंक विवरण सत्यापित','Bank details verified')+' ✓','g');
+    }
+  }, 2000);
+}
+
 // Sample document viewer — shows image as overlay with Got it CTA
 function showSampleDoc(type){
   const docs = {
@@ -1938,7 +2016,10 @@ function showUploadSheet(key){
     kycPan: t('पैन कार्ड','PAN Card'),
     kycAadhaarF: t('आधार — सामने','Aadhaar — Front'),
     kycAadhaarB: t('आधार — पीछे','Aadhaar — Back'),
-    kycGst: t('जीएसटी प्रमाणपत्र','GST Certificate')
+    kycGst: t('जीएसटी प्रमाणपत्र','GST Certificate'),
+    bankDoc: t('बैंक पासबुक','Bank Passbook'),
+    bankCheque: t('कैंसल्ड चेक','Cancelled Cheque'),
+    bankStmt: t('बैंक स्टेटमेंट','Bank Statement')
   };
   sheet.innerHTML = `<div class="upload-sheet">
     <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 12px;"></div>
@@ -1975,7 +2056,10 @@ function showUploadPreview(source){
     kycPan: {name:t('पैन कार्ड','PAN Card'), icon:'🪪'},
     kycAadhaarF: {name:t('आधार — सामने','Aadhaar — Front'), icon:'📄'},
     kycAadhaarB: {name:t('आधार — पीछे','Aadhaar — Back'), icon:'📄'},
-    kycGst: {name:t('जीएसटी प्रमाणपत्र','GST Certificate'), icon:'📋'}
+    kycGst: {name:t('जीएसटी प्रमाणपत्र','GST Certificate'), icon:'📋'},
+    bankDoc: {name:t('बैंक पासबुक','Bank Passbook'), icon:'📋'},
+    bankCheque: {name:t('कैंसल्ड चेक','Cancelled Cheque'), icon:'📝'},
+    bankStmt: {name:t('बैंक स्टेटमेंट','Bank Statement'), icon:'📑'}
   };
   const doc = docLabels[window._uploadKey]||{name:'Document',icon:'📄'};
   const srcLabel = source==='camera'?t('कैमरा से ली गई फ़ोटो','Photo from Camera'):t('गैलरी से चुनी गई फ़ोटो','Photo from Gallery');
