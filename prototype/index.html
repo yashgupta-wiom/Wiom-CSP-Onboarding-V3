@@ -387,20 +387,19 @@ const scenarios = {
   'phone-duplicate': {screen:0, label:'Phone Already Registered', icon:'📱', cat:'registration'},
   'otp-wrong': {screen:1, label:'Wrong OTP Entered', icon:'❌', cat:'registration'},
   'otp-expired': {screen:1, label:'OTP Expired', icon:'⏰', cat:'registration'},
-  // Location & KYC
-  'kyc-day1-reminder': {screen:5, label:'Day 1 — 2 days left', icon:'🔔', cat:'verification'},
-  'kyc-day2-reminder': {screen:5, label:'Day 2 — 1 day left', icon:'⚠️', cat:'verification'},
-  'kyc-day3-reminder': {screen:5, label:'Day 3 — Last day to upload', icon:'🚨', cat:'verification'},
-  'kyc-day4-autoreject': {screen:5, label:'Day 4 — Auto Reject + Refund', icon:'❌', cat:'verification'},
-  'refund-success': {screen:5, label:'Refund Success', icon:'✅', cat:'verification'},
-  'refund-in-progress': {screen:5, label:'Refund In Progress', icon:'⏳', cat:'verification'},
-  'refund-failed': {screen:5, label:'Refund Failed', icon:'❌', cat:'verification'},
-  'kyc-pan-mismatch': {screen:5, label:'PAN Name Mismatch', icon:'🪪', cat:'verification'},
-  'kyc-aadhaar-expired': {screen:5, label:'Aadhaar Expired', icon:'⚠️', cat:'verification'},
-  
-  // Payments
-  'regfee-failed': {screen:4, label:'₹2K Payment Failed', icon:'💳', cat:'payment'},
-  'regfee-timeout': {screen:4, label:'₹2K Payment Timeout', icon:'⏳', cat:'payment'},
+  // Reg Fee — payment, day nudges, refund
+  'regfee-failed': {screen:4, label:'₹2K Payment Failed', icon:'💳', cat:'regfee'},
+  'regfee-timeout': {screen:4, label:'₹2K Payment Timeout', icon:'⏳', cat:'regfee'},
+  'kyc-day1-reminder': {screen:5, label:'Day 1 — 2 days left', icon:'🔔', cat:'regfee'},
+  'kyc-day2-reminder': {screen:5, label:'Day 2 — 1 day left', icon:'⚠️', cat:'regfee'},
+  'kyc-day3-reminder': {screen:5, label:'Day 3 — Last day to upload', icon:'🚨', cat:'regfee'},
+  'kyc-day4-autoreject': {screen:5, label:'Day 4 — Auto Reject + Refund', icon:'❌', cat:'regfee'},
+  'refund-success': {screen:5, label:'Refund Success', icon:'✅', cat:'regfee'},
+  'refund-in-progress': {screen:5, label:'Refund In Progress', icon:'⏳', cat:'regfee'},
+  'refund-failed': {screen:5, label:'Refund Failed', icon:'❌', cat:'regfee'},
+  // KYC — document errors
+  'kyc-pan-mismatch': {screen:5, label:'PAN Name Mismatch', icon:'🪪', cat:'kyc'},
+  'kyc-aadhaar-expired': {screen:5, label:'Aadhaar Expired', icon:'⚠️', cat:'kyc'},
   // Bank & Dedup
   'bank-pennydrop-fail': {screen:6, label:'Penny Drop Failed', icon:'🏦', cat:'bank'},
   'bank-name-mismatch': {screen:6, label:'Bank Name Mismatch', icon:'👤', cat:'bank'},
@@ -1543,7 +1542,8 @@ function renderDashboard(){
   const scnCategories = {
     global: {label:'Network / App Errors', icon:'📡'},
     registration: {label:'Registration & OTP', icon:'📱'},
-    verification: {label:'KYC & Location', icon:'🪪'},
+    regfee: {label:'Reg Fee', icon:'💰'},
+    kyc: {label:'KYC', icon:'🪪'},
     payment: {label:'Payment Failures', icon:'💳'},
     bank: {label:'Bank & Dedup', icon:'🏦'},
     documentation: {label:'Agreement & Tech', icon:'📝'},
