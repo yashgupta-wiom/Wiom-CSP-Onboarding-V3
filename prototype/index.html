@@ -425,7 +425,7 @@ const scenarios = {
   'bank-name-mismatch': {screen:6, label:'Bank Name Mismatch', icon:'👤', cat:'bank', deferred:true},
   'bank-dedup': {screen:6, label:'Bank Account Dedup', icon:'🔍', cat:'bank', deferred:true},
   // Agreement & Tech
-  'verification-approved': {screen:9, label:'Verification Approved', icon:'✅', cat:'documentation'},
+  'verification-pending': {screen:9, label:'Verification Pending', icon:'⏳', cat:'documentation'},
   'verification-rejected': {screen:9, label:'Verification Rejected', icon:'📵', cat:'documentation'},
   // Onboarding & Training
   'onboardfee-failed': {screen:11, label:'₹20K Payment Failed', icon:'💸', cat:'payment'},
@@ -786,20 +786,20 @@ const errorScreens = {
 
 
 
-  'verification-approved': ()=>`
+  'verification-pending': ()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
     <div class="hdr"><span class="htitle">${t('सत्यापन','Verification')}</span></div>
     <div class="scontent"><div class="pad" style="text-align:center;">
-      <div style="font-size:48px;margin:24px 0 16px;">🎉</div>
-      <div style="font-size:20px;font-weight:700;color:var(--positive);line-height:28px;">${t('सत्यापन स्वीकृत!','Verification Approved!')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('बधाई हो! आपके सभी दस्तावेज़ सत्यापित हो गए हैं','Congratulations! All your documents have been verified')}</div>
+      <div style="font-size:48px;margin:24px 0 16px;">⏳</div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);line-height:28px;">${t('सत्यापन लंबित है','Verification Pending')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('सभी दस्तावेज़ जमा हो गए हैं — सत्यापन टीम आपके दस्तावेज़ों की जांच कर रही है','All documents submitted — Verification team is reviewing your documents')}</div>
       <div class="cl-item"><div class="cl-icon done">✓</div><div><div class="cl-text">${t('KYC दस्तावेज़','KYC Documents')}</div></div></div>
       <div class="cl-item"><div class="cl-icon done">✓</div><div><div class="cl-text">${t('बैंक विवरण','Bank Details')}</div></div></div>
       <div class="cl-item"><div class="cl-icon done">✓</div><div><div class="cl-text">${t('ISP अनुबंध','ISP Agreement')}</div></div></div>
-      <div class="cl-item" style="border:none;"><div class="cl-icon done">✓</div><div><div class="cl-text">${t('दुकान और उपकरण फ़ोटो','Shop & Equipment Photos')}</div></div></div>
-    </div>
-    <div class="bbar"><button class="cta" onclick="clearScenario();next();">${t('आगे बढ़ें','Proceed')}</button></div>
-    </div>`,
+      <div class="cl-item"><div class="cl-icon done">✓</div><div><div class="cl-text">${t('दुकान और उपकरण फ़ोटो','Shop & Equipment Photos')}</div></div></div>
+      <div class="cl-item" style="border:none;"><div class="cl-icon wait">⋯</div><div><div class="cl-text">${t('सत्यापन समीक्षा','Verification Review')}</div><div class="cl-sub" style="color:var(--warn-700);">${t('समीक्षा जारी...','Under review...')}</div></div></div>
+      <div class="ibox ibox-o" style="margin-top:12px;"><span class="ii">⏳</span><span>${t('समीक्षा में 3 कार्य दिवस','Review may take 3 business days')}</span></div>
+    </div></div>`,
 
   'verification-rejected': ()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
