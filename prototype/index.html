@@ -1397,6 +1397,16 @@ const screens = [
       <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('दूरसंचार विभाग (DOT) अनुपालन जांच के लिए हमें आपके इंटरनेट सर्विस प्रोवाइडर के साथ आपके कानूनी अनुबंध की आवश्यकता है','We need your legal agreement with your Internet Service Provider for Department of Telecommunication compliance check')}</div>
       <div class="upload-row ${window.ispDoc?'verified':''}" onclick="showUploadSheet('ispDoc')"><div><div class="uname">📄 ${t('ISP अनुबंध','ISP Agreement')}</div><div class="ustatus" style="color:${window.ispDoc?'var(--positive)':'var(--hint)'};">${window.ispDoc?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.ispDoc?'done':''}">${window.ispDoc?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
       <div style="margin-top:8px;"><span style="font-size:13px;font-weight:600;">📋 ${t('','')}<a onclick="showSampleDoc('isp')" style="color:var(--pri);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">${t('सैंपल दस्तावेज़ देखें','View sample document')}</a></span></div>
+      <div style="margin-top:12px;font-size:12px;color:var(--text);line-height:20px;padding:12px 14px;background:var(--bg-sec);border-radius:var(--r-sm);">
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;">${t('ISP अनुबंध में अनिवार्य विवरण:','Mandatory details required in ISP Agreement:')}</div>
+        <div>• ${t('ISP कंपनी का नाम','ISP Company Name')}</div>
+        <div>• ${t('LCO / पार्टनर का नाम','LCO / Partner Name')}</div>
+        <div>• ${t('अनुबंध की तिथि','Agreement Date')}</div>
+        <div>• ${t('अनुबंध वैध होना चाहिए (समाप्त नहीं)','Agreement should be Valid (Not Expired)')}</div>
+        <div>• ${t('लाइसेंस नंबर','License Number')}</div>
+        <div>• ${t('संपर्क / हस्ताक्षरकर्ता का नाम','Contact / Signatory Names')}</div>
+        <div>• ${t('पार्टनर और ISP की मुहर और हस्ताक्षर','Partner and ISP stamp and signature')}</div>
+      </div>
     </div>
     <div class="bbar"><button class="cta ${window.ispDoc?'':'dis'}" ${window.ispDoc?'onclick="next()"':''}>${window.ispDoc?t('आगे बढ़ें','Proceed'):t('ISP अनुबंध अपलोड करें','Upload ISP Agreement')}</button></div>
     </div>`;}},
