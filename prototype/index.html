@@ -168,6 +168,23 @@ textarea.finp{height:auto;min-height:72px;padding:12px;resize:vertical;line-heig
 .upload-row .ustatus{font-size:12px;color:var(--hint);line-height:16px;}
 .ubtn{padding:6px 12px;border-radius:var(--r-sm);border:1px solid var(--pri);background:none;color:var(--pri);font:700 12px/16px inherit;}
 .ubtn.done{border-color:var(--positive);color:var(--positive);background:var(--pos-100);}
+/* Upload bottom sheet & preview overlay */
+.upload-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:20;display:flex;align-items:flex-end;}
+.upload-sheet{width:100%;background:#fff;border-radius:20px 20px 0 0;padding:20px 16px 24px;animation:slideUp .25s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.upload-sheet-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px;text-align:center;}
+.upload-sheet-option{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-input);margin-bottom:8px;cursor:pointer;}
+.upload-sheet-option:hover{border-color:var(--pri);background:var(--pri-light);}
+.upload-sheet-option .uso-icon{font-size:24px;}
+.upload-sheet-option .uso-text{font-size:14px;font-weight:600;color:var(--text);}
+.upload-sheet-option .uso-hint{font-size:12px;color:var(--text-sec);}
+.upload-preview{position:absolute;top:0;left:0;right:0;bottom:0;background:#fff;z-index:21;display:flex;flex-direction:column;}
+.upload-preview-img{flex:1;display:flex;align-items:center;justify-content:center;background:var(--bg-sec);margin:12px;border-radius:var(--r-card);overflow:hidden;}
+.upload-preview-img .placeholder-doc{width:200px;height:140px;background:#fff;border-radius:var(--r-sm);border:2px dashed var(--border-input);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text-sec);font-size:13px;font-weight:600;}
+.upload-preview-actions{display:flex;gap:8px;padding:12px 16px 20px;}
+.upload-preview-actions button{flex:1;padding:14px;border-radius:var(--r-btn);font:700 14px/20px inherit;border:none;cursor:pointer;}
+.upload-preview-actions .btn-retake{background:var(--bg-sec);color:var(--text);}
+.upload-preview-actions .btn-confirm{background:var(--pri);color:#fff;}
 /* Amount box */
 .amt-box{text-align:center;padding:24px;background:var(--bg-sec);border-radius:var(--r-card);margin-bottom:12px;}
 .amt{font-size:32px;font-weight:700;color:var(--text);line-height:48px;}
@@ -1123,18 +1140,25 @@ const screens = [
       {key:'aadhaar', label:t('आधार','Aadhaar'), icon:'📄'},
       {key:'gst', label:'GST', icon:'📋'}
     ];
-    // Progress bar
-    const progBar = `<div style="display:flex;align-items:center;gap:0;margin-bottom:16px;">
+    // Progress bar — full width, evenly spaced
+    const progBar = `<div style="display:flex;align-items:flex-start;margin-bottom:16px;position:relative;">
       ${steps.map((s,i)=>`
-        <div style="display:flex;align-items:center;flex:1;${i<steps.length-1?'':''}">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
-            <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
-              ${i<sub?'background:var(--positive);color:#fff;':i===sub?'background:var(--pri);color:#fff;':'background:var(--bg-sec);color:var(--hint);'}">${i<sub?'✓':s.icon}</div>
-            <span style="font-size:10px;font-weight:600;color:${i<sub?'var(--positive)':i===sub?'var(--pri)':'var(--hint)'};">${s.label}</span>
-          </div>
-          ${i<steps.length-1?`<div style="flex:1;height:2px;margin:0 6px;margin-bottom:16px;background:${i<sub?'var(--positive)':'var(--border)'};"></div>`:''}
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;position:relative;">
+          <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;z-index:1;
+            ${i<sub?'background:var(--positive);color:#fff;':i===sub?'background:var(--pri);color:#fff;':'background:var(--bg-sec);color:var(--hint);'}">${i<sub?'✓':s.icon}</div>
+          <span style="font-size:11px;font-weight:600;margin-top:4px;color:${i<sub?'var(--positive)':i===sub?'var(--pri)':'var(--hint)'};">${s.label}</span>
+          ${i<steps.length-1?`<div style="position:absolute;top:15px;left:calc(50% + 16px);width:calc(100% - 32px);height:2px;background:${i<sub?'var(--positive)':'var(--border)'};z-index:0;"></div>`:''}
         </div>`).join('')}
     </div>`;
+
+    // Upload row helper — shows Upload button (or Update if already uploaded), triggers bottom sheet
+    const upRow = (key, icon, label) => {
+      const done = window[key];
+      return `<div class="upload-row ${done?'verified':''}" onclick="showUploadSheet('${key}')">
+        <div><div class="uname">${icon} ${label}</div><div class="ustatus" style="color:${done?'var(--positive)':'var(--hint)'};">${done?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div>
+        <button class="ubtn ${done?'done':''}">${done?t('बदलें','Update'):t('अपलोड','Upload')}</button>
+      </div>`;
+    };
 
     // PAN sub-stage
     if(sub===0){
@@ -1149,7 +1173,7 @@ const screens = [
         <div class="lbl">${t('PAN नंबर','PAN Number')}</div>
         <div class="inp ${window.kycPanNum?'ok':''}" onclick="window.kycPanNum=!window.kycPanNum;renderPhone();" style="cursor:pointer;justify-content:space-between;">${window.kycPanNum?'<span>ABCDE1234F</span><span style="color:var(--positive);">✓</span>':t('टैप करके PAN नंबर दर्ज करें','Tap to enter PAN number')}</div>
         <div class="lbl">${t('PAN कार्ड अपलोड','Upload PAN Card')}</div>
-        <div class="upload-row ${window.kycPan?'verified':''}" onclick="window.kycPan=!window.kycPan;renderPhone();"><div><div class="uname">🪪 ${t('PAN कार्ड','PAN Card')}</div><div class="ustatus" style="color:${window.kycPan?'var(--positive)':'var(--hint)'};">${window.kycPan?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycPan?'done':''}">${window.kycPan?'✓':t('अपलोड','Upload')}</button></div>
+        ${upRow('kycPan','🪪',t('PAN कार्ड','PAN Card'))}
         <div class="ibox ibox-p" style="margin-top:8px;"><span class="ii">💡</span><span>${t('साफ़ फ़ोटो लें — सारे अक्षर दिखने चाहिए','Take a clear photo — all text must be visible')}</span></div>
       </div>
       <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycSub=1;renderPhone();"':''}>${canProceed?t('आगे बढ़ें: आधार','Next: Aadhaar'):t('PAN विवरण भरें','Complete PAN details')}</button></div>
@@ -1169,8 +1193,8 @@ const screens = [
         <div class="lbl">${t('आधार नंबर','Aadhaar Number')}</div>
         <div class="inp ${window.kycAadhaarNum?'ok':''}" onclick="window.kycAadhaarNum=!window.kycAadhaarNum;renderPhone();" style="cursor:pointer;justify-content:space-between;">${window.kycAadhaarNum?'<span>XXXX XXXX 4567</span><span style="color:var(--positive);">✓</span>':t('टैप करके आधार नंबर दर्ज करें','Tap to enter Aadhaar number')}</div>
         <div class="lbl">${t('आधार कार्ड अपलोड','Upload Aadhaar Card')}</div>
-        <div class="upload-row ${window.kycAadhaarF?'verified':''}" onclick="window.kycAadhaarF=!window.kycAadhaarF;renderPhone();"><div><div class="uname">📄 ${t('आधार — सामने','Aadhaar — Front')}</div><div class="ustatus" style="color:${window.kycAadhaarF?'var(--positive)':'var(--hint)'};">${window.kycAadhaarF?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycAadhaarF?'done':''}">${window.kycAadhaarF?'✓':t('अपलोड','Upload')}</button></div>
-        <div class="upload-row ${window.kycAadhaarB?'verified':''}" onclick="window.kycAadhaarB=!window.kycAadhaarB;renderPhone();"><div><div class="uname">📄 ${t('आधार — पीछे','Aadhaar — Back')}</div><div class="ustatus" style="color:${window.kycAadhaarB?'var(--positive)':'var(--hint)'};">${window.kycAadhaarB?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycAadhaarB?'done':''}">${window.kycAadhaarB?'✓':t('अपलोड','Upload')}</button></div>
+        ${upRow('kycAadhaarF','📄',t('आधार — सामने','Aadhaar — Front'))}
+        ${upRow('kycAadhaarB','📄',t('आधार — पीछे','Aadhaar — Back'))}
         <div class="ibox ibox-p" style="margin-top:8px;"><span class="ii">💡</span><span>${t('आधार के दोनों तरफ़ की फ़ोटो अपलोड करें','Upload photos of both sides of Aadhaar')}</span></div>
       </div>
       <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycSub=2;renderPhone();"':''}>${canProceed?t('आगे बढ़ें: GST','Next: GST'):t('आधार विवरण भरें','Complete Aadhaar details')}</button></div>
@@ -1190,7 +1214,7 @@ const screens = [
         <div class="lbl">${t('GST नंबर','GST Number')}</div>
         <div class="inp ${window.kycGstNum?'ok':''}" onclick="window.kycGstNum=!window.kycGstNum;renderPhone();" style="cursor:pointer;justify-content:space-between;">${window.kycGstNum?'<span>22ABCDE1234F1Z5</span><span style="color:var(--positive);">✓</span>':t('टैप करके GST नंबर दर्ज करें','Tap to enter GST number')}</div>
         <div class="lbl">${t('GST प्रमाणपत्र अपलोड','Upload GST Certificate')}</div>
-        <div class="upload-row ${window.kycGst?'verified':''}" onclick="window.kycGst=!window.kycGst;renderPhone();"><div><div class="uname">📋 ${t('GST प्रमाणपत्र','GST Certificate')}</div><div class="ustatus" style="color:${window.kycGst?'var(--positive)':'var(--hint)'};">${window.kycGst?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycGst?'done':''}">${window.kycGst?'✓':t('अपलोड','Upload')}</button></div>
+        ${upRow('kycGst','📋',t('GST प्रमाणपत्र','GST Certificate'))}
         <div class="ibox ibox-p" style="margin-top:8px;"><span class="ii">💡</span><span>${t('GST प्रमाणपत्र की साफ़ कॉपी अपलोड करें','Upload a clear copy of GST certificate')}</span></div>
       </div>
       <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycSub=0;next();"':''}>${canProceed?t('अब बैंक विवरण दें','Next: Bank Details'):t('GST विवरण भरें','Complete GST details')}</button></div>
@@ -1728,6 +1752,91 @@ function toggleKyc(doc){
     st.style.color='var(--hint)';st.textContent='Upload करें';
     btn.classList.remove('done');btn.textContent='Upload';
   }
+}
+
+// Upload flow — bottom sheet → preview → confirm/retake
+window._uploadKey = null;
+
+function showUploadSheet(key){
+  window._uploadKey = key;
+  const sheet = document.createElement('div');
+  sheet.className = 'upload-overlay';
+  sheet.id = 'uploadOverlay';
+  sheet.onclick = function(e){if(e.target===sheet)closeUploadSheet();};
+  const docLabels = {
+    kycPan: t('PAN कार्ड','PAN Card'),
+    kycAadhaarF: t('आधार — सामने','Aadhaar — Front'),
+    kycAadhaarB: t('आधार — पीछे','Aadhaar — Back'),
+    kycGst: t('GST प्रमाणपत्र','GST Certificate')
+  };
+  sheet.innerHTML = `<div class="upload-sheet">
+    <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 12px;"></div>
+    <div class="upload-sheet-title">${docLabels[key]||t('दस्तावेज़ अपलोड','Upload Document')}</div>
+    <div class="upload-sheet-option" onclick="showUploadPreview('camera')">
+      <span class="uso-icon">📸</span>
+      <div><div class="uso-text">${t('कैमरा से फ़ोटो लें','Take Photo from Camera')}</div><div class="uso-hint">${t('अभी फ़ोटो खींचें','Capture photo now')}</div></div>
+    </div>
+    <div class="upload-sheet-option" onclick="showUploadPreview('gallery')">
+      <span class="uso-icon">🖼️</span>
+      <div><div class="uso-text">${t('गैलरी से अपलोड करें','Upload from Gallery')}</div><div class="uso-hint">${t('फ़ोन की गैलरी से चुनें','Choose from phone gallery')}</div></div>
+    </div>
+    <div style="text-align:center;margin-top:8px;"><button onclick="closeUploadSheet()" style="padding:10px 24px;border:none;background:none;color:var(--text-sec);font:600 14px/20px inherit;cursor:pointer;">${t('रद्द करें','Cancel')}</button></div>
+  </div>`;
+  document.getElementById('phoneFrame').appendChild(sheet);
+}
+
+function closeUploadSheet(){
+  const el = document.getElementById('uploadOverlay');
+  if(el) el.remove();
+}
+
+function showUploadPreview(source){
+  closeUploadSheet();
+  const docLabels = {
+    kycPan: {name:t('PAN कार्ड','PAN Card'), icon:'🪪'},
+    kycAadhaarF: {name:t('आधार — सामने','Aadhaar — Front'), icon:'📄'},
+    kycAadhaarB: {name:t('आधार — पीछे','Aadhaar — Back'), icon:'📄'},
+    kycGst: {name:t('GST प्रमाणपत्र','GST Certificate'), icon:'📋'}
+  };
+  const doc = docLabels[window._uploadKey]||{name:'Document',icon:'📄'};
+  const srcLabel = source==='camera'?t('कैमरा से ली गई फ़ोटो','Photo from Camera'):t('गैलरी से चुनी गई फ़ोटो','Photo from Gallery');
+  const preview = document.createElement('div');
+  preview.className = 'upload-preview';
+  preview.id = 'uploadPreview';
+  preview.innerHTML = `
+    <div class="sbar" style="background:var(--text);"><span style="color:#fff;">9:41</span><span style="color:#fff;">100%</span></div>
+    <div class="hdr"><span class="back" onclick="closeUploadPreview()">&larr;</span><span class="htitle">${t('पुष्टि करें','Confirm')}</span></div>
+    <div class="upload-preview-img">
+      <div class="placeholder-doc">
+        <span style="font-size:36px;">${doc.icon}</span>
+        <span>${doc.name}</span>
+        <span style="font-size:11px;color:var(--hint);font-weight:400;">${srcLabel}</span>
+      </div>
+    </div>
+    <div style="padding:0 16px 4px;"><div class="ibox ibox-p" style="margin:0;"><span class="ii">👁️</span><span>${t('कृपया जाँचें कि सभी जानकारी स्पष्ट दिख रही है','Please verify all information is clearly visible')}</span></div></div>
+    <div class="upload-preview-actions">
+      <button class="btn-retake" onclick="retakeUpload()">🔄 ${t('दोबारा लें','Retake')}</button>
+      <button class="btn-confirm" onclick="confirmUpload()">✓ ${t('पुष्टि करें','Confirm')}</button>
+    </div>`;
+  document.getElementById('phoneFrame').appendChild(preview);
+}
+
+function closeUploadPreview(){
+  const el = document.getElementById('uploadPreview');
+  if(el) el.remove();
+}
+
+function retakeUpload(){
+  closeUploadPreview();
+  showUploadSheet(window._uploadKey);
+}
+
+function confirmUpload(){
+  const key = window._uploadKey;
+  window[key] = true;
+  closeUploadPreview();
+  renderPhone();
+  toast(t('दस्तावेज़ अपलोड हो गया','Document uploaded')+ ' ✓','g');
 }
 
 // Quiz selection
