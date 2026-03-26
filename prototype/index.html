@@ -730,7 +730,7 @@ const errorScreens = {
       </div>
     </div>
     <div class="bbar">
-      <button class="cta" onclick="window.kycAadhaarVal='';window.kycAadhaarNum=false;window.kycAadhaarF=false;window.kycAadhaarB=false;window.kycAadhaarBlurred=false;window.kycSub=1;clearScenario();">${t('अलग आधार डालें','Enter Different Aadhaar')}</button>
+      <button class="cta" onclick="window.kycAadhaarVal='';window.kycAadhaarNum=false;window.kycAadhaarF=false;window.kycAadhaarB=false;window.kycAadhaarBlurred=false;clearScenario();window.kycSub=1;renderPhone();">${t('अलग आधार डालें','Enter Different Aadhaar')}</button>
       <button class="cta sec" style="margin-top:8px;" onclick="clearScenario();currentScreen=0;renderPhone();">${t('Wiom ऐप में लॉगिन करें','Login in Wiom App')}</button>
     </div>
     </div>`,
@@ -751,7 +751,7 @@ const errorScreens = {
       </div>
     </div>
     <div class="bbar">
-      <button class="cta" onclick="window.kycGstVal='';window.kycGstNum=false;window.kycGst=false;window.kycGstBlurred=false;window.kycSub=2;clearScenario();">${t('अलग GST डालें','Enter Different GST')}</button>
+      <button class="cta" onclick="window.kycGstVal='';window.kycGstNum=false;window.kycGst=false;window.kycGstBlurred=false;clearScenario();window.kycSub=2;renderPhone();">${t('अलग GST डालें','Enter Different GST')}</button>
       <button class="cta sec" style="margin-top:8px;" onclick="clearScenario();currentScreen=0;renderPhone();">${t('Wiom ऐप में लॉगिन करें','Login in Wiom App')}</button>
     </div>
     </div>`,
