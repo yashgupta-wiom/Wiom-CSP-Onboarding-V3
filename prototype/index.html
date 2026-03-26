@@ -426,7 +426,6 @@ const scenarios = {
   'bank-pennydrop-fail': {screen:6, label:'Penny Drop Failed', icon:'🏦', cat:'bank', deferred:true},
   'bank-name-mismatch': {screen:6, label:'Bank Name Mismatch', icon:'👤', cat:'bank', deferred:true},
   'bank-dedup': {screen:6, label:'Bank Account Dedup', icon:'🔍', cat:'bank', deferred:true},
-  'dedup-found': {screen:6, label:'Dedup Match Found', icon:'🔍', cat:'bank'},
   // Agreement & Tech
   'isp-doc-invalid': {screen:7, label:'ISP Doc Invalid', icon:'✍️', cat:'documentation'},
   'verification-rejected': {screen:9, label:'Verification Rejected', icon:'📵', cat:'documentation'},
@@ -821,31 +820,6 @@ const errorScreens = {
     return `<div class="sbar"><span>9:41</span><span>100%</span></div><div class="scontent"><div class="pad"></div></div>`;
   },
 
-  'dedup-found': ()=>`
-    <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('Bank वेरिफिकेशन','Bank Verification')}</span><span class="hright">${t('स्टेप 6','Step 6')}</span></div>
-    <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('बैंक खाता जानकारी','Bank Account Details')}</div>
-      <div class="card" style="border-color:var(--pos-300);background:var(--pos-100);">
-        <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">✓ PENNY DROP VERIFIED</div>
-        <div style="font-size:14px;color:var(--text-sec);line-height:20px;">${t('₹1 credited & verified — Name match confirmed','₹1 credited & verified — Name match confirmed')}</div>
-      </div>
-      <div style="background:var(--neg-100);border:2px solid var(--negative);border-radius:var(--r-input);padding:12px;margin-top:8px;">
-        <div style="font-size:14px;font-weight:700;color:var(--negative);margin-bottom:8px;">🔍 DEDUP CHECK — Match Found!</div>
-        <div style="font-size:12px;color:var(--text);line-height:18px;">${t('इस PAN / बैंक अकाउंट से पहले ही एक partner registered है:','A partner is already registered with this PAN / bank account:')}</div>
-        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r-sm);padding:8px;margin-top:8px;font-size:12px;">
-          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--hint);">Partner ID</span><b>CSP-0031</b></div>
-          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--hint);">${t('Name','Name')}</span><b>Rajesh K Sharma</b></div>
-          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--hint);">${t('City','City')}</span><b>Indore</b></div>
-          <div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--hint);">Match On</span><b style="color:var(--negative);">PAN + Bank A/C</b></div>
-        </div>
-        <div style="font-size:12px;color:var(--text-sec);line-height:16px;margin-top:8px;">${t('अगर यह आप ही हैं, तो support से बात करें। अगर अलग व्यक्ति हैं, तो अलग documents दें।','If this is you, please contact support. If you are a different person, provide different documents.')}</div>
-      </div>
-    </div>
-    <div class="bbar">
-      <button class="cta sec" onclick="clearScenario()">${t('हमसे बात करें','Talk to us')}</button>
-    </div>
-    </div>`,
 
   'isp-doc-invalid': ()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
