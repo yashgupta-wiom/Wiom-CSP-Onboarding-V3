@@ -1391,13 +1391,12 @@ const screens = [
    render:()=>{
     return `
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('ISP अनुबंध','ISP Agreement')}</span><span class="hright">${t('स्टेप 3/5','Step 3/5')}</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 3/5','Step 3/5')}</span></div>
     <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;">${t('ISP अनुबंध अपलोड','ISP Agreement Upload')}</div>
-      <div class="card" style="border-color:var(--info);background:var(--info-100);"><div style="font-size:12px;font-weight:700;color:var(--info);margin-bottom:4px;">ℹ️ ${t('DOT अनुपालन के लिए अनिवार्य','Mandatory for DOT Compliance')}</div><div style="font-size:14px;color:var(--text);">${t('ISP अनुबंध दूरसंचार विभाग की जांच के लिए आवश्यक है।','ISP Agreement is required for Department of Telecom verification.')}</div></div>
-      <div style="display:flex;gap:8px;margin:12px 0;"><span class="trust-badge">🔒 ${t('DOT अनुपालन','DOT Compliance')}</span><span class="trust-badge">✓ ${t('TRAI दिशानिर्देश','TRAI Guidelines')}</span></div>
-      <div class="upload-row ${window.ispDoc?'verified':''}" onclick="window.ispDoc=!window.ispDoc;renderPhone();"><div><div class="uname">📄 ${t('ISP अनुबंध','ISP Agreement')}</div><div class="ustatus" style="color:${window.ispDoc?'var(--positive)':'var(--hint)'};">${window.ispDoc?t('DOT तैयार','DOT Ready')+' ✓':t('अपलोड करें','Upload')}</div></div><button class="ubtn ${window.ispDoc?'done':''}">${window.ispDoc?'✓':t('अपलोड','Upload')}</button></div>
-      <div class="ibox ibox-p" style="margin-top:8px;"><span class="ii">💡</span><span>${t('साफ़ फ़ोटो लें — सारा टेक्स्ट दिखना चाहिए','Take a clear photo — all text must be visible')}</span></div>
+      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">📄 ${t('ISP अनुबंध अपलोड करें','Upload ISP Agreement')}</div>
+      <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('दूरसंचार विभाग (DOT) अनुपालन जांच के लिए हमें आपके इंटरनेट सर्विस प्रोवाइडर के साथ आपके कानूनी अनुबंध की आवश्यकता है','We need your legal agreement with your Internet Service Provider for Department of Telecommunication compliance check')}</div>
+      <div class="upload-row ${window.ispDoc?'verified':''}" onclick="showUploadSheet('ispDoc')"><div><div class="uname">📄 ${t('ISP अनुबंध','ISP Agreement')}</div><div class="ustatus" style="color:${window.ispDoc?'var(--positive)':'var(--hint)'};">${window.ispDoc?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.ispDoc?'done':''}">${window.ispDoc?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
+      <div style="margin-top:8px;"><span style="font-size:13px;font-weight:600;">📋 ${t('','')}<a onclick="showSampleDoc('isp')" style="color:var(--pri);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">${t('सैंपल दस्तावेज़ देखें','View sample document')}</a></span></div>
     </div>
     <div class="bbar"><button class="cta ${window.ispDoc?'':'dis'}" ${window.ispDoc?'onclick="next()"':''}>${window.ispDoc?t('आगे बढ़ें','Proceed'):t('ISP अनुबंध अपलोड करें','Upload ISP Agreement')}</button></div>
     </div>`;}},
@@ -2036,7 +2035,8 @@ function showSampleDoc(type){
     pan: {title:t('सैंपल पैन कार्ड','Sample PAN Card'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-pan.webp'},
     aadhaar: {title:t('सैंपल आधार कार्ड','Sample Aadhaar Card'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-aadhaar.jpg'},
     gst: {title:t('सैंपल जीएसटी प्रमाणपत्र','Sample GST Certificate'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-gst.jpg'},
-    bankdoc: {title:t('सैंपल बैंक दस्तावेज़','Sample Bank Document'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-bank-doc.jpg'}
+    bankdoc: {title:t('सैंपल बैंक दस्तावेज़','Sample Bank Document'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-bank-doc.jpg'},
+    isp: {title:t('सैंपल ISP अनुबंध','Sample ISP Agreement'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-gst.jpg'}
   };
   const doc = docs[type];
   const overlay = document.createElement('div');
@@ -2071,7 +2071,8 @@ function showUploadSheet(key){
     bankDoc: t('बैंक पासबुक','Bank Passbook'),
     bankCheque: t('कैंसल्ड चेक','Cancelled Cheque'),
     bankStmt: t('बैंक स्टेटमेंट','Bank Statement'),
-    bankSupportDoc: t('बैंक दस्तावेज़','Bank Document')
+    bankSupportDoc: t('बैंक दस्तावेज़','Bank Document'),
+    ispDoc: t('ISP अनुबंध','ISP Agreement')
   };
   sheet.innerHTML = `<div class="upload-sheet">
     <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 12px;"></div>
@@ -2112,7 +2113,8 @@ function showUploadPreview(source){
     bankDoc: {name:t('बैंक पासबुक','Bank Passbook'), icon:'📋'},
     bankCheque: {name:t('कैंसल्ड चेक','Cancelled Cheque'), icon:'📝'},
     bankStmt: {name:t('बैंक स्टेटमेंट','Bank Statement'), icon:'📑'},
-    bankSupportDoc: {name:t('बैंक दस्तावेज़','Bank Document'), icon:'📄'}
+    bankSupportDoc: {name:t('बैंक दस्तावेज़','Bank Document'), icon:'📄'},
+    ispDoc: {name:t('ISP अनुबंध','ISP Agreement'), icon:'📄'}
   };
   const doc = docLabels[window._uploadKey]||{name:'Document',icon:'📄'};
   const srcLabel = source==='camera'?t('कैमरा से ली गई फ़ोटो','Photo from Camera'):t('गैलरी से चुनी गई फ़ोटो','Photo from Gallery');
