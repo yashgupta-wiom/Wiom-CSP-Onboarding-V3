@@ -698,8 +698,8 @@ const errorScreens = {
     <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span></div>
     <div class="scontent"><div class="pad" style="text-align:center;">
       <div style="font-size:48px;margin:20px 0 12px;">🔍</div>
-      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('PAN पहले से जुड़ा हुआ है','PAN already linked')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('यह PAN कार्ड एक और Wiom अकाउंट से जुड़ा है जिसका मोबाइल नंबर ****4567 है','This PAN Card is linked with another Wiom account number ending with 4567')}</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('पैन पहले से जुड़ा हुआ है','PAN already linked')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('यह पैन कार्ड एक और Wiom अकाउंट से जुड़ा है जिसका मोबाइल नंबर ****4567 है','This PAN Card is linked with another Wiom account number ending with 4567')}</div>
       <div class="card" style="text-align:left;border-color:var(--info);background:var(--info-100);">
         <div style="font-size:13px;font-weight:700;color:var(--info);margin-bottom:6px;">💡 ${t('क्या करें?','What to do?')}</div>
         <div style="font-size:13px;color:var(--text);line-height:20px;">
@@ -709,7 +709,7 @@ const errorScreens = {
       </div>
     </div>
     <div class="bbar">
-      <button class="cta" onclick="window.kycPanVal='';window.kycPanNum=false;window.kycPan=false;window.kycPanBlurred=false;window.kycSub=0;clearScenario();">${t('अलग PAN डालें','Enter Different PAN')}</button>
+      <button class="cta" onclick="window.kycPanVal='';window.kycPanNum=false;window.kycPan=false;window.kycPanBlurred=false;window.kycSub=0;clearScenario();">${t('अलग पैन डालें','Enter Different PAN')}</button>
     </div>
     </div>`,
 
@@ -738,8 +738,8 @@ const errorScreens = {
     <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span></div>
     <div class="scontent"><div class="pad" style="text-align:center;">
       <div style="font-size:48px;margin:20px 0 12px;">🔍</div>
-      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('GST पहले से जुड़ा हुआ है','GST already linked')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('यह GST नंबर एक और Wiom अकाउंट से जुड़ा है जिसका मोबाइल नंबर ****4567 है','This GST Number is linked with another Wiom account number ending with 4567')}</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('जीएसटी पहले से जुड़ा हुआ है','GST already linked')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('यह जीएसटी नंबर एक और Wiom अकाउंट से जुड़ा है जिसका मोबाइल नंबर ****4567 है','This GST Number is linked with another Wiom account number ending with 4567')}</div>
       <div class="card" style="text-align:left;border-color:var(--info);background:var(--info-100);">
         <div style="font-size:13px;font-weight:700;color:var(--info);margin-bottom:6px;">💡 ${t('क्या करें?','What to do?')}</div>
         <div style="font-size:13px;color:var(--text);line-height:20px;">
@@ -749,7 +749,7 @@ const errorScreens = {
       </div>
     </div>
     <div class="bbar">
-      <button class="cta" onclick="window.kycGstVal='';window.kycGstNum=false;window.kycGst=false;window.kycGstBlurred=false;clearScenario();window.kycSub=2;renderPhone();">${t('अलग GST डालें','Enter Different GST')}</button>
+      <button class="cta" onclick="window.kycGstVal='';window.kycGstNum=false;window.kycGst=false;window.kycGstBlurred=false;clearScenario();window.kycSub=2;renderPhone();">${t('अलग जीएसटी डालें','Enter Different GST')}</button>
     </div>
     </div>`,
 
@@ -1210,7 +1210,7 @@ const screens = [
     if(window.kycSub===undefined) window.kycSub=0;
     const sub = window.kycSub;
     const steps = [
-      {key:'pan', label:t('PAN','PAN'), icon:'🪪'},
+      {key:'pan', label:t('पैन','PAN'), icon:'🪪'},
       {key:'aadhaar', label:t('आधार','Aadhaar'), icon:'📄'},
       {key:'gst', label:'GST', icon:'📋'}
     ];
@@ -1246,16 +1246,16 @@ const screens = [
       <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 1/5','Step 1/5')}</span></div>
       <div class="scontent"><div class="pad">
         ${progBar}
-        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">🪪 ${t('PAN विवरण','PAN Details')}</div>
-        <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('PAN नंबर दर्ज करें और PAN कार्ड अपलोड करें','Enter PAN number and upload PAN card')}</div>
-        <div class="lbl">${t('PAN नंबर','PAN Number')}</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">🪪 ${t('पैन विवरण','PAN Details')}</div>
+        <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('पैन नंबर दर्ज करें और पैन कार्ड अपलोड करें','Enter PAN number and upload PAN card')}</div>
+        <div class="lbl">${t('पैन नंबर','PAN Number')}</div>
         <input class="finp ${panValid?'ok':showPanErr?'err':''}" type="text" maxlength="10" placeholder="${t('उदा. CEVPG6375L','e.g. CEVPG6375L')}" value="${panVal}" oninput="let v=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10);window.kycPanVal=v;this.value=v;window.kycPanBlurred=false;" onblur="window.kycPanBlurred=true;validateKycField('pan');" style="text-transform:uppercase;letter-spacing:1px;">
-        ${showPanErr?`<div style="font-size:11px;color:var(--negative);margin:-8px 0 8px 4px;">${t('कृपया सही PAN नंबर दर्ज करें','Please enter valid PAN number')}</div>`:''}
-        <div class="lbl">${t('PAN कार्ड अपलोड','Upload PAN Card')}</div>
-        ${upRow('kycPan','🪪',t('PAN कार्ड','PAN Card'))}
+        ${showPanErr?`<div style="font-size:11px;color:var(--negative);margin:-8px 0 8px 4px;">${t('कृपया सही पैन नंबर दर्ज करें','Please enter valid PAN number')}</div>`:''}
+        <div class="lbl">${t('पैन कार्ड अपलोड','Upload PAN Card')}</div>
+        ${upRow('kycPan','🪪',t('पैन कार्ड','PAN Card'))}
         <div style="margin-top:8px;"><span style="font-size:13px;font-weight:600;">📋 ${t('','')}<a onclick="showSampleDoc('pan')" style="color:var(--pri);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">${t('सैंपल दस्तावेज़ देखें','View sample document')}</a></span></div>
       </div>
-      <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycPanNum=true;window.kycSub=1;renderPhone();"':''}>${canProceed?t('आधार जोड़ें','Add Aadhaar'):t('PAN विवरण भरें','Complete PAN details')}</button></div>
+      <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycPanNum=true;window.kycSub=1;renderPhone();"':''}>${canProceed?t('आधार जोड़ें','Add Aadhaar'):t('पैन विवरण भरें','Complete PAN details')}</button></div>
       </div>`;
     }
 
@@ -1283,7 +1283,7 @@ const screens = [
         ${upRow('kycAadhaarB','📄',t('आधार — पीछे','Aadhaar — Back'))}
         <div style="margin-top:8px;"><span style="font-size:13px;font-weight:600;">📋 ${t('','')}<a onclick="showSampleDoc('aadhaar')" style="color:var(--pri);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">${t('सैंपल दस्तावेज़ देखें','View sample document')}</a></span></div>
       </div>
-      <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycAadhaarNum=true;window.kycSub=2;renderPhone();"':''}>${canProceed?t('GST जोड़ें','Add GST'):t('आधार विवरण भरें','Complete Aadhaar details')}</button></div>
+      <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycAadhaarNum=true;window.kycSub=2;renderPhone();"':''}>${canProceed?t('जीएसटी जोड़ें','Add GST'):t('आधार विवरण भरें','Complete Aadhaar details')}</button></div>
       </div>`;
     }
 
@@ -1300,24 +1300,24 @@ const screens = [
       // Determine error message
       let gstErrMsg = '';
       if(showGstErr){
-        if(gstVal.length>=5 && !gstPanMatch) gstErrMsg = t('GST नंबर PAN कार्ड से मेल नहीं खाता','GST number mismatch with PAN Card');
-        else gstErrMsg = t('कृपया सही GST नंबर दर्ज करें','Please enter valid GST number');
+        if(gstVal.length>=5 && !gstPanMatch) gstErrMsg = t('जीएसटी नंबर पैन कार्ड से मेल नहीं खाता','GST number mismatch with PAN Card');
+        else gstErrMsg = t('कृपया सही जीएसटी नंबर दर्ज करें','Please enter valid GST number');
       }
       return `
       <div class="sbar"><span>9:41</span><span>100%</span></div>
       <div class="hdr"><span class="back" onclick="window.kycSub=1;renderPhone();">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 1/5','Step 1/5')}</span></div>
       <div class="scontent"><div class="pad">
         ${progBar}
-        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">📋 ${t('GST विवरण','GST Details')}</div>
-        <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('GST नंबर दर्ज करें और GST प्रमाणपत्र अपलोड करें','Enter GST number and upload GST certificate')}</div>
-        <div class="lbl">${t('GST नंबर','GST Number')}</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">📋 ${t('जीएसटी विवरण','GST Details')}</div>
+        <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('जीएसटी नंबर दर्ज करें और जीएसटी प्रमाणपत्र अपलोड करें','Enter GST number and upload GST certificate')}</div>
+        <div class="lbl">${t('जीएसटी नंबर','GST Number')}</div>
         <input class="finp ${gstValid?'ok':showGstErr?'err':''}" type="text" maxlength="15" placeholder="${t('उदा. 09'+panVal+'1Z4','e.g. 09'+panVal+'1Z4')}" value="${gstVal}" oninput="let v=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,15);window.kycGstVal=v;this.value=v;window.kycGstBlurred=false;" onblur="window.kycGstBlurred=true;validateKycField('gst');" style="text-transform:uppercase;letter-spacing:1px;">
         ${showGstErr?`<div style="font-size:11px;color:var(--negative);margin:-8px 0 8px 4px;">${gstErrMsg}</div>`:''}
-        <div class="lbl">${t('GST प्रमाणपत्र अपलोड','Upload GST Certificate')}</div>
-        ${upRow('kycGst','📋',t('GST प्रमाणपत्र','GST Certificate'))}
+        <div class="lbl">${t('जीएसटी प्रमाणपत्र अपलोड','Upload GST Certificate')}</div>
+        ${upRow('kycGst','📋',t('जीएसटी प्रमाणपत्र','GST Certificate'))}
         <div style="margin-top:8px;"><span style="font-size:13px;font-weight:600;">📋 ${t('','')}<a onclick="showSampleDoc('gst')" style="color:var(--pri);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">${t('सैंपल दस्तावेज़ देखें','View sample document')}</a></span></div>
       </div>
-      <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycGstNum=true;window.kycSub=0;next();"':''}>${canProceed?t('बैंक विवरण जोड़ें','Add Bank Details'):t('GST विवरण भरें','Complete GST details')}</button></div>
+      <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycGstNum=true;window.kycSub=0;next();"':''}>${canProceed?t('बैंक विवरण जोड़ें','Add Bank Details'):t('जीएसटी विवरण भरें','Complete GST details')}</button></div>
       </div>`;
     }
    }},
@@ -1881,9 +1881,9 @@ function validateKycField(type){
 // Sample document viewer — shows image as overlay with Got it CTA
 function showSampleDoc(type){
   const docs = {
-    pan: {title:t('सैंपल PAN कार्ड','Sample PAN Card'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-pan.webp'},
+    pan: {title:t('सैंपल पैन कार्ड','Sample PAN Card'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-pan.webp'},
     aadhaar: {title:t('सैंपल आधार कार्ड','Sample Aadhaar Card'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-aadhaar.jpg'},
-    gst: {title:t('सैंपल GST प्रमाणपत्र','Sample GST Certificate'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-gst.jpg'}
+    gst: {title:t('सैंपल जीएसटी प्रमाणपत्र','Sample GST Certificate'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-gst.jpg'}
   };
   const doc = docs[type];
   const overlay = document.createElement('div');
@@ -1911,10 +1911,10 @@ function showUploadSheet(key){
   sheet.id = 'uploadOverlay';
   sheet.onclick = function(e){if(e.target===sheet)closeUploadSheet();};
   const docLabels = {
-    kycPan: t('PAN कार्ड','PAN Card'),
+    kycPan: t('पैन कार्ड','PAN Card'),
     kycAadhaarF: t('आधार — सामने','Aadhaar — Front'),
     kycAadhaarB: t('आधार — पीछे','Aadhaar — Back'),
-    kycGst: t('GST प्रमाणपत्र','GST Certificate')
+    kycGst: t('जीएसटी प्रमाणपत्र','GST Certificate')
   };
   sheet.innerHTML = `<div class="upload-sheet">
     <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 12px;"></div>
@@ -1948,10 +1948,10 @@ function closeUploadSheet(){
 function showUploadPreview(source){
   closeUploadSheet();
   const docLabels = {
-    kycPan: {name:t('PAN कार्ड','PAN Card'), icon:'🪪'},
+    kycPan: {name:t('पैन कार्ड','PAN Card'), icon:'🪪'},
     kycAadhaarF: {name:t('आधार — सामने','Aadhaar — Front'), icon:'📄'},
     kycAadhaarB: {name:t('आधार — पीछे','Aadhaar — Back'), icon:'📄'},
-    kycGst: {name:t('GST प्रमाणपत्र','GST Certificate'), icon:'📋'}
+    kycGst: {name:t('जीएसटी प्रमाणपत्र','GST Certificate'), icon:'📋'}
   };
   const doc = docLabels[window._uploadKey]||{name:'Document',icon:'📄'};
   const srcLabel = source==='camera'?t('कैमरा से ली गई फ़ोटो','Photo from Camera'):t('गैलरी से चुनी गई फ़ोटो','Photo from Gallery');
