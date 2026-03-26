@@ -1357,9 +1357,9 @@ const screens = [
       <div class="upload-overlay" style="pointer-events:auto;">
         <div class="upload-sheet">
           <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 12px;"></div>
-          <div style="text-align:center;margin-bottom:12px;">
-            <div style="font-size:32px;margin-bottom:8px;">❌</div>
-            <div style="font-size:16px;font-weight:700;color:var(--negative);">${t('बैंक खाता सत्यापन विफल','Bank Account Verification Failed')}</div>
+          <div style="text-align:center;margin-bottom:14px;">
+            <div style="font-size:16px;font-weight:700;color:var(--negative);">${t('बैंक खाता सत्यापन विफल','Bank Account Verification Failed')} ✗</div>
+            <div style="font-size:13px;color:var(--text-sec);margin-top:6px;line-height:18px;">${t('हम आपके बैंक विवरण सत्यापित नहीं कर पाए','We could not verify your bank details')}</div>
           </div>
           <button class="cta" onclick="window.bankPennyDropFail=false;window.bankAccVal='';window.bankAccReVal='';window.bankIfscVal='';window.bankAccBlurred=false;window.bankAccReBlurred=false;window.bankIfscBlurred=false;renderPhone();" style="width:100%;margin-bottom:8px;">${t('बैंक विवरण बदलें','Change Bank Details')}</button>
           <button class="cta sec" onclick="window.bankPennyDropFail=false;window.bankSupportDoc=true;window.bankSupportDocType='pennydrop';renderPhone();" style="width:100%;">${t('सहायक बैंक दस्तावेज़ अपलोड करें','Upload Supporting Bank Document')}</button>
