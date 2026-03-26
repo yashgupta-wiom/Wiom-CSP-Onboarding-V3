@@ -1348,8 +1348,7 @@ const screens = [
       <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">🏦 ${t('बैंक विवरण','Bank Details')}</div>
       <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('अपने बैंक खाते की जानकारी दर्ज करें','Enter your bank account details')}</div>
       <div class="lbl">${t('बैंक खाता संख्या','Bank Account Number')}</div>
-      <input class="finp ${accValid?'ok':''}" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="18" placeholder="${t('बैंक खाता संख्या दर्ज करें','Enter bank account number')}" value="${accVal}" oninput="let v=this.value.replace(/[^0-9]/g,'').slice(0,18);window.bankAccVal=v;this.value=v;window.bankAccBlurred=false;" onblur="window.bankAccBlurred=true;validateBankField();">
-      ${accValid&&accVal.length>0?`<div style="font-size:11px;color:var(--text-sec);margin:-8px 0 8px 4px;">🔒 ${maskedAcc}</div>`:''}
+      <input class="finp ${accValid?'ok':''}" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="18" placeholder="${t('बैंक खाता संख्या दर्ज करें','Enter bank account number')}" value="${window.bankAccFocused?accVal:maskedAcc}" oninput="let v=this.value.replace(/[^0-9]/g,'').slice(0,18);window.bankAccVal=v;this.value=v;window.bankAccBlurred=false;" onfocus="window.bankAccFocused=true;this.value=window.bankAccVal||'';" onblur="window.bankAccFocused=false;window.bankAccBlurred=true;validateBankField();">
       <div class="lbl">${t('बैंक खाता संख्या दोबारा दर्ज करें','Re-enter Bank Account Number')}</div>
       <input class="finp ${accMatch&&accReVal.length>0?'ok':showAccReErr?'err':''}" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="18" placeholder="${t('बैंक खाता संख्या दोबारा दर्ज करें','Re-enter bank account number')}" value="${accReVal}" oninput="let v=this.value.replace(/[^0-9]/g,'').slice(0,18);window.bankAccReVal=v;this.value=v;window.bankAccReBlurred=false;" onblur="window.bankAccReBlurred=true;validateBankField();">
       ${showAccReErr?`<div style="font-size:11px;color:var(--negative);margin:-8px 0 8px 4px;">${t('बैंक खाता संख्या मेल नहीं खाती','Bank account number mismatch')}</div>`:''}
@@ -1357,7 +1356,7 @@ const screens = [
       <input class="finp ${ifscValid?'ok':showIfscErr?'err':''}" type="text" maxlength="11" placeholder="${t('उदा. SBIN0001234','e.g. SBIN0001234')}" value="${ifscVal}" oninput="let v=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,11);window.bankIfscVal=v;this.value=v;window.bankIfscBlurred=false;" onblur="window.bankIfscBlurred=true;validateBankField();" style="text-transform:uppercase;letter-spacing:1px;">
       ${showIfscErr?`<div style="font-size:11px;color:var(--negative);margin:-8px 0 8px 4px;">${t('कृपया सही IFSC कोड दर्ज करें','Please enter valid IFSC code')}</div>`:''}
     </div>
-    <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="next()"':''}>${canProceed?t('ISP अनुबंध जोड़ें','Add ISP Agreement'):t('बैंक विवरण भरें','Complete bank details')}</button></div>
+    <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="next()"':''}>${t('बैंक विवरण सत्यापित करें','Verify Bank Details')}</button></div>
     </div>`;}},
 
   // 7: ISP Agreement Upload (NEW)
