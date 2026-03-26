@@ -1354,11 +1354,11 @@ const screens = [
           <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--warning);font-size:13px;"><span style="color:var(--text-sec);">${t('व्यक्तिगत नाम','Personal Name')}</span><span style="color:var(--text);font-weight:700;">Rajesh Kumar</span></div>
           <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span style="color:var(--text-sec);">${t('व्यापार नाम','Business Name')}</span><span style="color:var(--text);font-weight:700;">Kumar Electronics</span></div>
         </div>
-        <div class="ibox ibox-p" style="margin-top:8px;"><span class="ii">💡</span><span>${t('बैंक विवरण बदलें या कैंसल्ड चेक अपलोड करें','Change bank details or upload cancelled cheque')}</span></div>
+        <div class="ibox ibox-p" style="margin-top:8px;"><span class="ii">💡</span><span>${t('बैंक विवरण बदलें या बैंक दस्तावेज़ अपलोड करें','Change bank details or upload bank document')}</span></div>
       </div>
       <div class="bbar">
         <button class="cta" onclick="window.bankNameMismatch=false;window.bankAccVal='';window.bankAccReVal='';window.bankIfscVal='';window.bankAccBlurred=false;window.bankAccReBlurred=false;window.bankIfscBlurred=false;renderPhone();">${t('बैंक विवरण बदलें','Change Bank Details')}</button>
-        <button class="cta sec" style="margin-top:8px;" onclick="window.bankNameMismatch=false;window.bankSupportDoc=true;window.bankSupportDocType='mismatch';renderPhone();">${t('कैंसल्ड चेक अपलोड करें','Upload Cancelled Cheque')}</button>
+        <button class="cta sec" style="margin-top:8px;" onclick="window.bankNameMismatch=false;window.bankSupportDoc=true;window.bankSupportDocType='mismatch';renderPhone();">${t('बैंक दस्तावेज़ अपलोड करें','Upload Bank Document')}</button>
       </div>`;
     }
     // Show supporting document upload state
@@ -1369,14 +1369,14 @@ const screens = [
       <div class="sbar"><span>9:41</span><span>100%</span></div>
       <div class="hdr"><span class="back" onclick="${backState}">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
       <div class="scontent"><div class="pad">
-        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">📄 ${t('सहायक बैंक दस्तावेज़','Supporting Bank Document')}</div>
-        <div style="font-size:13px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('मैन्युअल सत्यापन के लिए नीचे दिए गए किसी भी दस्तावेज़ को अपलोड करें:','Upload any of the following documents for manual verification:')}</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">📄 ${t('बैंक दस्तावेज़','Bank Document')}</div>
+        <div style="font-size:13px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('बैंक विवरण सत्यापन के लिए नीचे दिए गए किसी भी दस्तावेज़ को अपलोड करें:','Upload any of the following documents to verify your bank details:')}</div>
         <div style="font-size:13px;color:var(--text);line-height:22px;margin-bottom:16px;padding:12px 14px;background:var(--bg-sec);border-radius:var(--r-sm);">
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px;">• ${t('बैंक स्टेटमेंट','Bank Statement')}</div>
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px;">• ${t('कैंसल्ड चेक','Cancelled Cheque')}</div>
           <div style="display:flex;gap:8px;align-items:center;">• ${t('बैंक पासबुक','Bank Passbook')}</div>
         </div>
-        <div class="upload-row ${uploaded?'verified':''}" onclick="showUploadSheet('bankSupportDoc')"><div><div class="uname">📄 ${t('सहायक दस्तावेज़','Supporting Document')}</div><div class="ustatus" style="color:${uploaded?'var(--positive)':'var(--hint)'};">${uploaded?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${uploaded?'done':''}">${uploaded?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
+        <div class="upload-row ${uploaded?'verified':''}" onclick="showUploadSheet('bankSupportDoc')"><div><div class="uname">📄 ${t('बैंक दस्तावेज़','Bank Document')}</div><div class="ustatus" style="color:${uploaded?'var(--positive)':'var(--hint)'};">${uploaded?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${uploaded?'done':''}">${uploaded?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
       </div>
       <div class="bbar"><button class="cta ${uploaded?'':'dis'}" ${uploaded?'onclick="window.bankSupportDoc=false;next();"':''}>${uploaded?t('ISP अनुबंध जोड़ें','Add ISP Agreement'):t('दस्तावेज़ अपलोड करें','Upload document')}</button></div>`;
     }
@@ -1793,7 +1793,7 @@ function renderPhone(){
         <div style="font-size:17px;font-weight:700;color:var(--text);text-align:center;margin-bottom:6px;">${t('बैंक खाता सत्यापन विफल','Bank Account Verification Failed')}</div>
         <div style="font-size:13px;color:var(--text-sec);text-align:center;margin-bottom:24px;line-height:18px;">${t('हम आपके बैंक विवरण सत्यापित नहीं कर पाए','We could not verify your bank details')}</div>
         <button class="cta" onclick="window.bankPennyDropFail=false;window.bankAccVal='';window.bankAccReVal='';window.bankIfscVal='';window.bankAccBlurred=false;window.bankAccReBlurred=false;window.bankIfscBlurred=false;document.getElementById('bankFailSheet').remove();renderPhone();" style="width:100%;margin-bottom:10px;">${t('बैंक विवरण बदलें','Change Bank Details')}</button>
-        <button class="cta sec" onclick="window.bankPennyDropFail=false;window.bankSupportDoc=true;window.bankSupportDocType='pennydrop';document.getElementById('bankFailSheet').remove();renderPhone();" style="width:100%;">${t('सहायक दस्तावेज़ अपलोड करें','Upload Supporting Document')}</button>
+        <button class="cta sec" onclick="window.bankPennyDropFail=false;window.bankSupportDoc=true;window.bankSupportDocType='pennydrop';document.getElementById('bankFailSheet').remove();renderPhone();" style="width:100%;">${t('बैंक दस्तावेज़ अपलोड करें','Upload Bank Document')}</button>
       </div>`;
       document.getElementById('phoneFrame').appendChild(overlay);
     },50);
@@ -2044,7 +2044,7 @@ function showUploadSheet(key){
     bankDoc: t('बैंक पासबुक','Bank Passbook'),
     bankCheque: t('कैंसल्ड चेक','Cancelled Cheque'),
     bankStmt: t('बैंक स्टेटमेंट','Bank Statement'),
-    bankSupportDoc: t('सहायक बैंक दस्तावेज़','Supporting Bank Document')
+    bankSupportDoc: t('बैंक दस्तावेज़','Bank Document')
   };
   sheet.innerHTML = `<div class="upload-sheet">
     <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 12px;"></div>
@@ -2085,7 +2085,7 @@ function showUploadPreview(source){
     bankDoc: {name:t('बैंक पासबुक','Bank Passbook'), icon:'📋'},
     bankCheque: {name:t('कैंसल्ड चेक','Cancelled Cheque'), icon:'📝'},
     bankStmt: {name:t('बैंक स्टेटमेंट','Bank Statement'), icon:'📑'},
-    bankSupportDoc: {name:t('सहायक बैंक दस्तावेज़','Supporting Bank Document'), icon:'📄'}
+    bankSupportDoc: {name:t('बैंक दस्तावेज़','Bank Document'), icon:'📄'}
   };
   const doc = docLabels[window._uploadKey]||{name:'Document',icon:'📄'};
   const srcLabel = source==='camera'?t('कैमरा से ली गई फ़ोटो','Photo from Camera'):t('गैलरी से चुनी गई फ़ोटो','Photo from Gallery');
