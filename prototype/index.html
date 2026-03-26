@@ -1342,23 +1342,34 @@ const screens = [
       </div></div>
       <div class="bbar"><button class="cta" onclick="window.bankVerified=false;next();">${t('ISP अनुबंध जोड़ें','Add ISP Agreement')}</button></div>`;
     }
-    // Show penny drop fail state
+    // Show penny drop fail as bottom sheet overlay on the entry form
     if(window.bankPennyDropFail){
+      const accVal = window.bankAccVal||'';
+      const accReVal = window.bankAccReVal||'';
+      const ifscVal = window.bankIfscVal||'';
       return `
       <div class="sbar"><span>9:41</span><span>100%</span></div>
-      <div class="hdr"><span class="back" onclick="window.bankPennyDropFail=false;renderPhone();">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
+      <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
       <div class="scontent"><div class="pad">
-        <div style="font-size:18px;font-weight:700;color:var(--negative);margin-bottom:8px;">❌ ${t('पेनी ड्रॉप विफल','Penny Drop Failed')}</div>
-        <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('₹1 क्रेडिट नहीं हो पाया — बैंक खाता संख्या या IFSC कोड गलत हो सकता है','₹1 could not be credited — bank account number or IFSC code may be incorrect')}</div>
-        <div class="card" style="border-color:var(--negative);background:var(--neg-100);">
-          <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:6px;">❌ ${t('सत्यापन विफल','Verification Failed')}</div>
-          <div style="font-size:13px;color:var(--text);line-height:18px;">${t('कृपया बैंक खाता संख्या और IFSC कोड दोबारा जांचें','Please re-check bank account number and IFSC code')}</div>
-        </div>
-        <div class="ibox ibox-p" style="margin-top:8px;"><span class="ii">💡</span><span>${t('बैंक विवरण बदलें या सहायक बैंक दस्तावेज़ अपलोड करें','Change bank details or upload supporting bank document')}</span></div>
+        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">🏦 ${t('बैंक विवरण','Bank Details')}</div>
+        <div style="font-size:13px;color:var(--text-sec);margin-bottom:8px;line-height:18px;">${t('अपने बैंक खाते की जानकारी दर्ज करें','Enter your bank account details')}</div>
+        <div class="lbl">${t('बैंक खाता संख्या','Bank Account Number')}</div>
+        <input class="finp" type="password" value="${accVal}" disabled style="opacity:0.6;">
+        <div class="lbl">${t('बैंक खाता संख्या दोबारा दर्ज करें','Re-enter Bank Account Number')}</div>
+        <input class="finp" type="password" value="${accReVal}" disabled style="opacity:0.6;">
+        <div class="lbl">${t('IFSC कोड','IFSC Code')}</div>
+        <input class="finp" type="text" value="${ifscVal}" disabled style="opacity:0.6;text-transform:uppercase;letter-spacing:1px;">
       </div>
-      <div class="bbar">
-        <button class="cta" onclick="window.bankPennyDropFail=false;window.bankAccVal='';window.bankAccReVal='';window.bankIfscVal='';window.bankAccBlurred=false;window.bankAccReBlurred=false;window.bankIfscBlurred=false;renderPhone();">${t('बैंक विवरण बदलें','Change Bank Details')}</button>
-        <button class="cta sec" style="margin-top:8px;" onclick="window.bankPennyDropFail=false;window.bankSupportDoc=true;window.bankSupportDocType='pennydrop';renderPhone();">${t('सहायक बैंक दस्तावेज़ अपलोड करें','Upload Supporting Bank Document')}</button>
+      <div class="upload-overlay" style="pointer-events:auto;">
+        <div class="upload-sheet">
+          <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 12px;"></div>
+          <div style="text-align:center;margin-bottom:12px;">
+            <div style="font-size:32px;margin-bottom:8px;">❌</div>
+            <div style="font-size:16px;font-weight:700;color:var(--negative);">${t('बैंक खाता सत्यापन विफल','Bank Account Verification Failed')}</div>
+          </div>
+          <button class="cta" onclick="window.bankPennyDropFail=false;window.bankAccVal='';window.bankAccReVal='';window.bankIfscVal='';window.bankAccBlurred=false;window.bankAccReBlurred=false;window.bankIfscBlurred=false;renderPhone();" style="width:100%;margin-bottom:8px;">${t('बैंक विवरण बदलें','Change Bank Details')}</button>
+          <button class="cta sec" onclick="window.bankPennyDropFail=false;window.bankSupportDoc=true;window.bankSupportDocType='pennydrop';renderPhone();" style="width:100%;">${t('सहायक बैंक दस्तावेज़ अपलोड करें','Upload Supporting Bank Document')}</button>
+        </div>
       </div>`;
     }
     // Show name mismatch state
