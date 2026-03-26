@@ -417,8 +417,6 @@ const scenarios = {
   'refund-in-progress': {screen:5, label:'Refund In Progress', icon:'⏳', cat:'regfee'},
   'refund-failed': {screen:5, label:'Refund Failed', icon:'❌', cat:'regfee'},
   // KYC — document errors
-  'kyc-pan-mismatch': {screen:5, label:'PAN Name Mismatch', icon:'🪪', cat:'kyc'},
-  'kyc-aadhaar-expired': {screen:5, label:'Aadhaar Expired', icon:'⚠️', cat:'kyc'},
   'kyc-pan-dedup': {screen:5, label:'PAN Dedup — Already Linked', icon:'🔍', cat:'kyc', deferred:true},
   'kyc-aadhaar-dedup': {screen:5, label:'Aadhaar Dedup — Already Linked', icon:'🔍', cat:'kyc', deferred:true},
   'kyc-gst-dedup': {screen:5, label:'GST Dedup — Already Linked', icon:'🔍', cat:'kyc', deferred:true},
@@ -659,40 +657,6 @@ const errorScreens = {
     <div class="bbar"><button class="cta" onclick="window.open('tel:7836811111')" style="background:var(--negative);">${t('हमसे बात करें','Talk to Us')}</button></div>
     </div>`,
 
-  'kyc-pan-mismatch': ()=>`
-    <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('KYC Documents','KYC Documents')}</span><span class="hright">${t('स्टेप 3/4','Step 3/4')}</span></div>
-    <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('सभी दस्तावेज़ अपलोड करें — सत्यापन टीम द्वारा जांच होगी','Upload all documents — verification team will review')}</div>
-      <div class="upload-row" style="border-color:var(--negative);background:var(--neg-100);"><div><div class="uname">🪪 PAN Card</div><div class="ustatus" style="color:var(--negative);">Name Mismatch ✗</div></div><button class="ubtn" style="border-color:var(--negative);color:var(--negative);">Fix</button></div>
-      <div style="background:var(--neg-100);border:1px solid var(--negative);border-radius:var(--r-input);padding:10px 12px;margin-bottom:12px;">
-        <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:4px;">${t('PAN नाम मेल नहीं खाता','PAN name does not match')}</div>
-        <div style="font-size:12px;color:var(--text-sec);line-height:16px;">${t('PAN पर:','On PAN:')} <b>Rajesh K Sharma</b><br>${t('आपने लिखा:','You entered:')} <b>राजेश कुमार</b></div>
-        <div style="font-size:12px;color:var(--text-sec);line-height:16px;margin-top:6px;">${t('👉 कृपया आधार अनुसार सही नाम दर्ज करें, या PAN re-upload करें','👉 Please enter the correct name as per Aadhaar, or re-upload PAN')}</div>
-      </div>
-      <div class="upload-row verified"><div><div class="uname">${t('📄 आधार कार्ड','📄 Aadhaar Card')}</div><div class="ustatus" style="color:var(--positive);">Verified ✓</div></div><button class="ubtn done">✓</button></div>
-      <div class="upload-row verified"><div><div class="uname">📄 GST Certificate</div><div class="ustatus" style="color:var(--positive);">Verified ✓</div></div><button class="ubtn done">✓</button></div>
-    </div>
-    <div class="bbar"><button class="cta dis">${t('KYC Fix करें, फिर आगे बढ़ें','Fix KYC, then proceed')}</button></div>
-    </div>`,
-
-  'kyc-aadhaar-expired': ()=>`
-    <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('KYC Documents','KYC Documents')}</span><span class="hright">${t('स्टेप 3/4','Step 3/4')}</span></div>
-    <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:28px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
-      <div class="upload-row verified"><div><div class="uname">📄 PAN Card</div><div class="ustatus" style="color:var(--positive);">Verified ✓</div></div><button class="ubtn done">✓</button></div>
-      <div class="upload-row" style="border-color:var(--warning);background:var(--warn-200);"><div><div class="uname">${t('⚠️ आधार कार्ड','⚠️ Aadhaar Card')}</div><div class="ustatus" style="color:var(--warn-700);">Address Update Required</div></div><button class="ubtn" style="border-color:var(--warning);color:var(--warn-700);">Update</button></div>
-      <div style="background:var(--warn-200);border:1px solid var(--warning);border-radius:var(--r-input);padding:10px 12px;margin-bottom:12px;">
-        <div style="font-size:12px;font-weight:700;color:var(--warn-700);margin-bottom:4px;">${t('आधार में पता पुराना है','Aadhaar address is outdated')}</div>
-        <div style="font-size:12px;color:var(--text-sec);line-height:16px;">${t('आपके आधार का पता और दी गई लोकेशन मेल नहीं खाती। कृपया UIDAI से आधार अपडेट करें या सही पता वाला आधार अपलोड करें।','Your Aadhaar address and provided location do not match. Please update Aadhaar via UIDAI or upload an Aadhaar with the correct address.')}</div>
-      </div>
-      <div class="upload-row verified"><div><div class="uname">📄 GST Certificate</div><div class="ustatus" style="color:var(--positive);">Verified ✓</div></div><button class="ubtn done">✓</button></div>
-      <div class="ibox ibox-p"><span class="ii">ℹ️</span><span>${t('UIDAI पोर्टल: uidai.gov.in से आधार अपडेट करें','Update Aadhaar from UIDAI portal: uidai.gov.in')}</span></div>
-    </div>
-    <div class="bbar"><button class="cta dis">${t('आधार Update करें, फिर आगे बढ़ें','Update Aadhaar, then proceed')}</button></div>
-    </div>`,
 
   'kyc-pan-dedup': ()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
