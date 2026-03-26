@@ -418,6 +418,9 @@ const scenarios = {
   // KYC — document errors
   'kyc-pan-mismatch': {screen:5, label:'PAN Name Mismatch', icon:'🪪', cat:'kyc'},
   'kyc-aadhaar-expired': {screen:5, label:'Aadhaar Expired', icon:'⚠️', cat:'kyc'},
+  'kyc-pan-dedup': {screen:5, label:'PAN Dedup — Already Linked', icon:'🔍', cat:'kyc'},
+  'kyc-aadhaar-dedup': {screen:5, label:'Aadhaar Dedup — Already Linked', icon:'🔍', cat:'kyc'},
+  'kyc-gst-dedup': {screen:5, label:'GST Dedup — Already Linked', icon:'🔍', cat:'kyc'},
   // Bank & Dedup
   'bank-pennydrop-fail': {screen:6, label:'Penny Drop Failed', icon:'🏦', cat:'bank'},
   'bank-name-mismatch': {screen:6, label:'Bank Name Mismatch', icon:'👤', cat:'bank'},
@@ -688,6 +691,69 @@ const errorScreens = {
       <div class="ibox ibox-p"><span class="ii">ℹ️</span><span>${t('UIDAI पोर्टल: uidai.gov.in से आधार अपडेट करें','Update Aadhaar from UIDAI portal: uidai.gov.in')}</span></div>
     </div>
     <div class="bbar"><button class="cta dis">${t('आधार Update करें, फिर आगे बढ़ें','Update Aadhaar, then proceed')}</button></div>
+    </div>`,
+
+  'kyc-pan-dedup': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:48px;margin:20px 0 12px;">🔍</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('PAN पहले से जुड़ा हुआ है','PAN already linked')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('यह PAN कार्ड एक और Wiom अकाउंट से जुड़ा है जिसका मोबाइल नंबर ****4567 है','This PAN Card is linked with another Wiom account number ending with 4567')}</div>
+      <div class="card" style="text-align:left;border-color:var(--info);background:var(--info-100);">
+        <div style="font-size:13px;font-weight:700;color:var(--info);margin-bottom:6px;">💡 ${t('क्या करें?','What to do?')}</div>
+        <div style="font-size:13px;color:var(--text);line-height:20px;">
+          <div style="margin-bottom:6px;">${t('अगर यह आपका नंबर है, तो कृपया Wiom Partner Plus ऐप में लॉगिन करें।','If this is your number, please login in Wiom Partner Plus app.')}</div>
+          <div>${t('अगर आप Wiom से नया जुड़ना चाहते हैं, तो कृपया अलग KYC दस्तावेज़ का उपयोग करें।','If you wish to get onboarded with Wiom, use different KYC details.')}</div>
+        </div>
+      </div>
+    </div>
+    <div class="bbar">
+      <button class="cta" onclick="clearScenario()">${t('अलग PAN डालें','Enter Different PAN')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('Wiom ऐप में लॉगिन करें','Login in Wiom App')}</button>
+    </div>
+    </div>`,
+
+  'kyc-aadhaar-dedup': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:48px;margin:20px 0 12px;">🔍</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('आधार पहले से जुड़ा हुआ है','Aadhaar already linked')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('यह आधार कार्ड एक और Wiom अकाउंट से जुड़ा है जिसका मोबाइल नंबर ****4567 है','This Aadhaar Card is linked with another Wiom account number ending with 4567')}</div>
+      <div class="card" style="text-align:left;border-color:var(--info);background:var(--info-100);">
+        <div style="font-size:13px;font-weight:700;color:var(--info);margin-bottom:6px;">💡 ${t('क्या करें?','What to do?')}</div>
+        <div style="font-size:13px;color:var(--text);line-height:20px;">
+          <div style="margin-bottom:6px;">${t('अगर यह आपका नंबर है, तो कृपया Wiom Partner Plus ऐप में लॉगिन करें।','If this is your number, please login in Wiom Partner Plus app.')}</div>
+          <div>${t('अगर आप Wiom से नया जुड़ना चाहते हैं, तो कृपया अलग KYC दस्तावेज़ का उपयोग करें।','If you wish to get onboarded with Wiom, use different KYC details.')}</div>
+        </div>
+      </div>
+    </div>
+    <div class="bbar">
+      <button class="cta" onclick="clearScenario()">${t('अलग आधार डालें','Enter Different Aadhaar')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('Wiom ऐप में लॉगिन करें','Login in Wiom App')}</button>
+    </div>
+    </div>`,
+
+  'kyc-gst-dedup': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="clearScenario()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:48px;margin:20px 0 12px;">🔍</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('GST पहले से जुड़ा हुआ है','GST already linked')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('यह GST नंबर एक और Wiom अकाउंट से जुड़ा है जिसका मोबाइल नंबर ****4567 है','This GST Number is linked with another Wiom account number ending with 4567')}</div>
+      <div class="card" style="text-align:left;border-color:var(--info);background:var(--info-100);">
+        <div style="font-size:13px;font-weight:700;color:var(--info);margin-bottom:6px;">💡 ${t('क्या करें?','What to do?')}</div>
+        <div style="font-size:13px;color:var(--text);line-height:20px;">
+          <div style="margin-bottom:6px;">${t('अगर यह आपका नंबर है, तो कृपया Wiom Partner Plus ऐप में लॉगिन करें।','If this is your number, please login in Wiom Partner Plus app.')}</div>
+          <div>${t('अगर आप Wiom से नया जुड़ना चाहते हैं, तो कृपया अलग KYC दस्तावेज़ का उपयोग करें।','If you wish to get onboarded with Wiom, use different KYC details.')}</div>
+        </div>
+      </div>
+    </div>
+    <div class="bbar">
+      <button class="cta" onclick="clearScenario()">${t('अलग GST डालें','Enter Different GST')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('Wiom ऐप में लॉगिन करें','Login in Wiom App')}</button>
+    </div>
     </div>`,
 
     'regfee-failed': ()=>`
