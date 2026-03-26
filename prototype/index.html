@@ -2093,12 +2093,19 @@ function showIspUploadSheet(){
       <div><div class="uso-text">${t('गैलरी से अपलोड करें','Upload from Gallery')}</div><div class="uso-hint">${t('अधिकतम 7 पेज','Up to 7 pages')}</div></div>
     </div>
     <div style="margin-top:12px;padding:10px 12px;background:var(--bg-sec);border-radius:var(--r-sm);">
+      ${key==='shopPhoto'?`
+      <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:6px;">💡 ${t('प्रो टिप्स','Pro Tips')}</div>
+      <div style="font-size:11px;color:var(--text-sec);line-height:16px;">
+        <div style="display:flex;gap:6px;margin-bottom:4px;"><span style="color:var(--positive);">✓</span><span>${t('पूरी दुकान के सामने की फ़ोटो आवश्यक','Complete Shop Front photo required')}</span></div>
+        <div style="display:flex;gap:6px;margin-bottom:4px;"><span style="color:var(--positive);">✓</span><span>${t('व्यापार का नाम स्पष्ट दिखना चाहिए','Business name should be clearly visible')}</span></div>
+        <div style="display:flex;gap:6px;"><span style="color:var(--positive);">✓</span><span>${t('व्यापार LCO के रूप में मेल खाना चाहिए','Line of business should match as an LCO')}</span></div>
+      </div>`:`
       <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:6px;">💡 ${t('प्रो टिप्स','Pro Tips')}</div>
       <div style="font-size:11px;color:var(--text-sec);line-height:16px;">
         <div style="display:flex;gap:6px;margin-bottom:4px;"><span style="color:var(--positive);">✓</span><span>${t('दस्तावेज़ साफ़ दिखना चाहिए','Document should be clearly visible')}</span></div>
         <div style="display:flex;gap:6px;margin-bottom:4px;"><span style="color:var(--positive);">✓</span><span>${t('सभी व्यापार विवरण मेल खाने चाहिए','All business details should match')}</span></div>
         <div style="display:flex;gap:6px;"><span style="color:var(--positive);">✓</span><span>${t('दस्तावेज़ की वैधता समाप्त नहीं होनी चाहिए','Document should not be expired')}</span></div>
-      </div>
+      </div>`}
     </div>
     <div style="text-align:center;margin-top:8px;"><button onclick="closeUploadSheet()" style="padding:10px 24px;border:none;background:none;color:var(--text-sec);font:600 14px/20px inherit;cursor:pointer;">${t('रद्द करें','Cancel')}</button></div>
   </div>`;
