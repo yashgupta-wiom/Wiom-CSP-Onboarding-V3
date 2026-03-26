@@ -1395,7 +1395,7 @@ const screens = [
     <div class="scontent"><div class="pad">
       <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">📄 ${t('ISP अनुबंध अपलोड करें','Upload ISP Agreement')}</div>
       <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('दूरसंचार विभाग (DOT) अनुपालन जांच के लिए हमें आपके इंटरनेट सर्विस प्रोवाइडर के साथ आपके कानूनी अनुबंध की आवश्यकता है','We need your legal agreement with your Internet Service Provider for Department of Telecommunication compliance check')}</div>
-      <div class="upload-row ${window.ispDoc?'verified':''}" onclick="showUploadSheet('ispDoc')"><div><div class="uname">📄 ${t('ISP अनुबंध','ISP Agreement')}</div><div class="ustatus" style="color:${window.ispDoc?'var(--positive)':'var(--hint)'};">${window.ispDoc?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.ispDoc?'done':''}">${window.ispDoc?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
+      <div class="upload-row ${window.ispDoc?'verified':''}" onclick="window.ispDoc?ispDocReset():showIspUploadSheet()"><div><div class="uname">📄 ${t('ISP अनुबंध','ISP Agreement')}</div><div class="ustatus" style="color:${window.ispDoc?'var(--positive)':'var(--hint)'};">${window.ispDoc?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.ispDoc?'done':''}">${window.ispDoc?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
       <div style="margin-top:8px;"><span style="font-size:13px;font-weight:600;">📋 ${t('','')}<a onclick="showSampleDoc('isp')" style="color:var(--pri);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">${t('सैंपल दस्तावेज़ देखें','View sample document')}</a></span></div>
       <div style="margin-top:12px;font-size:12px;color:var(--text);line-height:20px;padding:12px 14px;background:var(--bg-sec);border-radius:var(--r-sm);">
         <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;">${t('ISP अनुबंध में अनिवार्य विवरण:','Mandatory details required in ISP Agreement:')}</div>
@@ -2062,6 +2062,119 @@ function showSampleDoc(type){
     <div style="padding:12px 0 0;flex-shrink:0;"><button onclick="document.getElementById('sampleDocOverlay').remove()" style="width:100%;padding:14px;border-radius:var(--r-btn);font:700 14px/20px inherit;border:none;background:var(--pri);color:#fff;cursor:pointer;">${t('समझ गया','Got it')}</button></div>
   </div>`;
   document.getElementById('phoneFrame').appendChild(overlay);
+}
+
+// ISP Agreement multi-page upload flow
+window.ispPageCount = 0;
+
+function showIspUploadSheet(){
+  const sheet = document.createElement('div');
+  sheet.className = 'upload-overlay';
+  sheet.id = 'uploadOverlay';
+  sheet.onclick = function(e){if(e.target===sheet)closeUploadSheet();};
+  sheet.innerHTML = `<div class="upload-sheet">
+    <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 12px;"></div>
+    <div class="upload-sheet-title">${t('ISP अनुबंध अपलोड करें','Upload ISP Agreement')}</div>
+    <div class="upload-sheet-option" onclick="closeUploadSheet();ispUploadPdf();">
+      <span class="uso-icon">📎</span>
+      <div><div class="uso-text">${t('PDF अपलोड करें','Upload PDF')}</div><div class="uso-hint">${t('PDF फ़ाइल चुनें','Choose a PDF file')}</div></div>
+    </div>
+    <div class="upload-sheet-option" onclick="closeUploadSheet();ispUploadPage('camera');">
+      <span class="uso-icon">📸</span>
+      <div><div class="uso-text">${t('कैमरा से फ़ोटो लें','Take Photo from Camera')}</div><div class="uso-hint">${t('अधिकतम 7 पेज','Up to 7 pages')}</div></div>
+    </div>
+    <div class="upload-sheet-option" onclick="closeUploadSheet();ispUploadPage('gallery');">
+      <span class="uso-icon">🖼️</span>
+      <div><div class="uso-text">${t('गैलरी से अपलोड करें','Upload from Gallery')}</div><div class="uso-hint">${t('अधिकतम 7 पेज','Up to 7 pages')}</div></div>
+    </div>
+    <div style="margin-top:12px;padding:10px 12px;background:var(--bg-sec);border-radius:var(--r-sm);">
+      <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:6px;">💡 ${t('प्रो टिप्स','Pro Tips')}</div>
+      <div style="font-size:11px;color:var(--text-sec);line-height:16px;">
+        <div style="display:flex;gap:6px;margin-bottom:4px;"><span style="color:var(--positive);">✓</span><span>${t('दस्तावेज़ साफ़ दिखना चाहिए','Document should be clearly visible')}</span></div>
+        <div style="display:flex;gap:6px;margin-bottom:4px;"><span style="color:var(--positive);">✓</span><span>${t('सभी व्यापार विवरण मेल खाने चाहिए','All business details should match')}</span></div>
+        <div style="display:flex;gap:6px;"><span style="color:var(--positive);">✓</span><span>${t('दस्तावेज़ की वैधता समाप्त नहीं होनी चाहिए','Document should not be expired')}</span></div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:8px;"><button onclick="closeUploadSheet()" style="padding:10px 24px;border:none;background:none;color:var(--text-sec);font:600 14px/20px inherit;cursor:pointer;">${t('रद्द करें','Cancel')}</button></div>
+  </div>`;
+  document.getElementById('phoneFrame').appendChild(sheet);
+}
+
+function ispUploadPdf(){
+  // Simulate PDF upload → directly confirm
+  const preview = document.createElement('div');
+  preview.className = 'upload-preview';
+  preview.id = 'uploadPreview';
+  preview.innerHTML = `
+    <div class="sbar" style="background:var(--text);"><span style="color:#fff;">9:41</span><span style="color:#fff;">100%</span></div>
+    <div class="hdr"><span class="back" onclick="closeUploadPreview()">&larr;</span><span class="htitle">${t('पुष्टि करें','Confirm')}</span></div>
+    <div class="upload-preview-img">
+      <div class="placeholder-doc">
+        <span style="font-size:36px;">📎</span>
+        <span>ISP_Agreement.pdf</span>
+        <span style="font-size:11px;color:var(--hint);font-weight:400;">${t('PDF फ़ाइल','PDF File')}</span>
+      </div>
+    </div>
+    <div style="padding:0 16px 4px;"><div class="ibox ibox-p" style="margin:0;"><span class="ii">👁️</span><span>${t('कृपया जाँचें कि सही फ़ाइल चुनी गई है','Please verify the correct file is selected')}</span></div></div>
+    <div class="upload-preview-actions">
+      <button class="btn-retake" onclick="closeUploadPreview();showIspUploadSheet();">🔄 ${t('बदलें','Change')}</button>
+      <button class="btn-confirm" onclick="window.ispDoc=true;window.ispPageCount=0;closeUploadPreview();renderPhone();toast(t('PDF अपलोड हो गया','PDF uploaded')+' ✓','g');">✓ ${t('पुष्टि करें','Confirm')}</button>
+    </div>`;
+  document.getElementById('phoneFrame').appendChild(preview);
+}
+
+function ispUploadPage(source){
+  window.ispPageCount++;
+  const pg = window.ispPageCount;
+  const srcLabel = source==='camera'?t('कैमरा से ली गई फ़ोटो','Photo from Camera'):t('गैलरी से चुनी गई फ़ोटो','Photo from Gallery');
+  const preview = document.createElement('div');
+  preview.className = 'upload-preview';
+  preview.id = 'uploadPreview';
+  preview.innerHTML = `
+    <div class="sbar" style="background:var(--text);"><span style="color:#fff;">9:41</span><span style="color:#fff;">100%</span></div>
+    <div class="hdr"><span class="back" onclick="window.ispPageCount--;closeUploadPreview();">&larr;</span><span class="htitle">${t('पेज','Page')} ${pg}/7</span></div>
+    <div class="upload-preview-img">
+      <div class="placeholder-doc">
+        <span style="font-size:36px;">📄</span>
+        <span>${t('पेज','Page')} ${pg}</span>
+        <span style="font-size:11px;color:var(--hint);font-weight:400;">${srcLabel}</span>
+      </div>
+    </div>
+    <div style="padding:0 16px 4px;"><div class="ibox ibox-p" style="margin:0;"><span class="ii">👁️</span><span>${t('कृपया जाँचें कि सभी जानकारी स्पष्ट दिख रही है','Please verify all information is clearly visible')}</span></div></div>
+    <div class="upload-preview-actions">
+      <button class="btn-retake" onclick="window.ispPageCount--;closeUploadPreview();ispUploadPage('${source}');">🔄 ${t('दोबारा लें','Retake')}</button>
+      <button class="btn-confirm" onclick="closeUploadPreview();ispPageConfirmed('${source}');">✓ ${t('पुष्टि करें','Confirm')}</button>
+    </div>`;
+  document.getElementById('phoneFrame').appendChild(preview);
+}
+
+function ispPageConfirmed(source){
+  if(window.ispPageCount>=7){
+    // Max pages reached — auto finish
+    window.ispDoc=true;
+    renderPhone();
+    toast(t('ISP अनुबंध अपलोड हो गया','ISP Agreement uploaded')+' ✓','g');
+    return;
+  }
+  // Ask: add more pages or done?
+  const sheet = document.createElement('div');
+  sheet.className = 'upload-overlay';
+  sheet.id = 'uploadOverlay';
+  sheet.innerHTML = `<div class="upload-sheet" style="padding:24px 20px;">
+    <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 16px;"></div>
+    <div style="text-align:center;margin-bottom:6px;font-size:15px;font-weight:700;color:var(--text);">${t('पेज','Page')} ${window.ispPageCount} ${t('अपलोड हो गया','uploaded')} ✓</div>
+    <div style="text-align:center;margin-bottom:20px;font-size:13px;color:var(--text-sec);">${t('क्या और पेज जोड़ने हैं?','Want to add more pages?')} (${t('अधिकतम','max')} 7)</div>
+    <button class="cta" onclick="closeUploadSheet();ispUploadPage('${source}');" style="width:100%;margin-bottom:10px;">${t('और पेज जोड़ें','Add More Pages')} (${window.ispPageCount}/7)</button>
+    <button class="cta sec" onclick="closeUploadSheet();window.ispDoc=true;renderPhone();toast(t('ISP अनुबंध अपलोड हो गया','ISP Agreement uploaded')+' ✓','g');" style="width:100%;">${t('अपलोड पूरा करें','Finish Upload')}</button>
+  </div>`;
+  document.getElementById('phoneFrame').appendChild(sheet);
+}
+
+function ispDocReset(){
+  window.ispDoc=false;
+  window.ispPageCount=0;
+  renderPhone();
+  showIspUploadSheet();
 }
 
 // Upload flow — bottom sheet → preview → confirm/retake
