@@ -2008,10 +2008,10 @@ function startBankVerification(){
 // Sample document viewer — shows image as overlay with Got it CTA
 function showSampleDoc(type){
   const docs = {
-    pan: {title:t('सैंपल पैन कार्ड','Sample PAN Card'), img:'sample-pan.webp'},
-    aadhaar: {title:t('सैंपल आधार कार्ड','Sample Aadhaar Card'), img:'sample-aadhaar.jpg'},
-    gst: {title:t('सैंपल जीएसटी प्रमाणपत्र','Sample GST Certificate'), img:'sample-gst.jpg'},
-    bankdoc: {title:t('सैंपल बैंक दस्तावेज़','Sample Bank Document'), img:'sample-bank-doc.png'}
+    pan: {title:t('सैंपल पैन कार्ड','Sample PAN Card'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-pan.webp'},
+    aadhaar: {title:t('सैंपल आधार कार्ड','Sample Aadhaar Card'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-aadhaar.jpg'},
+    gst: {title:t('सैंपल जीएसटी प्रमाणपत्र','Sample GST Certificate'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-gst.jpg'},
+    bankdoc: {title:t('सैंपल बैंक दस्तावेज़','Sample Bank Document'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-bank-doc.png'}
   };
   const doc = docs[type];
   const overlay = document.createElement('div');
