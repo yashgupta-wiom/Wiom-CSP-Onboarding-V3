@@ -1111,26 +1111,92 @@ const screens = [
     <div class="bbar"><button class="cta" onclick="showPaymentSuccess()">${t('₹2,000 अभी भुगतान करें','Pay ₹2,000 Now')}</button></div>
     </div>`},
 
-  // 5: KYC Documents
+  // 5: KYC Documents (sub-stages: PAN → Aadhaar → GST)
   {phase:'Stage 2',title:'KYC दस्तावेज़',
    solves:['PAN/GST validation','Doc verification'],
    types:[{label:'User Upload',cls:'user-action',icon:'📤'}],
    render:()=>{
-    const allDone = window.kycPan && window.kycAadhaarF && window.kycAadhaarB && window.kycGst;
-    return `
-    <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('KYC दस्तावेज़','KYC Documents')}</span><span class="hright">${t('स्टेप 1/5','Step 1/5')}</span></div>
-    <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
-      <div style="font-size:13px;color:var(--text-sec);margin-bottom:12px;line-height:18px;">${t('दस्तावेज़ जमा करें और Wiom पार्टनर बनने के करीब पहुँचें!','Submit your documents to move closer to becoming a Wiom Partner!')}</div>
-      <div class="upload-row ${window.kycPan?'verified':''}" onclick="window.kycPan=!window.kycPan;renderPhone();"><div><div class="uname">🪪 ${t('PAN कार्ड','PAN Card')}</div><div class="ustatus" style="color:${window.kycPan?'var(--positive)':'var(--hint)'};">${window.kycPan?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycPan?'done':''}">${window.kycPan?'✓':t('अपलोड','Upload')}</button></div>
-      <div class="upload-row ${window.kycAadhaarF?'verified':''}" onclick="window.kycAadhaarF=!window.kycAadhaarF;renderPhone();"><div><div class="uname">📄 ${t('आधार कार्ड — सामने','Aadhaar — Front')}</div><div class="ustatus" style="color:${window.kycAadhaarF?'var(--positive)':'var(--hint)'};">${window.kycAadhaarF?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycAadhaarF?'done':''}">${window.kycAadhaarF?'✓':t('अपलोड','Upload')}</button></div>
-      <div class="upload-row ${window.kycAadhaarB?'verified':''}" onclick="window.kycAadhaarB=!window.kycAadhaarB;renderPhone();"><div><div class="uname">📄 ${t('आधार कार्ड — पीछे','Aadhaar — Back')}</div><div class="ustatus" style="color:${window.kycAadhaarB?'var(--positive)':'var(--hint)'};">${window.kycAadhaarB?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycAadhaarB?'done':''}">${window.kycAadhaarB?'✓':t('अपलोड','Upload')}</button></div>
-      <div class="upload-row ${window.kycGst?'verified':''}" onclick="window.kycGst=!window.kycGst;renderPhone();"><div><div class="uname">📋 ${t('GST प्रमाणपत्र','GST Certificate')}</div><div class="ustatus" style="color:${window.kycGst?'var(--positive)':'var(--hint)'};">${window.kycGst?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycGst?'done':''}">${window.kycGst?'✓':t('अपलोड','Upload')}</button></div>
-      <div class="ibox ibox-p" style="margin-top:12px;"><span class="ii">💡</span><span>${t('साफ़ फ़ोटो लें — सारे अक्षर दिखने चाहिए','Take a clear photo — all text must be visible')}</span></div>
-    </div>
-    <div class="bbar"><button class="cta ${allDone?'':'dis'}" ${allDone?'onclick="next()"':''}>${allDone?t('अब बैंक विवरण दें','Next: Bank Details'):t('सभी दस्तावेज़ अपलोड करें','Upload all documents')}</button></div>
-    </div>`;}},
+    if(window.kycSub===undefined) window.kycSub=0;
+    const sub = window.kycSub;
+    const steps = [
+      {key:'pan', label:t('PAN','PAN'), icon:'🪪'},
+      {key:'aadhaar', label:t('आधार','Aadhaar'), icon:'📄'},
+      {key:'gst', label:'GST', icon:'📋'}
+    ];
+    // Progress bar
+    const progBar = `<div style="display:flex;align-items:center;gap:0;margin-bottom:16px;">
+      ${steps.map((s,i)=>`
+        <div style="display:flex;align-items:center;flex:1;${i<steps.length-1?'':''}">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+            <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
+              ${i<sub?'background:var(--positive);color:#fff;':i===sub?'background:var(--pri);color:#fff;':'background:var(--bg-sec);color:var(--hint);'}">${i<sub?'✓':s.icon}</div>
+            <span style="font-size:10px;font-weight:600;color:${i<sub?'var(--positive)':i===sub?'var(--pri)':'var(--hint)'};">${s.label}</span>
+          </div>
+          ${i<steps.length-1?`<div style="flex:1;height:2px;margin:0 6px;margin-bottom:16px;background:${i<sub?'var(--positive)':'var(--border)'};"></div>`:''}
+        </div>`).join('')}
+    </div>`;
+
+    // PAN sub-stage
+    if(sub===0){
+      const canProceed = window.kycPanNum && window.kycPan;
+      return `
+      <div class="sbar"><span>9:41</span><span>100%</span></div>
+      <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 1/5','Step 1/5')}</span></div>
+      <div class="scontent"><div class="pad">
+        ${progBar}
+        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">🪪 ${t('PAN विवरण','PAN Details')}</div>
+        <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('PAN नंबर दर्ज करें और PAN कार्ड अपलोड करें','Enter PAN number and upload PAN card')}</div>
+        <div class="lbl">${t('PAN नंबर','PAN Number')}</div>
+        <div class="inp ${window.kycPanNum?'ok':''}" onclick="window.kycPanNum=!window.kycPanNum;renderPhone();" style="cursor:pointer;justify-content:space-between;">${window.kycPanNum?'<span>ABCDE1234F</span><span style="color:var(--positive);">✓</span>':t('टैप करके PAN नंबर दर्ज करें','Tap to enter PAN number')}</div>
+        <div class="lbl">${t('PAN कार्ड अपलोड','Upload PAN Card')}</div>
+        <div class="upload-row ${window.kycPan?'verified':''}" onclick="window.kycPan=!window.kycPan;renderPhone();"><div><div class="uname">🪪 ${t('PAN कार्ड','PAN Card')}</div><div class="ustatus" style="color:${window.kycPan?'var(--positive)':'var(--hint)'};">${window.kycPan?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycPan?'done':''}">${window.kycPan?'✓':t('अपलोड','Upload')}</button></div>
+        <div class="ibox ibox-p" style="margin-top:8px;"><span class="ii">💡</span><span>${t('साफ़ फ़ोटो लें — सारे अक्षर दिखने चाहिए','Take a clear photo — all text must be visible')}</span></div>
+      </div>
+      <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycSub=1;renderPhone();"':''}>${canProceed?t('आगे बढ़ें: आधार','Next: Aadhaar'):t('PAN विवरण भरें','Complete PAN details')}</button></div>
+      </div>`;
+    }
+
+    // Aadhaar sub-stage
+    if(sub===1){
+      const canProceed = window.kycAadhaarNum && window.kycAadhaarF && window.kycAadhaarB;
+      return `
+      <div class="sbar"><span>9:41</span><span>100%</span></div>
+      <div class="hdr"><span class="back" onclick="window.kycSub=0;renderPhone();">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 1/5','Step 1/5')}</span></div>
+      <div class="scontent"><div class="pad">
+        ${progBar}
+        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">📄 ${t('आधार विवरण','Aadhaar Details')}</div>
+        <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('आधार नंबर दर्ज करें और आधार कार्ड अपलोड करें','Enter Aadhaar number and upload Aadhaar card')}</div>
+        <div class="lbl">${t('आधार नंबर','Aadhaar Number')}</div>
+        <div class="inp ${window.kycAadhaarNum?'ok':''}" onclick="window.kycAadhaarNum=!window.kycAadhaarNum;renderPhone();" style="cursor:pointer;justify-content:space-between;">${window.kycAadhaarNum?'<span>XXXX XXXX 4567</span><span style="color:var(--positive);">✓</span>':t('टैप करके आधार नंबर दर्ज करें','Tap to enter Aadhaar number')}</div>
+        <div class="lbl">${t('आधार कार्ड अपलोड','Upload Aadhaar Card')}</div>
+        <div class="upload-row ${window.kycAadhaarF?'verified':''}" onclick="window.kycAadhaarF=!window.kycAadhaarF;renderPhone();"><div><div class="uname">📄 ${t('आधार — सामने','Aadhaar — Front')}</div><div class="ustatus" style="color:${window.kycAadhaarF?'var(--positive)':'var(--hint)'};">${window.kycAadhaarF?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycAadhaarF?'done':''}">${window.kycAadhaarF?'✓':t('अपलोड','Upload')}</button></div>
+        <div class="upload-row ${window.kycAadhaarB?'verified':''}" onclick="window.kycAadhaarB=!window.kycAadhaarB;renderPhone();"><div><div class="uname">📄 ${t('आधार — पीछे','Aadhaar — Back')}</div><div class="ustatus" style="color:${window.kycAadhaarB?'var(--positive)':'var(--hint)'};">${window.kycAadhaarB?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycAadhaarB?'done':''}">${window.kycAadhaarB?'✓':t('अपलोड','Upload')}</button></div>
+        <div class="ibox ibox-p" style="margin-top:8px;"><span class="ii">💡</span><span>${t('आधार के दोनों तरफ़ की फ़ोटो अपलोड करें','Upload photos of both sides of Aadhaar')}</span></div>
+      </div>
+      <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycSub=2;renderPhone();"':''}>${canProceed?t('आगे बढ़ें: GST','Next: GST'):t('आधार विवरण भरें','Complete Aadhaar details')}</button></div>
+      </div>`;
+    }
+
+    // GST sub-stage
+    if(sub===2){
+      const canProceed = window.kycGstNum && window.kycGst;
+      return `
+      <div class="sbar"><span>9:41</span><span>100%</span></div>
+      <div class="hdr"><span class="back" onclick="window.kycSub=1;renderPhone();">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 1/5','Step 1/5')}</span></div>
+      <div class="scontent"><div class="pad">
+        ${progBar}
+        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">📋 ${t('GST विवरण','GST Details')}</div>
+        <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('GST नंबर दर्ज करें और GST प्रमाणपत्र अपलोड करें','Enter GST number and upload GST certificate')}</div>
+        <div class="lbl">${t('GST नंबर','GST Number')}</div>
+        <div class="inp ${window.kycGstNum?'ok':''}" onclick="window.kycGstNum=!window.kycGstNum;renderPhone();" style="cursor:pointer;justify-content:space-between;">${window.kycGstNum?'<span>22ABCDE1234F1Z5</span><span style="color:var(--positive);">✓</span>':t('टैप करके GST नंबर दर्ज करें','Tap to enter GST number')}</div>
+        <div class="lbl">${t('GST प्रमाणपत्र अपलोड','Upload GST Certificate')}</div>
+        <div class="upload-row ${window.kycGst?'verified':''}" onclick="window.kycGst=!window.kycGst;renderPhone();"><div><div class="uname">📋 ${t('GST प्रमाणपत्र','GST Certificate')}</div><div class="ustatus" style="color:${window.kycGst?'var(--positive)':'var(--hint)'};">${window.kycGst?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycGst?'done':''}">${window.kycGst?'✓':t('अपलोड','Upload')}</button></div>
+        <div class="ibox ibox-p" style="margin-top:8px;"><span class="ii">💡</span><span>${t('GST प्रमाणपत्र की साफ़ कॉपी अपलोड करें','Upload a clear copy of GST certificate')}</span></div>
+      </div>
+      <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycSub=0;next();"':''}>${canProceed?t('अब बैंक विवरण दें','Next: Bank Details'):t('GST विवरण भरें','Complete GST details')}</button></div>
+      </div>`;
+    }
+   }},
 
   // 6: Bank Details
   {phase:'Stage 2',title:'बैंक विवरण',
@@ -1398,7 +1464,7 @@ function updateState(idx){
     2:()=>{s.personalDone=true;s.phase='Personal Done';addLog('Personal details submitted','info');},
     3:()=>{s.locationDone=true;s.phase='Location Done';addLog('Location submitted: Indore, MP','info');},
     4:()=>{s.regFeePaid=true;s.status='documenting';s.phase='Reg Fee Paid';p.regFee=2000;p.phase='KYC';p.status='pending';addLog('₹2,000 registration fee paid','payment');toast('भुगतान सफल! अब दस्तावेज़ जमा करें','g');},
-    5:()=>{s.kycDone=true;s.phase='KYC Verified';p.kyc='verified';addLog('KYC auto-verified: PAN, Aadhaar, GST','kyc');toast('KYC verified ✓','g');},
+    5:()=>{s.kycDone=true;s.phase='KYC Verified';p.kyc='verified';window.kycPanNum=true;window.kycPan=true;window.kycAadhaarNum=true;window.kycAadhaarF=true;window.kycAadhaarB=true;window.kycGstNum=true;window.kycGst=true;window.kycSub=2;addLog('KYC auto-verified: PAN, Aadhaar, GST','kyc');toast('KYC verified ✓','g');},
     6:()=>{s.phase='Bank Verified';p.bank='verified';addLog('Bank verified via penny-drop. Dedup clear.','kyc');toast('Bank verified, dedup clear ✓','g');},
     7:()=>{s.phase='ISP Agreement';addLog('ISP Agreement uploaded — DOT compliance ready','info');toast('ISP Agreement uploaded ✓','g');},
     8:()=>{s.phase='Photos Submitted';addLog('Shop & equipment photos uploaded','info');toast('Photos uploaded ✓','g');},
