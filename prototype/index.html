@@ -1253,7 +1253,7 @@ const screens = [
         ${showPanErr?`<div style="font-size:11px;color:var(--negative);margin:-8px 0 8px 4px;">${t('कृपया सही PAN नंबर दर्ज करें','Please enter valid PAN number')}</div>`:''}
         <div class="lbl">${t('PAN कार्ड अपलोड','Upload PAN Card')}</div>
         ${upRow('kycPan','🪪',t('PAN कार्ड','PAN Card'))}
-        <div style="margin-top:8px;"><a onclick="showSampleDoc('pan')" style="color:var(--pri);font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px;">📋 ${t('सैंपल दस्तावेज़ देखें','View sample document')}</a></div>
+        <div style="margin-top:8px;"><span style="font-size:13px;font-weight:600;">📋 ${t('','')}<a onclick="showSampleDoc('pan')" style="color:var(--pri);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">${t('सैंपल दस्तावेज़ देखें','View sample document')}</a></span></div>
       </div>
       <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycPanNum=true;window.kycSub=1;renderPhone();"':''}>${canProceed?t('आधार जोड़ें','Add Aadhaar'):t('PAN विवरण भरें','Complete PAN details')}</button></div>
       </div>`;
@@ -1281,7 +1281,7 @@ const screens = [
         <div class="lbl">${t('आधार कार्ड अपलोड','Upload Aadhaar Card')}</div>
         ${upRow('kycAadhaarF','📄',t('आधार — सामने','Aadhaar — Front'))}
         ${upRow('kycAadhaarB','📄',t('आधार — पीछे','Aadhaar — Back'))}
-        <div style="margin-top:8px;"><a onclick="showSampleDoc('aadhaar')" style="color:var(--pri);font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px;">📋 ${t('सैंपल दस्तावेज़ देखें','View sample document')}</a></div>
+        <div style="margin-top:8px;"><span style="font-size:13px;font-weight:600;">📋 ${t('','')}<a onclick="showSampleDoc('aadhaar')" style="color:var(--pri);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">${t('सैंपल दस्तावेज़ देखें','View sample document')}</a></span></div>
       </div>
       <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycAadhaarNum=true;window.kycSub=2;renderPhone();"':''}>${canProceed?t('GST जोड़ें','Add GST'):t('आधार विवरण भरें','Complete Aadhaar details')}</button></div>
       </div>`;
@@ -1315,7 +1315,7 @@ const screens = [
         ${showGstErr?`<div style="font-size:11px;color:var(--negative);margin:-8px 0 8px 4px;">${gstErrMsg}</div>`:''}
         <div class="lbl">${t('GST प्रमाणपत्र अपलोड','Upload GST Certificate')}</div>
         ${upRow('kycGst','📋',t('GST प्रमाणपत्र','GST Certificate'))}
-        <div style="margin-top:8px;"><a onclick="showSampleDoc('gst')" style="color:var(--pri);font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px;">📋 ${t('सैंपल दस्तावेज़ देखें','View sample document')}</a></div>
+        <div style="margin-top:8px;"><span style="font-size:13px;font-weight:600;">📋 ${t('','')}<a onclick="showSampleDoc('gst')" style="color:var(--pri);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">${t('सैंपल दस्तावेज़ देखें','View sample document')}</a></span></div>
       </div>
       <div class="bbar"><button class="cta ${canProceed?'':'dis'}" ${canProceed?'onclick="window.kycGstNum=true;window.kycSub=0;next();"':''}>${canProceed?t('अब बैंक विवरण दें','Next: Bank Details'):t('GST विवरण भरें','Complete GST details')}</button></div>
       </div>`;
@@ -1881,9 +1881,9 @@ function validateKycField(type){
 // Sample document viewer — shows image as overlay with Got it CTA
 function showSampleDoc(type){
   const docs = {
-    pan: {title:t('सैंपल PAN कार्ड','Sample PAN Card'), img:'sample-pan.webp'},
-    aadhaar: {title:t('सैंपल आधार कार्ड','Sample Aadhaar Card'), img:'sample-aadhaar.jpg'},
-    gst: {title:t('सैंपल GST प्रमाणपत्र','Sample GST Certificate'), img:'sample-gst.jpg'}
+    pan: {title:t('सैंपल PAN कार्ड','Sample PAN Card'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-pan.webp'},
+    aadhaar: {title:t('सैंपल आधार कार्ड','Sample Aadhaar Card'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-aadhaar.jpg'},
+    gst: {title:t('सैंपल GST प्रमाणपत्र','Sample GST Certificate'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-gst.jpg'}
   };
   const doc = docs[type];
   const overlay = document.createElement('div');
