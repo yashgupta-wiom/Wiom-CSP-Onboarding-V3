@@ -797,7 +797,29 @@ const errorScreens = {
         <div style="font-size:14px;color:var(--text);line-height:20px;">${t('₹2,000 5-7 कार्य दिवसों में वापस होंगे','₹2,000 will be credited in 5-7 working days')}</div>
       </div>
     </div>
-    <div class="bbar"><button class="cta" onclick="triggerScenario('refund-in-progress')">${t('रिफंड स्टेटस देखें','Check Refund Status')}</button></div>
+    <div class="bbar"><button class="cta" onclick="triggerScenario('refund-in-progress-vr')">${t('रिफंड स्टेटस देखें','Check Refund Status')}</button></div>
+    </div>`,
+
+  'refund-in-progress-vr': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="back" onclick="triggerScenario('verification-rejected')">&larr;</span><span class="htitle">${t('रिफंड स्टेटस','Refund Status')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:48px;margin:24px 0 16px;">⏳</div>
+      <div style="font-size:20px;font-weight:700;color:var(--warning);line-height:28px;">${t('रिफंड प्रोसेस हो रहा है','Refund In Progress')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('आपका रिफंड प्रोसेस किया जा रहा है','Your refund is being processed')}</div>
+      <div class="card" style="text-align:left;border-color:var(--warning);background:var(--warn-200);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--warning);">
+          <span style="font-size:12px;color:var(--text-sec);">${t('रिफंड राशि','Refund Amount')}</span>
+          <span style="font-size:18px;font-weight:700;color:var(--text);">₹2,000</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:var(--text-sec);">${t('अनुमानित समय','Estimated Time')}</span>
+          <span style="font-size:13px;font-weight:600;color:var(--warning);">${t('5-6 कार्य दिवस','5-6 working days')}</span>
+        </div>
+      </div>
+      <div class="ibox ibox-p" style="margin-top:12px;"><span class="ii">💡</span><span>${t('चिंता न करें — आपका पैसा सुरक्षित है और जल्द ही आपके खाते में आ जाएगा','Don\'t worry — your money is safe and will be credited to your account soon')}</span></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="triggerScenario('verification-rejected')">${t('ठीक है','OK')}</button></div>
     </div>`,
 
   'tech-assessment-rejected': ()=>`
