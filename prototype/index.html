@@ -1224,7 +1224,7 @@ const screens = [
         <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">📋 ${t('जीएसटी विवरण','GST Details')}</div>
         <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('जीएसटी नंबर दर्ज करें और जीएसटी प्रमाणपत्र अपलोड करें','Enter GST number and upload GST certificate')}</div>
         <div class="lbl">${t('जीएसटी नंबर','GST Number')}</div>
-        <input class="finp ${gstValid?'ok':showGstErr?'err':''}" type="text" maxlength="15" placeholder="${t('उदा. 09'+panVal+'1Z4','e.g. 09'+panVal+'1Z4')}" value="${gstVal}" oninput="let v=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,15);window.kycGstVal=v;this.value=v;window.kycGstBlurred=false;" onblur="window.kycGstBlurred=true;validateKycField('gst');" style="text-transform:uppercase;letter-spacing:1px;">
+        <input class="finp ${gstValid?'ok':showGstErr?'err':''}" type="text" maxlength="15" placeholder="${t('उदा. 09'+(panVal||'CEVPG6375L')+'1Z4','e.g. 09'+(panVal||'CEVPG6375L')+'1Z4')}" value="${gstVal}" oninput="let v=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,15);window.kycGstVal=v;this.value=v;window.kycGstBlurred=false;" onblur="window.kycGstBlurred=true;validateKycField('gst');" style="text-transform:uppercase;letter-spacing:1px;">
         ${showGstErr?`<div style="font-size:11px;color:var(--negative);margin:-8px 0 8px 4px;">${gstErrMsg}</div>`:''}
         <div class="lbl">${t('जीएसटी प्रमाणपत्र अपलोड','Upload GST Certificate')}</div>
         ${upRow('kycGst','📋',t('जीएसटी प्रमाणपत्र','GST Certificate'))}
