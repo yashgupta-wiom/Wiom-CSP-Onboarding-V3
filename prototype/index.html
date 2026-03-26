@@ -1419,13 +1419,16 @@ const screens = [
     const bothDone = window.shopPhoto && window.equipPhoto;
     return `
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('फ़ोटो','Photos')}</span><span class="hright">${t('स्टेप 4/5','Step 4/5')}</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 4/5','Step 4/5')}</span></div>
     <div class="scontent"><div class="pad">
-      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:16px;">${t('दुकान और उपकरण फ़ोटो','Shop & Equipment Photos')}</div>
-      <div class="upload-row ${window.shopPhoto?'verified':''}" onclick="window.shopPhoto=!window.shopPhoto;renderPhone();"><div><div class="uname">🏪 ${t('दुकान की फ़ोटो','Shop Front Photo')}</div><div class="ustatus" style="color:${window.shopPhoto?'var(--positive)':'var(--hint)'};">${window.shopPhoto?t('अपलोड हो गया','Uploaded')+' ✓':t('अपलोड करें','Upload')}</div></div><button class="ubtn ${window.shopPhoto?'done':''}">${window.shopPhoto?'✓':t('फ़ोटो लें','Take Photo')}</button></div>
-      <div style="font-size:11px;color:var(--hint);margin:-4px 0 8px 12px;">${t('दुकान के सामने से साफ़ फ़ोटो — बोर्ड दिखना चाहिए','Clear photo of shop front — signboard must be visible')}</div>
-      <div class="upload-row ${window.equipPhoto?'verified':''}" onclick="window.equipPhoto=!window.equipPhoto;renderPhone();"><div><div class="uname">📡 ${t('राउटर/उपकरण फ़ोटो','Router/Equipment Photo')}</div><div class="ustatus" style="color:${window.equipPhoto?'var(--positive)':'var(--hint)'};">${window.equipPhoto?t('अपलोड हो गया','Uploaded')+' ✓':t('अपलोड करें','Upload')}</div></div><button class="ubtn ${window.equipPhoto?'done':''}">${window.equipPhoto?'✓':t('फ़ोटो लें','Take Photo')}</button></div>
-      <div style="font-size:11px;color:var(--hint);margin:-4px 0 8px 12px;">${t('इंटरनेट उपकरण (राउटर, केबल) की फ़ोटो','Photo of internet equipment — router, cables')}</div>
+      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">🏪 ${t('दुकान सत्यापन','Shop Verification')}</div>
+      <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('दुकान के सामने की फ़ोटो और इंटरनेट उपकरण/राउटर की फ़ोटो अपलोड करें','Upload shop front photo and Internet equipment/Router photos')}</div>
+      <div class="lbl">${t('दुकान की फ़ोटो','Shop Front Photo')}</div>
+      <div class="upload-row ${window.shopPhoto?'verified':''}" onclick="window.shopPhoto?shopPhotoReset():showUploadSheet('shopPhoto')"><div><div class="uname">🏪 ${t('दुकान की फ़ोटो','Shop Front Photo')}</div><div class="ustatus" style="color:${window.shopPhoto?'var(--positive)':'var(--hint)'};">${window.shopPhoto?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.shopPhoto?'done':''}">${window.shopPhoto?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
+      <div style="margin-top:4px;margin-bottom:12px;"><span style="font-size:13px;font-weight:600;">📋 ${t('','')}<a onclick="showSampleDoc('shop')" style="color:var(--pri);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">${t('सैंपल दस्तावेज़ देखें','View sample document')}</a></span></div>
+      <div class="lbl">${t('राउटर/उपकरण फ़ोटो','Router/Equipment Photos')}</div>
+      <div class="upload-row ${window.equipPhoto?'verified':''}" onclick="window.equipPhoto?equipPhotoReset():showEquipUploadSheet()"><div><div class="uname">📡 ${t('राउटर/उपकरण फ़ोटो','Router/Equipment Photos')}</div><div class="ustatus" style="color:${window.equipPhoto?'var(--positive)':'var(--hint)'};">${window.equipPhoto?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.equipPhoto?'done':''}">${window.equipPhoto?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
+      <div style="margin-top:4px;"><span style="font-size:13px;font-weight:600;">📋 ${t('','')}<a onclick="showSampleDoc('equip')" style="color:var(--pri);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">${t('सैंपल दस्तावेज़ देखें','View sample document')}</a></span></div>
     </div>
     <div class="bbar"><button class="cta ${bothDone?'':'dis'}" ${bothDone?'onclick="next()"':''}>${bothDone?t('सत्यापन के लिए जमा करें','Submit for Verification'):t('दोनों फ़ोटो अपलोड करें','Upload both photos')}</button></div>
     </div>`;}},
@@ -2046,7 +2049,9 @@ function showSampleDoc(type){
     aadhaar: {title:t('सैंपल आधार कार्ड','Sample Aadhaar Card'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-aadhaar.jpg'},
     gst: {title:t('सैंपल जीएसटी प्रमाणपत्र','Sample GST Certificate'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-gst.jpg'},
     bankdoc: {title:t('सैंपल बैंक दस्तावेज़','Sample Bank Document'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-bank-doc.jpg'},
-    isp: {title:t('सैंपल ISP अनुबंध','Sample ISP Agreement'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-isp.jpg'}
+    isp: {title:t('सैंपल ISP अनुबंध','Sample ISP Agreement'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-isp.jpg'},
+    shop: {title:t('सैंपल दुकान फ़ोटो','Sample Shop Front Photo'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-shop.jpg'},
+    equip: {title:t('सैंपल उपकरण फ़ोटो','Sample Equipment Photo'), img:'https://raw.githubusercontent.com/yashgupta-wiom/Wiom-CSP-Onboarding-V3/main/prototype/sample-equip.jpg'}
   };
   const doc = docs[type];
   const overlay = document.createElement('div');
@@ -2177,6 +2182,97 @@ function ispDocReset(){
   showIspUploadSheet();
 }
 
+// Shop photo reset
+function shopPhotoReset(){
+  window.shopPhoto=false;
+  renderPhone();
+  showUploadSheet('shopPhoto');
+}
+
+// Equipment multi-photo upload (up to 5)
+window.equipPageCount = 0;
+
+function showEquipUploadSheet(){
+  const sheet = document.createElement('div');
+  sheet.className = 'upload-overlay';
+  sheet.id = 'uploadOverlay';
+  sheet.onclick = function(e){if(e.target===sheet)closeUploadSheet();};
+  sheet.innerHTML = `<div class="upload-sheet">
+    <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 12px;"></div>
+    <div class="upload-sheet-title">${t('राउटर/उपकरण फ़ोटो','Router/Equipment Photos')}</div>
+    <div class="upload-sheet-option" onclick="closeUploadSheet();equipUploadPage('camera');">
+      <span class="uso-icon">📸</span>
+      <div><div class="uso-text">${t('कैमरा से फ़ोटो लें','Take Photo from Camera')}</div><div class="uso-hint">${t('अधिकतम 5 फ़ोटो','Up to 5 photos')}</div></div>
+    </div>
+    <div class="upload-sheet-option" onclick="closeUploadSheet();equipUploadPage('gallery');">
+      <span class="uso-icon">🖼️</span>
+      <div><div class="uso-text">${t('गैलरी से अपलोड करें','Upload from Gallery')}</div><div class="uso-hint">${t('अधिकतम 5 फ़ोटो','Up to 5 photos')}</div></div>
+    </div>
+    <div style="margin-top:12px;padding:10px 12px;background:var(--bg-sec);border-radius:var(--r-sm);">
+      <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:6px;">💡 ${t('प्रो टिप्स','Pro Tips')}</div>
+      <div style="font-size:11px;color:var(--text-sec);line-height:16px;">
+        <div style="display:flex;gap:6px;margin-bottom:4px;"><span style="color:var(--positive);">✓</span><span>${t('दस्तावेज़ साफ़ दिखना चाहिए','Document should be clearly visible')}</span></div>
+        <div style="display:flex;gap:6px;margin-bottom:4px;"><span style="color:var(--positive);">✓</span><span>${t('सभी व्यापार विवरण मेल खाने चाहिए','All business details should match')}</span></div>
+        <div style="display:flex;gap:6px;"><span style="color:var(--positive);">✓</span><span>${t('दस्तावेज़ की वैधता समाप्त नहीं होनी चाहिए','Document should not be expired')}</span></div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:8px;"><button onclick="closeUploadSheet()" style="padding:10px 24px;border:none;background:none;color:var(--text-sec);font:600 14px/20px inherit;cursor:pointer;">${t('रद्द करें','Cancel')}</button></div>
+  </div>`;
+  document.getElementById('phoneFrame').appendChild(sheet);
+}
+
+function equipUploadPage(source){
+  window.equipPageCount++;
+  const pg = window.equipPageCount;
+  const srcLabel = source==='camera'?t('कैमरा से ली गई फ़ोटो','Photo from Camera'):t('गैलरी से चुनी गई फ़ोटो','Photo from Gallery');
+  const preview = document.createElement('div');
+  preview.className = 'upload-preview';
+  preview.id = 'uploadPreview';
+  preview.innerHTML = `
+    <div class="sbar" style="background:var(--text);"><span style="color:#fff;">9:41</span><span style="color:#fff;">100%</span></div>
+    <div class="hdr"><span class="back" onclick="window.equipPageCount--;closeUploadPreview();">&larr;</span><span class="htitle">${t('फ़ोटो','Photo')} ${pg}/5</span></div>
+    <div class="upload-preview-img">
+      <div class="placeholder-doc">
+        <span style="font-size:36px;">📡</span>
+        <span>${t('उपकरण फ़ोटो','Equipment Photo')} ${pg}</span>
+        <span style="font-size:11px;color:var(--hint);font-weight:400;">${srcLabel}</span>
+      </div>
+    </div>
+    <div style="padding:0 16px 4px;"><div class="ibox ibox-p" style="margin:0;"><span class="ii">👁️</span><span>${t('कृपया जाँचें कि सभी जानकारी स्पष्ट दिख रही है','Please verify all information is clearly visible')}</span></div></div>
+    <div class="upload-preview-actions">
+      <button class="btn-retake" onclick="window.equipPageCount--;closeUploadPreview();equipUploadPage('${source}');">🔄 ${t('दोबारा लें','Retake')}</button>
+      <button class="btn-confirm" onclick="closeUploadPreview();equipPageConfirmed('${source}');">✓ ${t('पुष्टि करें','Confirm')}</button>
+    </div>`;
+  document.getElementById('phoneFrame').appendChild(preview);
+}
+
+function equipPageConfirmed(source){
+  if(window.equipPageCount>=5){
+    window.equipPhoto=true;
+    renderPhone();
+    toast(t('उपकरण फ़ोटो अपलोड हो गई','Equipment photos uploaded')+' ✓','g');
+    return;
+  }
+  const sheet = document.createElement('div');
+  sheet.className = 'upload-overlay';
+  sheet.id = 'uploadOverlay';
+  sheet.innerHTML = `<div class="upload-sheet" style="padding:24px 20px;">
+    <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 16px;"></div>
+    <div style="text-align:center;margin-bottom:6px;font-size:15px;font-weight:700;color:var(--text);">${t('फ़ोटो','Photo')} ${window.equipPageCount} ${t('अपलोड हो गई','uploaded')} ✓</div>
+    <div style="text-align:center;margin-bottom:20px;font-size:13px;color:var(--text-sec);">${t('क्या और फ़ोटो जोड़नी हैं?','Want to add more photos?')} (${t('अधिकतम','max')} 5)</div>
+    <button class="cta" onclick="closeUploadSheet();equipUploadPage('${source}');" style="width:100%;margin-bottom:10px;">${t('और फ़ोटो जोड़ें','Add More Photos')} (${window.equipPageCount}/5)</button>
+    <button class="cta sec" onclick="closeUploadSheet();window.equipPhoto=true;renderPhone();toast(t('उपकरण फ़ोटो अपलोड हो गई','Equipment photos uploaded')+' ✓','g');" style="width:100%;">${t('अपलोड पूरा करें','Finish Upload')}</button>
+  </div>`;
+  document.getElementById('phoneFrame').appendChild(sheet);
+}
+
+function equipPhotoReset(){
+  window.equipPhoto=false;
+  window.equipPageCount=0;
+  renderPhone();
+  showEquipUploadSheet();
+}
+
 // Upload flow — bottom sheet → preview → confirm/retake
 window._uploadKey = null;
 
@@ -2195,7 +2291,9 @@ function showUploadSheet(key){
     bankCheque: t('कैंसल्ड चेक','Cancelled Cheque'),
     bankStmt: t('बैंक स्टेटमेंट','Bank Statement'),
     bankSupportDoc: t('बैंक दस्तावेज़','Bank Document'),
-    ispDoc: t('ISP अनुबंध','ISP Agreement')
+    ispDoc: t('ISP अनुबंध','ISP Agreement'),
+    shopPhoto: t('दुकान की फ़ोटो','Shop Front Photo'),
+    equipPhoto: t('राउटर/उपकरण फ़ोटो','Router/Equipment Photo')
   };
   sheet.innerHTML = `<div class="upload-sheet">
     <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 12px;"></div>
@@ -2237,7 +2335,9 @@ function showUploadPreview(source){
     bankCheque: {name:t('कैंसल्ड चेक','Cancelled Cheque'), icon:'📝'},
     bankStmt: {name:t('बैंक स्टेटमेंट','Bank Statement'), icon:'📑'},
     bankSupportDoc: {name:t('बैंक दस्तावेज़','Bank Document'), icon:'📄'},
-    ispDoc: {name:t('ISP अनुबंध','ISP Agreement'), icon:'📄'}
+    ispDoc: {name:t('ISP अनुबंध','ISP Agreement'), icon:'📄'},
+    shopPhoto: {name:t('दुकान की फ़ोटो','Shop Front Photo'), icon:'🏪'},
+    equipPhoto: {name:t('राउटर/उपकरण फ़ोटो','Router/Equipment Photo'), icon:'📡'}
   };
   const doc = docLabels[window._uploadKey]||{name:'Document',icon:'📄'};
   const srcLabel = source==='camera'?t('कैमरा से ली गई फ़ोटो','Photo from Camera'):t('गैलरी से चुनी गई फ़ोटो','Photo from Gallery');
