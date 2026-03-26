@@ -388,9 +388,10 @@ const scenarios = {
   'otp-wrong': {screen:1, label:'Wrong OTP Entered', icon:'❌', cat:'registration'},
   'otp-expired': {screen:1, label:'OTP Expired', icon:'⏰', cat:'registration'},
   // Location & KYC
-  'kyc-day1-reminder': {screen:5, label:'Day 1 Reminder — 2 days left', icon:'🔔', cat:'verification'},
-  'kyc-day2-reminder': {screen:5, label:'Day 2 Reminder — 1 day left', icon:'⚠️', cat:'verification'},
-  'kyc-day3-autoreject': {screen:5, label:'Day 3 — Auto Reject + Refund', icon:'❌', cat:'verification'},
+  'kyc-day1-reminder': {screen:5, label:'Day 1 — 2 days left', icon:'🔔', cat:'verification'},
+  'kyc-day2-reminder': {screen:5, label:'Day 2 — 1 day left', icon:'⚠️', cat:'verification'},
+  'kyc-day3-reminder': {screen:5, label:'Day 3 — Last day to upload', icon:'🚨', cat:'verification'},
+  'kyc-day4-autoreject': {screen:5, label:'Day 4 — Auto Reject + Refund', icon:'❌', cat:'verification'},
   'kyc-pan-mismatch': {screen:5, label:'PAN Name Mismatch', icon:'🪪', cat:'verification'},
   'kyc-aadhaar-expired': {screen:5, label:'Aadhaar Expired', icon:'⚠️', cat:'verification'},
   
@@ -522,7 +523,7 @@ const errorScreens = {
     <div class="scontent"><div class="pad">
       <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
       <div style="font-size:13px;color:var(--text-sec);margin-bottom:12px;line-height:18px;">${t('दस्तावेज़ जमा करें और Wiom पार्टनर बनने के करीब पहुँचें!','Submit your documents to move closer to becoming a Wiom Partner!')}</div>
-      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--warn-200);border:1px solid var(--warning);border-radius:var(--r-sm);margin-bottom:12px;"><span style="font-size:16px;flex-shrink:0;">🔔</span><span style="font-size:12px;font-weight:600;color:var(--warn-700);line-height:16px;">${t('दस्तावेज़ जमा करने के लिए 2 कार्य दिवस शेष','2 working days remaining to submit documents')}</span></div>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--warn-200);border:1px solid var(--warning);border-radius:var(--r-sm);margin-bottom:12px;"><span style="font-size:16px;flex-shrink:0;">🔔</span><span style="font-size:12px;font-weight:600;color:var(--warn-700);line-height:16px;">${t('दस्तावेज़ जमा करने के लिए 2 दिन शेष','2 days remaining to submit documents')}</span></div>
       <div class="ibox ibox-p"><span class="ii">💡</span><span>${t('जल्दी दस्तावेज़ जमा करें — आपका आवेदन सक्रिय रहेगा!','Submit documents soon — your application stays active!')}</span></div>
     </div>
     <div class="bbar"><button class="cta" onclick="clearScenario()">${t('दस्तावेज़ अपलोड करें','Upload Documents')}</button></div>
@@ -533,12 +534,23 @@ const errorScreens = {
     <div class="scontent"><div class="pad">
       <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
       <div style="font-size:13px;color:var(--text-sec);margin-bottom:12px;line-height:18px;">${t('दस्तावेज़ जमा करें और Wiom पार्टनर बनने के करीब पहुँचें!','Submit your documents to move closer to becoming a Wiom Partner!')}</div>
-      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--neg-100);border:1px solid var(--negative);border-radius:var(--r-sm);margin-bottom:12px;"><span style="font-size:16px;flex-shrink:0;">⚠️</span><span style="font-size:12px;font-weight:600;color:var(--negative);line-height:16px;">${t('आखिरी दिन! दस्तावेज़ जमा करने के लिए 1 कार्य दिवस शेष','Last day! 1 working day remaining to submit documents')}</span></div>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--neg-100);border:1px solid var(--negative);border-radius:var(--r-sm);margin-bottom:12px;"><span style="font-size:16px;flex-shrink:0;">⚠️</span><span style="font-size:12px;font-weight:600;color:var(--negative);line-height:16px;">${t('दस्तावेज़ जमा करने के लिए 1 दिन शेष','1 day remaining to submit documents')}</span></div>
       <div class="ibox ibox-p"><span class="ii">🙏</span><span>${t('कृपया आज ही दस्तावेज़ जमा करें ताकि आपका आवेदन सक्रिय रहे','Please submit documents today to keep your application active')}</span></div>
     </div>
     <div class="bbar"><button class="cta" onclick="clearScenario()" style="background:var(--negative);">${t('अभी दस्तावेज़ अपलोड करें','Upload Documents Now')}</button></div>
     </div>`,
-  'kyc-day3-autoreject': ()=>`
+  'kyc-day3-reminder': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('KYC दस्तावेज़','KYC Documents')}</span></div>
+    <div class="scontent"><div class="pad">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
+      <div style="font-size:13px;color:var(--text-sec);margin-bottom:12px;line-height:18px;">${t('दस्तावेज़ जमा करें और Wiom पार्टनर बनने के करीब पहुँचें!','Submit your documents to move closer to becoming a Wiom Partner!')}</div>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--neg-100);border:1px solid var(--negative);border-radius:var(--r-sm);margin-bottom:12px;"><span style="font-size:16px;flex-shrink:0;">🚨</span><span style="font-size:12px;font-weight:600;color:var(--negative);line-height:16px;">${t('आखिरी दिन! कृपया आज ही दस्तावेज़ जमा करें','Last day! Please submit documents today')}</span></div>
+      <div class="ibox ibox-p"><span class="ii">🙏</span><span>${t('कृपया आज ही दस्तावेज़ जमा करें ताकि आपका आवेदन सक्रिय रहे','Please submit documents today to keep your application active')}</span></div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="clearScenario()" style="background:var(--negative);">${t('अभी दस्तावेज़ अपलोड करें','Upload Documents Now')}</button></div>
+    </div>`,
+  'kyc-day4-autoreject': ()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
     <div class="hdr"><span class="htitle">${t('आवेदन स्टेटस','Application Status')}</span></div>
     <div class="scontent"><div class="pad" style="text-align:center;">
@@ -1028,7 +1040,7 @@ const screens = [
         <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;">ℹ️ ${t('जरूरी जानकारी','Important Information')}</div>
         <div style="font-size:13px;color:var(--text);line-height:20px;">
           <div style="display:flex;gap:6px;margin-bottom:6px;"><span>1.</span><span>${t('पंजीकरण शुल्क भुगतान के बाद दस्तावेज़ सत्यापन प्रक्रिया शुरू होगी।','Document Verification process will start after Registration fee payment.')}</span></div>
-          <div style="display:flex;gap:6px;"><span>2.</span><span>${t('कृपया भुगतान के 3 कार्य दिवसों के भीतर सभी आवश्यक दस्तावेज़ जमा करें ताकि आपका आवेदन सक्रिय रहे।','Please submit your documents within 3 working days to keep your application active.')}</span></div>
+          <div style="display:flex;gap:6px;"><span>2.</span><span>${t('कृपया भुगतान के 3 दिनों के भीतर सभी आवश्यक दस्तावेज़ जमा करें ताकि आपका आवेदन सक्रिय रहे।','Please submit your documents within 3 days to keep your application active.')}</span></div>
         </div>
         <div style="margin-top:12px;padding:8px 12px;background:var(--pos-100);border:1px solid var(--pos-200);border-radius:var(--r-sm);display:flex;align-items:center;gap:8px;"><span style="font-size:16px;flex-shrink:0;">🔒</span><span style="font-size:12px;font-weight:600;color:var(--positive);line-height:16px;">${t('आवेदन अस्वीकार होने पर पूरा रिफंड','Full Refund if application rejected')}</span></div>
       </div>
@@ -1048,7 +1060,7 @@ const screens = [
     <div class="scontent"><div class="pad">
       <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('KYC दस्तावेज़','KYC Documents')}</div>
       <div style="font-size:13px;color:var(--text-sec);margin-bottom:12px;line-height:18px;">${t('दस्तावेज़ जमा करें और Wiom पार्टनर बनने के करीब पहुँचें!','Submit your documents to move closer to becoming a Wiom Partner!')}</div>
-      <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--warn-200);border:1px solid var(--warning);border-radius:var(--r-sm);margin-bottom:12px;"><span style="font-size:16px;flex-shrink:0;">⏳</span><span style="font-size:12px;font-weight:600;color:var(--warn-700);line-height:16px;">${t('दस्तावेज़ जमा करने के लिए 3 कार्य दिवस शेष','3 working days remaining to submit documents')}</span></div>
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--warn-200);border:1px solid var(--warning);border-radius:var(--r-sm);margin-bottom:12px;"><span style="font-size:16px;flex-shrink:0;">⏳</span><span style="font-size:12px;font-weight:600;color:var(--warn-700);line-height:16px;">${t('दस्तावेज़ जमा करने के लिए 3 दिन शेष','3 days remaining to submit documents')}</span></div>
       <div class="upload-row ${window.kycPan?'verified':''}" onclick="window.kycPan=!window.kycPan;renderPhone();"><div><div class="uname">🪪 ${t('PAN कार्ड','PAN Card')}</div><div class="ustatus" style="color:${window.kycPan?'var(--positive)':'var(--hint)'};">${window.kycPan?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycPan?'done':''}">${window.kycPan?'✓':t('अपलोड','Upload')}</button></div>
       <div class="upload-row ${window.kycAadhaarF?'verified':''}" onclick="window.kycAadhaarF=!window.kycAadhaarF;renderPhone();"><div><div class="uname">📄 ${t('आधार कार्ड — सामने','Aadhaar — Front')}</div><div class="ustatus" style="color:${window.kycAadhaarF?'var(--positive)':'var(--hint)'};">${window.kycAadhaarF?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycAadhaarF?'done':''}">${window.kycAadhaarF?'✓':t('अपलोड','Upload')}</button></div>
       <div class="upload-row ${window.kycAadhaarB?'verified':''}" onclick="window.kycAadhaarB=!window.kycAadhaarB;renderPhone();"><div><div class="uname">📄 ${t('आधार कार्ड — पीछे','Aadhaar — Back')}</div><div class="ustatus" style="color:${window.kycAadhaarB?'var(--positive)':'var(--hint)'};">${window.kycAadhaarB?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.kycAadhaarB?'done':''}">${window.kycAadhaarB?'✓':t('अपलोड','Upload')}</button></div>
