@@ -430,7 +430,7 @@ const scenarios = {
   'refund-in-progress-vr': {screen:9, label:'Refund In Progress (VR)', icon:'⏳', cat:'documentation'},
   'policy-sla': {screen:10, label:'Policy & SLA', icon:'📋', cat:'documentation'},
   // Onboarding & Training
-  'onboardfee-failed': {screen:11, label:'₹20K Payment Failed', icon:'💸', cat:'payment'},
+  'onboardfee-failed': {screen:12, label:'₹20K Payment Failed', icon:'💸', cat:'payment'},
   'training-quiz-fail': {screen:14, label:'Quiz Failed', icon:'📝', cat:'training'},
 };
 
@@ -845,11 +845,11 @@ const errorScreens = {
     <div class="hdr"><span class="htitle">${t('तकनीकी मूल्यांकन','Technical Assessment')}</span></div>
     <div class="scontent"><div class="pad" style="text-align:center;">
       <div style="font-size:40px;margin:16px 0;">😔</div>
-      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('तकनीकी मूल्यांकन पास नहीं हुआ','Technical Assessment not passed')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('चिंता न करें — आपका पैसा सुरक्षित है','Don\'t worry — your money is safe')}</div>
-      <div class="card" style="text-align:left;border-color:var(--positive);background:var(--pos-100);">
-        <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">🔒 ${t('रिफंड शुरू हो गया','Refund initiated')}</div>
-        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('₹20,000 5-7 कार्य दिवसों में वापस होंगे','₹20,000 will be credited in 5-7 working days')}</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('प्रोफ़ाइल अभी स्वीकृत नहीं हुई','Profile not accepted yet')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('तकनीकी मूल्यांकन पास नहीं हो पाया','Technical assessment could not be passed')}</div>
+      <div class="card" style="text-align:left;border-color:var(--negative);background:var(--neg-100);">
+        <div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:4px;">${t('कारण','Reason')}</div>
+        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('इंफ्रास्ट्रक्चर तैयार नहीं','Infrastructure not ready')}</div>
       </div>
     </div>
     <div class="bbar"><button class="cta" onclick="clearScenario()">${t('ठीक है','OK')}</button></div>
@@ -1447,28 +1447,27 @@ const screens = [
     <div class="bbar"><button class="cta" onclick="next()">${t('समझ गया, आगे बढ़ें','Understood, proceed')}</button></div>
     </div>`},
 
-  // 11: Onboarding Fee ₹20,000
+  // 11: Technical Assessment (now before Onboarding Fee)
+  {phase:'Stage 3',title:'तकनीकी मूल्यांकन',
+   solves:['Technical readiness'],
+   types:[{label:'Wiom Decision',cls:'wiom-decision',icon:'🔧'}],
+   render:()=>{
+    if(techAssessmentRejected){return `<div class="sbar"><span>9:41</span><span>100%</span></div><div class="hdr"><span class="htitle">${t('तकनीकी मूल्यांकन','Technical Assessment')}</span></div><div class="scontent"><div class="pad" style="text-align:center;"><div style="font-size:40px;margin:16px 0;">😔</div><div style="font-size:20px;font-weight:700;color:var(--negative);">${t('प्रोफ़ाइल अभी स्वीकृत नहीं हुई','Profile not accepted yet')}</div><div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;">${t('तकनीकी मूल्यांकन पास नहीं हो पाया','Technical assessment could not be passed')}</div><div class="card" style="text-align:left;border-color:var(--negative);background:var(--neg-100);"><div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:8px;">${t('कारण','Reason')}</div><div style="font-size:14px;color:var(--text);">${t('इंफ्रास्ट्रक्चर तैयार नहीं','Infrastructure not ready')}</div></div></div></div>`;}
+    return `<div class="sbar"><span>9:41</span><span>100%</span></div><div class="hdr"><span class="htitle">${t('तकनीकी मूल्यांकन','Technical Assessment')}</span><span class="hright">${t('स्टेप 2/7','Step 2/7')}</span></div><div class="scontent"><div class="pad" style="text-align:center;"><div style="font-size:40px;margin:16px 0;">🔧</div><div style="font-size:20px;font-weight:700;color:var(--text);">${t('तकनीकी मूल्यांकन जारी है','Technical Assessment in progress')}</div><div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;">${t('हमारी तकनीकी टीम जांच कर रही है','Our technical team is reviewing')}</div></div><div class="cl-item"><div class="cl-icon wait">⋯</div><div><div class="cl-text">${t('इंफ्रास्ट्रक्चर','Infrastructure Review')}</div></div></div><div class="cl-item"><div class="cl-icon wait">⋯</div><div><div class="cl-text">${t('नेटवर्क','Network Readiness')}</div></div></div><div class="cl-item" style="border:none;"><div class="cl-icon wait">⋯</div><div><div class="cl-text">${t('स्थान','Location Feasibility')}</div></div></div><div class="pad"><div class="ibox ibox-o"><span class="ii">⏳</span><span>${t('2-3 कार्य दिवस','May take 2-3 business days')}</span></div><div style="height:16px;"></div><button class="cta" onclick="next()" style="background:var(--positive);margin-bottom:8px;">✓ ${t('मूल्यांकन पास','Assessment Passed')}</button><button class="cta sec" onclick="techAssessmentRejected=true;renderPhone();toast('Tech Assessment Rejected','r');" style="color:var(--negative);background:var(--neg-100);border:1px solid var(--negative);box-shadow:none;">✗ ${t('मूल्यांकन अस्वीकृत','Assessment Rejected')}</button></div></div>`;}},
+
+  // 12: Onboarding Fee ₹20,000 (now after Technical Assessment)
   {phase:'Stage 3',title:'ऑनबोर्डिंग शुल्क',
    solves:['Onboarding fee collection'],
    types:[{label:'User Action',cls:'user-action',icon:'💳'}],
    render:()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="htitle">${t('ऑनबोर्डिंग शुल्क','Onboarding Fee')}</span><span class="hright">${t('स्टेप 2/7','Step 2/7')}</span></div>
+    <div class="hdr"><span class="htitle">${t('ऑनबोर्डिंग शुल्क','Onboarding Fee')}</span><span class="hright">${t('स्टेप 3/7','Step 3/7')}</span></div>
     <div class="scontent"><div class="pad">
       <div class="amt-box"><div class="amt">₹20,000</div><div class="amt-lbl">${t('ऑनबोर्डिंग शुल्क (GST सहित)','Onboarding Fee (incl. GST)')}</div></div>
       <div class="card" style="background:#fff;"><div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;"><span style="color:var(--text-sec);">${t('पंजीकरण शुल्क (भुगतान हुआ)','Reg Fee (paid)')}</span><span style="color:var(--text);">₹2,000</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;"><span style="color:var(--text-sec);">${t('ऑनबोर्डिंग शुल्क','Onboarding Fee')}</span><span style="color:var(--text);">₹20,000</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;font-weight:700;"><span style="color:var(--text);">${t('कुल निवेश','Total Investment')}</span><span style="color:var(--text);">₹22,000</span></div></div>
-      <div class="ibox ibox-g"><span class="ii">✓</span><span>${t('भुगतान के बाद तकनीकी मूल्यांकन शुरू होगा','Technical assessment will begin after payment')}</span></div>
     </div>
     <div class="bbar"><button class="cta" onclick="next()">₹20,000 ${t('भुगतान करें','Pay Now')}</button></div>
     </div>`},
-
-  // 12: Technical Assessment (Branch Point 2 — NEW)
-  {phase:'Stage 3',title:'तकनीकी मूल्यांकन',
-   solves:['Technical readiness'],
-   types:[{label:'Wiom Decision',cls:'wiom-decision',icon:'🔧'}],
-   render:()=>{
-    if(techAssessmentRejected){return `<div class="sbar"><span>9:41</span><span>100%</span></div><div class="hdr"><span class="htitle">${t('तकनीकी मूल्यांकन','Technical Assessment')}</span></div><div class="scontent"><div class="pad" style="text-align:center;"><div style="font-size:40px;margin:16px 0;">😔</div><div style="font-size:20px;font-weight:700;color:var(--negative);">${t('तकनीकी मूल्यांकन पास नहीं हुआ','Technical Assessment not passed')}</div><div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;">${t('चिंता न करें — आपका पैसा सुरक्षित है','Don\'t worry — your money is safe')}</div><div class="card" style="text-align:left;border-color:var(--negative);background:var(--neg-100);"><div style="font-size:12px;font-weight:700;color:var(--negative);margin-bottom:8px;">${t('कारण','Reason')}</div><div style="font-size:14px;color:var(--text);">${t('इंफ्रास्ट्रक्चर तैयार नहीं','Infrastructure not ready')}</div></div><div class="card" style="text-align:left;border-color:var(--positive);background:var(--pos-100);"><div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:8px;">🔒 ${t('रिफंड शुरू','Refund initiated')}</div><div style="font-size:14px;color:var(--text);">${t('₹20,000 5-7 कार्य दिवसों में वापस','₹20,000 credited in 5-7 working days')}</div><div style="font-size:12px;color:var(--hint);margin-top:4px;">Ref: RFD-2026-0078</div></div><button class="cta sec" onclick="techAssessmentRejected=false;renderPhone();" style="margin-top:12px;">← ${t('Approved Path देखें','View Approved Path')}</button></div></div>`;}
-    return `<div class="sbar"><span>9:41</span><span>100%</span></div><div class="hdr"><span class="htitle">${t('तकनीकी मूल्यांकन','Technical Assessment')}</span><span class="hright">${t('स्टेप 3/7','Step 3/7')}</span></div><div class="scontent"><div class="pad" style="text-align:center;"><div style="font-size:40px;margin:16px 0;">🔧</div><div style="font-size:20px;font-weight:700;color:var(--text);">${t('तकनीकी मूल्यांकन जारी है','Technical Assessment in progress')}</div><div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;">${t('हमारी तकनीकी टीम जांच कर रही है','Our technical team is reviewing')}</div></div><div class="cl-item"><div class="cl-icon wait">⋯</div><div><div class="cl-text">${t('इंफ्रास्ट्रक्चर','Infrastructure Review')}</div></div></div><div class="cl-item"><div class="cl-icon wait">⋯</div><div><div class="cl-text">${t('नेटवर्क','Network Readiness')}</div></div></div><div class="cl-item" style="border:none;"><div class="cl-icon wait">⋯</div><div><div class="cl-text">${t('स्थान','Location Feasibility')}</div></div></div><div class="pad"><div class="ibox ibox-o"><span class="ii">⏳</span><span>${t('2-3 कार्य दिवस','May take 2-3 business days')}</span></div><div style="height:16px;"></div><button class="cta" onclick="next()" style="background:var(--positive);margin-bottom:8px;">✓ ${t('मूल्यांकन पास','Assessment Passed')}</button><button class="cta sec" onclick="techAssessmentRejected=true;renderPhone();toast('Tech Assessment Rejected. ₹20K Refund.','r');" style="color:var(--negative);background:var(--neg-100);border:1px solid var(--negative);box-shadow:none;">✗ ${t('मूल्यांकन अस्वीकृत','Assessment Rejected')}</button></div></div>`;}},
 
   // 13: CSP Account Setup
   {phase:'Stage 3',title:'CSP खाता सेटअप',
@@ -1641,8 +1640,8 @@ function updateState(idx){
     8:()=>{s.phase='Photos Submitted';addLog('Shop & equipment photos uploaded','info');toast('Photos uploaded ✓','g');},
     9:()=>{s.qaStatus='approved';s.phase='Verification Approved';p.qa='approved';p.phase='Policy Review';p.status='review';addLog('✓ VERIFICATION APPROVED — Activation phase','approval');toast('Verification Approved! Activation phase next','g');},
     10:()=>{s.phase='Policy Reviewed';addLog('Policy, Payout & SLA acknowledged','info');toast('Policy acknowledged ✓','g');},
-    11:()=>{s.onboardFeePaid=true;s.status='assessment';s.phase='Onboard Fee Paid';p.onboardFee=20000;p.phase='Tech Assessment';p.status='training';addLog('₹20,000 onboarding fee paid','payment');toast('भुगतान सफल! Technical assessment शुरू','g');},
-    12:()=>{s.techReviewDone=true;s.phase='Tech Assessment Passed';p.phase='Account Setup';addLog('✓ TECH ASSESSMENT PASSED — Account setup next','approval');toast('Tech Assessment passed ✓','g');},
+    11:()=>{s.techReviewDone=true;s.phase='Tech Assessment Passed';p.phase='Onboard Fee';addLog('✓ TECH ASSESSMENT PASSED — Onboarding fee next','approval');toast('Tech Assessment passed ✓','g');},
+    12:()=>{s.onboardFeePaid=true;s.status='assessment';s.phase='Onboard Fee Paid';p.onboardFee=20000;p.phase='Account Setup';p.status='training';addLog('₹20,000 onboarding fee paid','payment');toast('भुगतान सफल!','g');},
     13:()=>{s.phase='Account Setup Done';p.phase='Training';addLog('CSP account setup complete — ledger, payouts, invoicing ready','info');toast('सब तैयार! Training शुरू 🎓','g');},
     14:()=>{s.trainingDone=true;s.phase='Training Done';addLog('All training modules completed','training');toast('Training complete ✓','g');},
     15:()=>{s.phase='Quiz Passed';addLog('Wiom Policy Quiz passed — 4/5 (80%)','training');toast('Policy Quiz passed ✓','g');},
