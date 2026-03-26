@@ -1363,26 +1363,22 @@ const screens = [
     }
     // Show supporting document upload state
     if(window.bankSupportDoc){
-      const isMismatch = window.bankSupportDocType==='mismatch';
-      const anyUploaded = window.bankDoc||window.bankCheque||window.bankStmt;
-      const backState = isMismatch ? 'window.bankSupportDoc=false;window.bankNameMismatch=true;renderPhone();' : 'window.bankSupportDoc=false;window.bankPennyDropFail=true;renderPhone();';
+      const backState = window.bankSupportDocType==='mismatch' ? 'window.bankSupportDoc=false;window.bankNameMismatch=true;renderPhone();' : 'window.bankSupportDoc=false;window.bankPennyDropFail=true;renderPhone();';
+      const uploaded = window.bankSupportDocUploaded;
       return `
       <div class="sbar"><span>9:41</span><span>100%</span></div>
       <div class="hdr"><span class="back" onclick="${backState}">&larr;</span><span class="htitle">${t('सत्यापन','Verification')}</span><span class="hright">${t('स्टेप 2/5','Step 2/5')}</span></div>
       <div class="scontent"><div class="pad">
         <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">📄 ${t('सहायक बैंक दस्तावेज़','Supporting Bank Document')}</div>
-        <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('मैन्युअल सत्यापन के लिए दस्तावेज़ अपलोड करें','Upload document for manual verification')}</div>
-        ${isMismatch?`
-        <div class="upload-row ${window.bankCheque?'verified':''}" onclick="showUploadSheet('bankCheque')"><div><div class="uname">📝 ${t('कैंसल्ड चेक','Cancelled Cheque')}</div><div class="ustatus" style="color:${window.bankCheque?'var(--positive)':'var(--hint)'};">${window.bankCheque?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.bankCheque?'done':''}">${window.bankCheque?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
-        `:`
-        <div class="upload-row ${window.bankDoc?'verified':''}" onclick="showUploadSheet('bankDoc')"><div><div class="uname">📋 ${t('बैंक पासबुक','Bank Passbook')}</div><div class="ustatus" style="color:${window.bankDoc?'var(--positive)':'var(--hint)'};">${window.bankDoc?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.bankDoc?'done':''}">${window.bankDoc?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
-        <div style="font-size:11px;color:var(--text-sec);margin:-4px 0 8px 12px;">${t('या','or')}</div>
-        <div class="upload-row ${window.bankCheque?'verified':''}" onclick="showUploadSheet('bankCheque')"><div><div class="uname">📝 ${t('कैंसल्ड चेक','Cancelled Cheque')}</div><div class="ustatus" style="color:${window.bankCheque?'var(--positive)':'var(--hint)'};">${window.bankCheque?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.bankCheque?'done':''}">${window.bankCheque?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
-        <div style="font-size:11px;color:var(--text-sec);margin:-4px 0 8px 12px;">${t('या','or')}</div>
-        <div class="upload-row ${window.bankStmt?'verified':''}" onclick="showUploadSheet('bankStmt')"><div><div class="uname">📑 ${t('बैंक स्टेटमेंट','Bank Statement')}</div><div class="ustatus" style="color:${window.bankStmt?'var(--positive)':'var(--hint)'};">${window.bankStmt?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${window.bankStmt?'done':''}">${window.bankStmt?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
-        `}
+        <div style="font-size:13px;color:var(--text-sec);margin-bottom:16px;line-height:20px;">${t('मैन्युअल सत्यापन के लिए नीचे दिए गए किसी भी दस्तावेज़ को अपलोड करें:','Upload any of the following documents for manual verification:')}</div>
+        <div style="font-size:13px;color:var(--text);line-height:22px;margin-bottom:16px;padding:12px 14px;background:var(--bg-sec);border-radius:var(--r-sm);">
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px;">• ${t('बैंक स्टेटमेंट','Bank Statement')}</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px;">• ${t('कैंसल्ड चेक','Cancelled Cheque')}</div>
+          <div style="display:flex;gap:8px;align-items:center;">• ${t('बैंक पासबुक','Bank Passbook')}</div>
+        </div>
+        <div class="upload-row ${uploaded?'verified':''}" onclick="showUploadSheet('bankSupportDoc')"><div><div class="uname">📄 ${t('सहायक दस्तावेज़','Supporting Document')}</div><div class="ustatus" style="color:${uploaded?'var(--positive)':'var(--hint)'};">${uploaded?t('अपलोड हो गया','Uploaded')+' ✓':t('टैप करें','Tap to Upload')}</div></div><button class="ubtn ${uploaded?'done':''}">${uploaded?t('बदलें','Update'):t('अपलोड','Upload')}</button></div>
       </div>
-      <div class="bbar"><button class="cta ${anyUploaded?'':'dis'}" ${anyUploaded?'onclick="window.bankSupportDoc=false;next();"':''}>${anyUploaded?t('ISP अनुबंध जोड़ें','Add ISP Agreement'):t('दस्तावेज़ अपलोड करें','Upload document')}</button></div>`;
+      <div class="bbar"><button class="cta ${uploaded?'':'dis'}" ${uploaded?'onclick="window.bankSupportDoc=false;next();"':''}>${uploaded?t('ISP अनुबंध जोड़ें','Add ISP Agreement'):t('दस्तावेज़ अपलोड करें','Upload document')}</button></div>`;
     }
     // Default: entry form
     const accVal = window.bankAccVal||'';
@@ -1789,15 +1785,15 @@ function renderPhone(){
       const overlay = document.createElement('div');
       overlay.className = 'upload-overlay';
       overlay.id = 'bankFailSheet';
-      overlay.innerHTML = `<div class="upload-sheet" style="padding:24px 20px;">
-        <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 16px;"></div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
-          <span style="font-size:20px;color:var(--negative);font-weight:700;">✗</span>
-          <span style="font-size:17px;font-weight:700;color:var(--negative);">${t('बैंक खाता सत्यापन विफल','Bank Account Verification Failed')}</span>
+      overlay.innerHTML = `<div class="upload-sheet" style="padding:28px 20px 24px;">
+        <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 20px;"></div>
+        <div style="width:56px;height:56px;border-radius:50%;background:var(--neg-100);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+          <span style="font-size:28px;color:var(--negative);line-height:1;">✗</span>
         </div>
-        <div style="font-size:13px;color:var(--text-sec);text-align:center;margin-bottom:20px;line-height:18px;">${t('हम आपके बैंक विवरण सत्यापित नहीं कर पाए','We could not verify your bank details')}</div>
-        <button class="cta" onclick="window.bankPennyDropFail=false;window.bankAccVal='';window.bankAccReVal='';window.bankIfscVal='';window.bankAccBlurred=false;window.bankAccReBlurred=false;window.bankIfscBlurred=false;document.getElementById('bankFailSheet').remove();renderPhone();" style="width:100%;margin-bottom:8px;">${t('बैंक विवरण बदलें','Change Bank Details')}</button>
-        <button class="cta sec" onclick="window.bankPennyDropFail=false;window.bankSupportDoc=true;window.bankSupportDocType='pennydrop';document.getElementById('bankFailSheet').remove();renderPhone();" style="width:100%;">${t('सहायक बैंक दस्तावेज़ अपलोड करें','Upload Supporting Bank Document')}</button>
+        <div style="font-size:17px;font-weight:700;color:var(--text);text-align:center;margin-bottom:6px;">${t('बैंक खाता सत्यापन विफल','Bank Account Verification Failed')}</div>
+        <div style="font-size:13px;color:var(--text-sec);text-align:center;margin-bottom:24px;line-height:18px;">${t('हम आपके बैंक विवरण सत्यापित नहीं कर पाए','We could not verify your bank details')}</div>
+        <button class="cta" onclick="window.bankPennyDropFail=false;window.bankAccVal='';window.bankAccReVal='';window.bankIfscVal='';window.bankAccBlurred=false;window.bankAccReBlurred=false;window.bankIfscBlurred=false;document.getElementById('bankFailSheet').remove();renderPhone();" style="width:100%;margin-bottom:10px;">${t('बैंक विवरण बदलें','Change Bank Details')}</button>
+        <button class="cta sec" onclick="window.bankPennyDropFail=false;window.bankSupportDoc=true;window.bankSupportDocType='pennydrop';document.getElementById('bankFailSheet').remove();renderPhone();" style="width:100%;">${t('सहायक दस्तावेज़ अपलोड करें','Upload Supporting Document')}</button>
       </div>`;
       document.getElementById('phoneFrame').appendChild(overlay);
     },50);
@@ -2047,7 +2043,8 @@ function showUploadSheet(key){
     kycGst: t('जीएसटी प्रमाणपत्र','GST Certificate'),
     bankDoc: t('बैंक पासबुक','Bank Passbook'),
     bankCheque: t('कैंसल्ड चेक','Cancelled Cheque'),
-    bankStmt: t('बैंक स्टेटमेंट','Bank Statement')
+    bankStmt: t('बैंक स्टेटमेंट','Bank Statement'),
+    bankSupportDoc: t('सहायक बैंक दस्तावेज़','Supporting Bank Document')
   };
   sheet.innerHTML = `<div class="upload-sheet">
     <div style="width:40px;height:4px;background:var(--border-input);border-radius:2px;margin:0 auto 12px;"></div>
@@ -2087,7 +2084,8 @@ function showUploadPreview(source){
     kycGst: {name:t('जीएसटी प्रमाणपत्र','GST Certificate'), icon:'📋'},
     bankDoc: {name:t('बैंक पासबुक','Bank Passbook'), icon:'📋'},
     bankCheque: {name:t('कैंसल्ड चेक','Cancelled Cheque'), icon:'📝'},
-    bankStmt: {name:t('बैंक स्टेटमेंट','Bank Statement'), icon:'📑'}
+    bankStmt: {name:t('बैंक स्टेटमेंट','Bank Statement'), icon:'📑'},
+    bankSupportDoc: {name:t('सहायक बैंक दस्तावेज़','Supporting Bank Document'), icon:'📄'}
   };
   const doc = docLabels[window._uploadKey]||{name:'Document',icon:'📄'};
   const srcLabel = source==='camera'?t('कैमरा से ली गई फ़ोटो','Photo from Camera'):t('गैलरी से चुनी गई फ़ोटो','Photo from Gallery');
@@ -2125,6 +2123,7 @@ function retakeUpload(){
 function confirmUpload(){
   const key = window._uploadKey;
   window[key] = true;
+  if(key==='bankSupportDoc') window.bankSupportDocUploaded = true;
   closeUploadPreview();
   renderPhone();
   toast(t('दस्तावेज़ अपलोड हो गया','Document uploaded')+ ' ✓','g');
