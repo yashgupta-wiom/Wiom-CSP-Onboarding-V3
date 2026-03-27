@@ -64,36 +64,15 @@ class LocationViewModel @Inject constructor(
     }
 
     fun checkServiceability() {
+        // Serviceability check removed in Phase 1 (no AREA_NOT_SERVICEABLE scenario)
+        // In production, add back via API call if needed
         val current = _uiState.value
         val pincodeErr = Validation.validatePincode(current.pincode)
         if (pincodeErr != null) {
             _uiState.update { it.copy(pincodeError = pincodeErr) }
             return
         }
-
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            repo.checkServiceability(current.pincode)
-                .onSuccess { serviceable ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            isServiceable = serviceable,
-                            pincodeError = if (!serviceable)
-                                t("यह एरिया अभी सर्विसेबल नहीं है", "This area is not serviceable yet")
-                            else null
-                        ).withFormValidity()
-                    }
-                }
-                .onFailure {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            pincodeError = t("सर्विसेबिलिटी जांच में समस्या", "Serviceability check failed")
-                        )
-                    }
-                }
-        }
+        _uiState.update { it.copy(isServiceable = true).withFormValidity() }
     }
 
     fun validateAll(): Boolean {

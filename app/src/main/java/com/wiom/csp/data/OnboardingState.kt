@@ -78,15 +78,6 @@ val scenarioMeta = mapOf(
     Scenario.ACCOUNT_SETUP_PENDING to ScenarioMeta(13, "खाता सेटअप लंबित", "Account Setup Pending", "\u23F3", "activation"),
 )
 
-data class QuizQuestion(
-    val questionHi: String,
-    val questionEn: String,
-    val options: List<Pair<String, String>>, // List of (hindi, english) option pairs
-    val correctIndex: Int,
-    val hintHi: String,
-    val hintEn: String,
-)
-
 object OnboardingState {
     var pitchDismissed by mutableStateOf(false)
     var currentScreen by mutableIntStateOf(0)
