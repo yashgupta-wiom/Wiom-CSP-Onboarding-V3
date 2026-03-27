@@ -13,10 +13,8 @@ object Routes {
     const val PHOTOS = "photos"
     const val VERIFICATION = "verification"
     const val POLICY_SLA = "policy_sla"
-    const val ONBOARD_FEE = "onboard_fee"
     const val TECH_ASSESSMENT = "tech_assessment"
+    const val ONBOARD_FEE = "onboard_fee"
     const val ACCOUNT_SETUP = "account_setup"
-    const val TRAINING = "training"
-    const val POLICY_QUIZ = "policy_quiz"
-    const val GO_LIVE = "go_live"
+    const val SUCCESSFULLY_ONBOARDED = "successfully_onboarded"
 }

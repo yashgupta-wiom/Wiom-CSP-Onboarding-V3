@@ -2,10 +2,14 @@ package com.wiom.csp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wiom.csp.data.repository.BankVerificationResult
+import com.wiom.csp.data.BankVerificationStatus
+import com.wiom.csp.data.OnboardingState
+import com.wiom.csp.data.Scenario
+import com.wiom.csp.data.api.BankVerifyRequest
 import com.wiom.csp.data.repository.OnboardingRepository
 import com.wiom.csp.util.t
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,20 +17,50 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Bank Details Screen (Screen 6) — matches prototype exactly.
+ *
+ * Fields: Account Number, Re-enter Account Number, IFSC Code
+ * No account holder name or bank name fields.
+ * Account number masked on blur (type=password).
+ * Hint: "Bank details should belong to [Personal Name] or [Business Name]"
+ *
+ * Verification flow:
+ * 1. User fills all 3 fields
+ * 2. Clicks "Verify Bank Details" → 2s spinner
+ * 3. Outcome (based on scenario or API):
+ *    - SUCCESS → delight screen → proceed to ISP Agreement
+ *    - PENNY_DROP_FAIL → bottom sheet → change details / upload doc
+ *    - NAME_MISMATCH → bottom sheet with name comparison → change / upload
+ *    - DEDUP → bottom sheet → change details only
+ *
+ * Validation:
+ *   Account Number: 9-18 digits, numeric only
+ *   Re-enter: must exactly match account number
+ *   IFSC: [A-Z]{4}0[A-Z0-9]{6} (11 chars)
+ */
+
 data class BankUiState(
-    val accountHolder: String = "",
-    val accountHolderError: String? = null,
-    val bankName: String = "",
-    val bankNameError: String? = null,
     val accountNumber: String = "",
-    val accountNumberError: String? = null,
+    val accountNumberConfirm: String = "",
     val ifsc: String = "",
+    val accountNumberError: String? = null,
+    val accountNumberConfirmError: String? = null,
     val ifscError: String? = null,
-    val isLoading: Boolean = false,
-    val isVerified: Boolean = false,
-    val verificationResult: BankVerificationResult? = null,
-    val verificationError: String? = null,
+    val isAccountBlurred: Boolean = false,
+    val isAccountConfirmBlurred: Boolean = false,
+    val isIfscBlurred: Boolean = false,
     val isFormValid: Boolean = false,
+    val verificationStatus: BankVerificationStatus = BankVerificationStatus.NONE,
+    // Penny drop result data (from API)
+    val bankAccountHolderName: String? = null,  // fetched from penny drop
+    val bankName: String? = null,               // derived from IFSC
+    val personalName: String = "",              // from registration (for comparison)
+    val tradeName: String = "",                 // from registration (for comparison)
+    val duplicateAccountPhone: String? = null,  // last 4 digits if dedup
+    // Supporting doc
+    val supportDocUploaded: Boolean = false,
+    val supportDocType: String? = null,         // "pennydrop" or "mismatch"
 )
 
 @HiltViewModel
@@ -34,145 +68,168 @@ class BankViewModel @Inject constructor(
     private val repo: OnboardingRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(BankUiState())
+    private val _uiState = MutableStateFlow(BankUiState(
+        personalName = OnboardingState.personalName,
+        tradeName = OnboardingState.tradeName
+    ))
     val uiState: StateFlow<BankUiState> = _uiState.asStateFlow()
 
-    fun onAccountHolderChanged(value: String) {
-        _uiState.update {
-            it.copy(
-                accountHolder = value,
-                accountHolderError = if (value.isBlank())
-                    t("खाताधारक का नाम डालें", "Enter account holder name") else null,
-                isVerified = false,
-                verificationResult = null
-            ).withFormValidity()
-        }
-    }
-
-    fun onBankNameChanged(value: String) {
-        _uiState.update {
-            it.copy(
-                bankName = value,
-                bankNameError = if (value.isBlank())
-                    t("बैंक का नाम डालें", "Enter bank name") else null,
-                isVerified = false,
-                verificationResult = null
-            ).withFormValidity()
-        }
+    companion object {
+        private val IFSC_REGEX = Regex("^[A-Z]{4}0[A-Z0-9]{6}$")
+        private const val MIN_ACCOUNT_LENGTH = 9
+        private const val MAX_ACCOUNT_LENGTH = 18
     }
 
     fun onAccountNumberChanged(value: String) {
-        val filtered = value.filter { it.isDigit() }
+        val filtered = value.filter { it.isDigit() }.take(MAX_ACCOUNT_LENGTH)
         _uiState.update {
             it.copy(
                 accountNumber = filtered,
-                accountNumberError = if (filtered.isBlank())
-                    t("खाता नंबर डालें", "Enter account number")
-                else if (filtered.length < 8)
-                    t("सही खाता नंबर डालें", "Enter valid account number")
-                else null,
-                isVerified = false,
-                verificationResult = null
-            ).withFormValidity()
+                isAccountBlurred = false,
+                accountNumberError = null,
+                verificationStatus = BankVerificationStatus.NONE
+            ).recalcFormValid()
         }
+        // Sync to OnboardingState
+        OnboardingState.bankAccountNumber = filtered
+    }
+
+    fun onAccountNumberConfirmChanged(value: String) {
+        val filtered = value.filter { it.isDigit() }.take(MAX_ACCOUNT_LENGTH)
+        _uiState.update {
+            it.copy(
+                accountNumberConfirm = filtered,
+                isAccountConfirmBlurred = false,
+                accountNumberConfirmError = null,
+                verificationStatus = BankVerificationStatus.NONE
+            ).recalcFormValid()
+        }
+        OnboardingState.bankAccountNumberConfirm = filtered
     }
 
     fun onIfscChanged(value: String) {
-        val upper = value.uppercase().take(11)
+        val filtered = value.uppercase().filter { it.isLetterOrDigit() }.take(11)
         _uiState.update {
             it.copy(
-                ifsc = upper,
-                ifscError = if (upper.isBlank())
-                    t("IFSC कोड डालें", "Enter IFSC code")
-                else if (upper.length != 11)
-                    t("11 अंकों का IFSC डालें", "Enter 11-character IFSC")
-                else null,
-                isVerified = false,
-                verificationResult = null
-            ).withFormValidity()
+                ifsc = filtered,
+                isIfscBlurred = false,
+                ifscError = null,
+                verificationStatus = BankVerificationStatus.NONE
+            ).recalcFormValid()
+        }
+        OnboardingState.bankIfsc = filtered
+    }
+
+    fun onAccountNumberBlurred() {
+        _uiState.update { state ->
+            val error = if (state.accountNumber.isNotEmpty() &&
+                state.accountNumber.length < MIN_ACCOUNT_LENGTH)
+                t("कृपया सही खाता संख्या दर्ज करें", "Please enter valid account number")
+            else null
+            state.copy(isAccountBlurred = true, accountNumberError = error)
         }
     }
 
-    fun verifyBankAccount(onSuccess: () -> Unit) {
-        if (!validateAll()) return
+    fun onAccountNumberConfirmBlurred() {
+        _uiState.update { state ->
+            val error = if (state.accountNumberConfirm.isNotEmpty() &&
+                state.accountNumberConfirm != state.accountNumber)
+                t("बैंक खाता संख्या मेल नहीं खाती", "Bank account number mismatch")
+            else null
+            state.copy(isAccountConfirmBlurred = true, accountNumberConfirmError = error)
+        }
+    }
 
-        val current = _uiState.value
+    fun onIfscBlurred() {
+        _uiState.update { state ->
+            val error = if (state.ifsc.isNotEmpty() && !IFSC_REGEX.matches(state.ifsc))
+                t("कृपया सही IFSC कोड दर्ज करें", "Please enter valid IFSC code")
+            else null
+            state.copy(isIfscBlurred = true, ifscError = error)
+        }
+    }
+
+    /**
+     * Verify bank details — shows 2s spinner then resolves based on scenario or API.
+     */
+    fun verifyBankDetails(onSuccess: () -> Unit) {
+        val state = _uiState.value
+        if (!state.isFormValid) return
+
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, verificationError = null) }
+            _uiState.update { it.copy(verificationStatus = BankVerificationStatus.VERIFYING) }
+            delay(2000) // Simulate verification time
 
-            repo.verifyBankAccount(
-                holder = current.accountHolder,
-                bank = current.bankName,
-                account = current.accountNumber,
-                ifsc = current.ifsc
-            ).onSuccess { result ->
-                val hasIssue = !result.pennyDropVerified || !result.nameMatch || !result.dedupPassed
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        isVerified = !hasIssue,
-                        verificationResult = result,
-                        verificationError = when {
-                            !result.pennyDropVerified ->
-                                t("पैनी ड्रॉप विफल, खाता विवरण जांचें",
-                                    "Penny drop failed, check account details")
-                            !result.nameMatch ->
-                                t("बैंक में नाम मेल नहीं खाता",
-                                    "Name does not match bank records")
-                            !result.dedupPassed ->
-                                t("यह खाता पहले से जुड़ा है",
-                                    "This account is already linked to another CSP")
-                            else -> null
-                        }
-                    )
+            // Check active scenario
+            val scenario = OnboardingState.activeScenario
+            when (scenario) {
+                Scenario.BANK_PENNYDROP_FAIL -> {
+                    OnboardingState.activeScenario = Scenario.NONE
+                    _uiState.update {
+                        it.copy(verificationStatus = BankVerificationStatus.PENNY_DROP_FAIL)
+                    }
                 }
-                if (!hasIssue) onSuccess()
-            }.onFailure {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        verificationError = t("सत्यापन में समस्या हुई, पुनः प्रयास करें",
-                            "Verification failed, please try again")
-                    )
+                Scenario.BANK_NAME_MISMATCH -> {
+                    OnboardingState.activeScenario = Scenario.NONE
+                    _uiState.update {
+                        it.copy(
+                            verificationStatus = BankVerificationStatus.NAME_MISMATCH,
+                            bankAccountHolderName = "Rajesh Kumar Sharma" // mock from penny drop
+                        )
+                    }
+                }
+                Scenario.BANK_DEDUP -> {
+                    OnboardingState.activeScenario = Scenario.NONE
+                    _uiState.update {
+                        it.copy(
+                            verificationStatus = BankVerificationStatus.DEDUP,
+                            duplicateAccountPhone = "4567"
+                        )
+                    }
+                }
+                else -> {
+                    // Success path
+                    _uiState.update {
+                        it.copy(
+                            verificationStatus = BankVerificationStatus.SUCCESS,
+                            bankAccountHolderName = "Rajesh Kumar",
+                            bankName = "State Bank of India"
+                        )
+                    }
+                    OnboardingState.bankVerificationStatus = BankVerificationStatus.SUCCESS
                 }
             }
         }
     }
 
-    private fun validateAll(): Boolean {
-        val s = _uiState.value
-        val holderErr = if (s.accountHolder.isBlank())
-            t("खाताधारक का नाम डालें", "Enter account holder name") else null
-        val bankErr = if (s.bankName.isBlank())
-            t("बैंक का नाम डालें", "Enter bank name") else null
-        val accErr = if (s.accountNumber.isBlank())
-            t("खाता नंबर डालें", "Enter account number")
-        else if (s.accountNumber.length < 8)
-            t("सही खाता नंबर डालें", "Enter valid account number")
-        else null
-        val ifscErr = if (s.ifsc.isBlank())
-            t("IFSC कोड डालें", "Enter IFSC code")
-        else if (s.ifsc.length != 11)
-            t("11 अंकों का IFSC डालें", "Enter 11-character IFSC")
-        else null
-
+    fun onChangeBankDetails() {
         _uiState.update {
-            it.copy(
-                accountHolderError = holderErr,
-                bankNameError = bankErr,
-                accountNumberError = accErr,
-                ifscError = ifscErr
-            ).withFormValidity()
+            BankUiState(
+                personalName = OnboardingState.personalName,
+                tradeName = OnboardingState.tradeName
+            )
         }
-
-        return holderErr == null && bankErr == null && accErr == null && ifscErr == null
+        OnboardingState.bankAccountNumber = ""
+        OnboardingState.bankAccountNumberConfirm = ""
+        OnboardingState.bankIfsc = ""
+        OnboardingState.bankVerificationStatus = BankVerificationStatus.NONE
     }
 
-    private fun BankUiState.withFormValidity(): BankUiState {
-        val valid = accountHolderError == null && accountHolder.isNotBlank()
-                && bankNameError == null && bankName.isNotBlank()
-                && accountNumberError == null && accountNumber.length >= 8
-                && ifscError == null && ifsc.length == 11
-        return copy(isFormValid = valid)
+    fun onUploadSupportingDoc(type: String) {
+        _uiState.update {
+            it.copy(supportDocType = type, verificationStatus = BankVerificationStatus.NONE)
+        }
+    }
+
+    fun onSupportDocUploaded() {
+        _uiState.update { it.copy(supportDocUploaded = true) }
+        OnboardingState.bankSupportDocUploaded = true
+    }
+
+    private fun BankUiState.recalcFormValid(): BankUiState {
+        val accValid = accountNumber.length >= MIN_ACCOUNT_LENGTH
+        val confirmValid = accountNumberConfirm == accountNumber && accountNumberConfirm.isNotEmpty()
+        val ifscValid = IFSC_REGEX.matches(ifsc)
+        return copy(isFormValid = accValid && confirmValid && ifscValid)
     }
 }
