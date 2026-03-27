@@ -63,7 +63,7 @@ fun OnboardingNavGraph(navController: NavHostController) {
         }
         composable(Routes.BANK) {
             val vm: BankViewModel = hiltViewModel()
-            BankDedupScreen(
+            BankDetailsScreen(
                 viewModel = vm,
                 onNext = { navController.navigate(Routes.ISP_AGREEMENT) },
                 onBack = { navController.popBackStack() },
@@ -94,48 +94,34 @@ fun OnboardingNavGraph(navController: NavHostController) {
         }
         composable(Routes.POLICY_SLA) {
             PolicySlaScreen(
-                onNext = { navController.navigate(Routes.ONBOARD_FEE) },
+                onNext = { navController.navigate(Routes.TECH_ASSESSMENT) },
                 onBack = { navController.popBackStack() },
+            )
+        }
+        // Tech Assessment comes BEFORE Onboarding Fee
+        composable(Routes.TECH_ASSESSMENT) {
+            val vm: TechAssessmentViewModel = hiltViewModel()
+            TechAssessmentScreen(
+                viewModel = vm,
+                onNext = { navController.navigate(Routes.ONBOARD_FEE) },
             )
         }
         composable(Routes.ONBOARD_FEE) {
             val vm: PaymentViewModel = hiltViewModel()
             OnboardingFeeScreen(
                 viewModel = vm,
-                onNext = { navController.navigate(Routes.TECH_ASSESSMENT) },
-            )
-        }
-        composable(Routes.TECH_ASSESSMENT) {
-            val vm: TechAssessmentViewModel = hiltViewModel()
-            TechAssessmentScreen(
-                viewModel = vm,
                 onNext = { navController.navigate(Routes.ACCOUNT_SETUP) },
             )
         }
         composable(Routes.ACCOUNT_SETUP) {
             val vm: AccountSetupViewModel = hiltViewModel()
-            CspAccountSetupScreen(
+            AccountSetupScreen(
                 viewModel = vm,
-                onNext = { navController.navigate(Routes.TRAINING) },
+                onNext = { navController.navigate(Routes.SUCCESSFULLY_ONBOARDED) { popUpTo(Routes.PITCH) { inclusive = true } } },
             )
         }
-        composable(Routes.TRAINING) {
-            val vm: TrainingViewModel = hiltViewModel()
-            TrainingScreen(
-                viewModel = vm,
-                onNext = { navController.navigate(Routes.POLICY_QUIZ) },
-            )
-        }
-        composable(Routes.POLICY_QUIZ) {
-            val vm: PolicyQuizViewModel = hiltViewModel()
-            PolicyQuizScreen(
-                viewModel = vm,
-                onNext = { navController.navigate(Routes.GO_LIVE) { popUpTo(Routes.PITCH) { inclusive = true } } },
-                onBackToTraining = { navController.popBackStack() },
-            )
-        }
-        composable(Routes.GO_LIVE) {
-            GoLiveScreen()
+        composable(Routes.SUCCESSFULLY_ONBOARDED) {
+            SuccessfullyOnboardedScreen()
         }
     }
 }
