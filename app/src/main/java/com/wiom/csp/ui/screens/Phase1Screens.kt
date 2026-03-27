@@ -394,6 +394,12 @@ fun PersonalInfoScreen(viewModel: PersonalInfoViewModel, onNext: () -> Unit, onB
     var dropdownExpanded by remember { mutableStateOf(false) }
     val entityOptions = listOf(t("प्रोप्राइटरशिप (Proprietorship)", "Proprietorship"))
 
+    // Email validation state
+    var emailTouched by remember { mutableStateOf(false) }
+    val emailError = if (emailTouched && OnboardingState.personalEmail.isNotEmpty() &&
+        !(OnboardingState.personalEmail.contains("@") && OnboardingState.personalEmail.contains(".")))
+        t("कृपया सही ईमेल आईडी डालें", "Please enter a valid Email ID") else null
+
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
         AppHeader(
             title = t("पंजीकरण", "Registration"),
@@ -429,6 +435,9 @@ fun PersonalInfoScreen(viewModel: PersonalInfoViewModel, onNext: () -> Unit, onB
                 value = OnboardingState.personalEmail,
                 onValueChange = { OnboardingState.personalEmail = it },
                 placeholder = t("उदाहरण: rajesh@email.com", "Example: rajesh@email.com"),
+                isError = emailError != null,
+                errorMessage = emailError,
+                onFocusChanged = { if (!it) emailTouched = true },
             )
 
             FieldLabel(t("व्यापार इकाई प्रकार", "Business Entity Type"))
@@ -481,6 +490,8 @@ fun PersonalInfoScreen(viewModel: PersonalInfoViewModel, onNext: () -> Unit, onB
         BottomBar {
             val allFilled = OnboardingState.personalName.isNotBlank() &&
                     OnboardingState.personalEmail.isNotBlank() &&
+                    OnboardingState.personalEmail.contains("@") &&
+                    OnboardingState.personalEmail.contains(".") &&
                     OnboardingState.entityType.isNotBlank() &&
                     OnboardingState.tradeName.isNotBlank()
             WiomButton(
@@ -577,7 +588,21 @@ fun LocationScreen(viewModel: LocationViewModel, onNext: () -> Unit, onBack: () 
             WiomTextField(value = OnboardingState.pincode, onValueChange = { OnboardingState.pincode = it.filter { c -> c.isDigit() }.take(6) })
 
             FieldLabel(t("पूरा पता", "Full Address"))
-            WiomTextField(value = OnboardingState.address, onValueChange = { OnboardingState.address = it })
+            OutlinedTextField(
+                value = OnboardingState.address,
+                onValueChange = { OnboardingState.address = it },
+                placeholder = { Text(t("उदा: 123, विजय नगर", "For ex: 123, Vijay Nagar"), color = WiomHint) },
+                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = WiomBorderInput,
+                    focusedBorderColor = WiomBorderFocus,
+                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = Color.White,
+                ),
+                singleLine = false,
+                minLines = 3,
+            )
 
             Spacer(Modifier.height(8.dp))
             Row(
@@ -972,42 +997,82 @@ fun RegFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit, onBack: () -> 
             }
             else -> {
                 // ─── Normal happy path ───
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        t("पंजीकरण शुल्क", "Registration Fee"),
-                        fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomText,
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    AmountBox("\u20B92,000", t("पंजीकरण शुल्क", "Registration Fee"))
-                    Spacer(Modifier.height(12.dp))
-                    WiomCard {
-                        Text(
-                            "\u2139\uFE0F ${t("जरूरी जानकारी", "Important Information")}",
-                            fontWeight = FontWeight.Bold, fontSize = 14.sp, color = WiomText,
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            t(
-                                "भुगतान के बाद आपकी profile Business/QA team द्वारा review की जाएगी।",
-                                "After payment, your profile will be reviewed by the Business/QA team."
-                            ),
-                            fontSize = 14.sp, color = WiomTextSec, lineHeight = 20.sp,
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        TrustBadge("\uD83D\uDD12", t("Reject होने पर full refund मिलेगा", "Full refund if rejected"))
+                var showPaymentSuccess by remember { mutableStateOf(false) }
+
+                LaunchedEffect(showPaymentSuccess) {
+                    if (showPaymentSuccess) {
+                        delay(3000)
+                        onNext()
                     }
-                    Spacer(Modifier.height(8.dp))
-                    InfoBox("1.", t("पंजीकरण शुल्क भुगतान के बाद दस्तावेज़ सत्यापन प्रक्रिया शुरू होगी।", "Document Verification process will start after Registration fee payment."))
-                    Spacer(Modifier.height(4.dp))
-                    InfoBox("2.", t("कृपया भुगतान के 3 दिनों के भीतर सभी आवश्यक दस्तावेज़ जमा करें ताकि आपका आवेदन सक्रिय रहे।", "Please submit your documents within 3 days to keep your application active."))
                 }
-                BottomBar {
-                    WiomButton(t("₹2,000 अभी भुगतान करें", "Pay ₹2,000 Now"), onClick = onNext)
+
+                Box(modifier = Modifier.weight(1f)) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .verticalScroll(rememberScrollState())
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                t("पंजीकरण शुल्क", "Registration Fee"),
+                                fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomText,
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            AmountBox("\u20B92,000", t("पंजीकरण शुल्क", "Registration Fee"))
+                            Spacer(Modifier.height(12.dp))
+                            WiomCard {
+                                Text(
+                                    "\u2139\uFE0F ${t("जरूरी जानकारी", "Important Information")}",
+                                    fontWeight = FontWeight.Bold, fontSize = 14.sp, color = WiomText,
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    t(
+                                        "भुगतान के बाद आपकी profile Business/QA team द्वारा review की जाएगी।",
+                                        "After payment, your profile will be reviewed by the Business/QA team."
+                                    ),
+                                    fontSize = 14.sp, color = WiomTextSec, lineHeight = 20.sp,
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                TrustBadge("\uD83D\uDD12", t("Reject होने पर full refund मिलेगा", "Full refund if rejected"))
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            InfoBox("1.", t("पंजीकरण शुल्क भुगतान के बाद दस्तावेज़ सत्यापन प्रक्रिया शुरू होगी।", "Document Verification process will start after Registration fee payment."))
+                            Spacer(Modifier.height(4.dp))
+                            InfoBox("2.", t("कृपया भुगतान के 3 दिनों के भीतर सभी आवश्यक दस्तावेज़ जमा करें ताकि आपका आवेदन सक्रिय रहे।", "Please submit your documents within 3 days to keep your application active."))
+                        }
+                        BottomBar {
+                            WiomButton(t("₹2,000 अभी भुगतान करें", "Pay ₹2,000 Now"), onClick = { showPaymentSuccess = true })
+                        }
+                    }
+
+                    // Payment success overlay
+                    if (showPaymentSuccess) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.6f)),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("✅", fontSize = 48.sp)
+                                Spacer(Modifier.height(16.dp))
+                                Text(
+                                    t("भुगतान सफल!", "Payment Successful!"),
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    "₹2,000",
+                                    fontSize = 16.sp,
+                                    color = Color.White.copy(alpha = 0.8f),
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

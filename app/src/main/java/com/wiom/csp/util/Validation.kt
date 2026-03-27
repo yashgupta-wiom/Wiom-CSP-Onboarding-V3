@@ -55,4 +55,43 @@ object Validation {
         if (!ifscRegex.matches(ifsc)) return t("सही IFSC कोड डालें", "Enter valid IFSC code")
         return null
     }
+
+    fun validatePan(pan: String): String? {
+        if (pan.isBlank()) return t("पैन नंबर डालें", "Enter PAN number")
+        val panRegex = Regex("^[A-Z]{5}[0-9]{4}[A-Z]$")
+        if (!panRegex.matches(pan)) return t("कृपया सही पैन नंबर दर्ज करें", "Please enter valid PAN number")
+        return null
+    }
+
+    fun validateAadhaar(aadhaar: String): String? {
+        val stripped = aadhaar.replace(" ", "")
+        if (stripped.isBlank()) return t("आधार नंबर डालें", "Enter Aadhaar number")
+        val aadhaarRegex = Regex("^[0-9]{12}$")
+        if (!aadhaarRegex.matches(stripped)) return t("कृपया सही आधार नंबर दर्ज करें", "Please enter valid Aadhaar number")
+        return null
+    }
+
+    fun validateGst(gst: String, panNumber: String = ""): String? {
+        if (gst.isBlank()) return t("जीएसटी नंबर डालें", "Enter GST number")
+        val gstRegex = Regex("^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]{3}$")
+        if (!gstRegex.matches(gst)) return t("कृपया सही जीएसटी नंबर दर्ज करें", "Please enter valid GST number")
+        if (panNumber.isNotBlank() && gst.length >= 12 && gst.substring(2, 12) != panNumber) {
+            return t("जीएसटी नंबर पैन कार्ड से मेल नहीं खाता", "GST number mismatch with PAN Card")
+        }
+        return null
+    }
+
+    fun validateBankAccount(account: String): String? {
+        if (account.isBlank()) return t("बैंक खाता संख्या डालें", "Enter bank account number")
+        if (!account.all { it.isDigit() }) return t("केवल अंक डालें", "Enter digits only")
+        if (account.length < 9) return t("कम से कम 9 अंक डालें", "Enter at least 9 digits")
+        if (account.length > 18) return t("18 अंक से ज़्यादा नहीं", "Must not exceed 18 digits")
+        return null
+    }
+
+    fun validateBankAccountMatch(account: String, confirmAccount: String): String? {
+        if (confirmAccount.isBlank()) return t("बैंक खाता संख्या दोबारा डालें", "Re-enter bank account number")
+        if (account != confirmAccount) return t("बैंक खाता संख्या मेल नहीं खाती", "Bank account number mismatch")
+        return null
+    }
 }

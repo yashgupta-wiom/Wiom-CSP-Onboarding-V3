@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import com.wiom.csp.data.OnboardingState
 import com.wiom.csp.data.Scenario
 import com.wiom.csp.data.scenarioMeta
@@ -129,8 +130,8 @@ fun WiomButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = backgroundColor,
             contentColor = textColor,
-            disabledContainerColor = WiomHint,
-            disabledContentColor = WiomSurface,
+            disabledContainerColor = backgroundColor.copy(alpha = 0.4f),
+            disabledContentColor = textColor.copy(alpha = 0.4f),
         ),
         elevation = if (!isSecondary && enabled) ButtonDefaults.buttonElevation(
             defaultElevation = 4.dp
@@ -456,20 +457,35 @@ fun SectionHeader(text: String) {
 // Progress bar
 @Composable
 fun WiomProgressBar(progress: Float) {
-    Box(
+    // Legacy overload — delegates to segmented version using OnboardingState
+    WiomSegmentedProgressBar(
+        currentScreen = OnboardingState.currentScreen,
+        totalScreens = OnboardingState.TOTAL_SCREENS,
+    )
+}
+
+@Composable
+fun WiomSegmentedProgressBar(currentScreen: Int, totalScreens: Int = 15) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(4.dp)
-            .clip(RoundedCornerShape(2.dp))
-            .background(WiomBorderInput)
+            .height(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(progress)
-                .clip(RoundedCornerShape(2.dp))
-                .background(WiomPositive)
-        )
+        for (i in 0 until totalScreens) {
+            val color = when {
+                i < currentScreen -> WiomPositive      // Done
+                i == currentScreen -> WiomPrimary      // Active
+                else -> WiomBorderInput                // Future
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(color)
+            )
+        }
     }
 }
 
@@ -1043,5 +1059,76 @@ fun EmptyStateCard(
         Text(t(titleHi, titleEn), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = WiomText, textAlign = TextAlign.Center)
         Spacer(modifier = Modifier.height(4.dp))
         Text(t(subtitleHi, subtitleEn), fontSize = 14.sp, color = WiomTextSec, textAlign = TextAlign.Center)
+    }
+}
+
+// ─── Toast Notification (auto-dismisses after 2500ms) ───────────
+@Composable
+fun WiomToast(
+    message: String,
+    isVisible: Boolean,
+    onDismiss: () -> Unit,
+    type: String = "info", // "info", "success", "error"
+) {
+    if (isVisible) {
+        LaunchedEffect(message) {
+            delay(2500)
+            onDismiss()
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = when (type) {
+                    "success" -> WiomPositive
+                    "error" -> WiomNegative
+                    else -> Color(0xFF443152)
+                },
+                shadowElevation = 8.dp,
+            ) {
+                Text(
+                    message,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+    }
+}
+
+// ─── Payment Success Overlay ────────────────────────────────────
+@Composable
+fun PaymentSuccessOverlay(amountText: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.7f)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("✅", fontSize = 48.sp)
+            Spacer(Modifier.height(16.dp))
+            Text(
+                t("भुगतान सफल!", "Payment Successful!"),
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                amountText,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = WiomPositive,
+            )
+        }
     }
 }

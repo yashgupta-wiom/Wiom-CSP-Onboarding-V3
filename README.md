@@ -1,6 +1,6 @@
 # Wiom CSP Onboarding App (V3)
 
-Android app (Kotlin + Jetpack Compose) for the **Wiom Channel Sales Partner (CSP) onboarding flow** — a 15-screen interactive prototype (Pitch + Screens 0-14) with **two browser-based dashboards** for controlling the app and reviewing QA applications.
+Android app (Kotlin + Jetpack Compose) for the **Wiom Channel Sales Partner (CSP) onboarding flow** — a 16-screen (Pitch + Screens 0-14) interactive prototype with **two browser-based dashboards** for controlling the app and reviewing QA applications.
 
 ## Quick Start
 
@@ -49,7 +49,7 @@ This repo includes **two browser-based dashboards** that connect to the Android 
 - Python HTTP server (port 8092) that connects dashboards to the Android emulator via ADB
 - Endpoints: `/status`, `/data`, `/screenshot`, POST actions (navigate, fill, scenario, qa, lang)
 
-## The 15-Screen Onboarding Flow (V3)
+## The 16-Screen Onboarding Flow (V3)
 
 ### Pitch Screen (Pre-flow)
 Welcome screen with Wiom branding — "Wiom पार्टनर बनें". CTA: "शुरू करें"
@@ -61,7 +61,7 @@ Welcome screen with Wiom branding — "Wiom पार्टनर बनें".
 | 0 | **Phone Entry** | — | Mobile number (+91), T&C checkbox, "नियम व शर्तें पढ़ें" link. CTA: "OTP भेजें" |
 | 1 | **OTP Verification** | — | 4-digit OTP input, 28s resend timer. CTA: "वेरीफाई करें" |
 | 2 | **Personal Info** | Step 1/3 | Name, email, entity type (Individual), trade name. CTA: "अब लोकेशन बताइए" |
-| 3 | **Location** | Step 2/3 | State (36 Indian states/UTs dropdown), city, pincode, address, GPS. CTA: "अब registration शुल्क भरें" |
+| 3 | **Location** | Step 2/3 | State (33 Indian states/UTs dropdown), city, pincode, address, GPS. CTA: "अब registration शुल्क भरें" |
 | 4 | **Registration Fee** | Step 3/3 | ₹2,000 payment with auto-refund guarantee. CTA: "₹2,000 भुगतान करें" |
 
 ### Phase 2 — Documentation & Verification (Screens 5-9)
@@ -84,19 +84,18 @@ Welcome screen with Wiom branding — "Wiom पार्टनर बनें".
 | 13 | **Account Setup** | Step 4/5 | Auto-progress setup: ledger, payout, invoice, TDS config. Completes automatically. |
 | 14 | **Successfully Onboarded** | Step 5/5 | Celebration with completion chips, quick actions |
 
-## Error Scenarios (30+ across 9 categories)
+## Error Scenarios (28 across 8 categories)
 
 | Category | Scenarios |
 |----------|-----------|
-| Registration | Phone Already Registered |
-| OTP | Wrong OTP, OTP Expired |
-| Location | Area Not Serviceable |
-| Payment | ₹2K Failed, ₹2K Timeout, ₹20K Failed |
-| KYC | PAN Name Mismatch, Aadhaar Expired, PAN-Aadhaar Not Linked |
-| Bank | Penny Drop Failed, Bank Name Mismatch, Dedup Match Found |
-| Documentation | ISP Document Invalid |
-| Verification | Verification Rejected (auto refund), Tech Assessment Rejected |
-| Technical | Device Check Failed, Infra Check Failed |
+| Global | No Internet, Server Error |
+| Registration & OTP | Phone Already Registered, Wrong OTP, OTP Expired |
+| Reg Fee | ₹2K Payment Failed, ₹2K Payment Timeout |
+| KYC Reminders | Day 1/2/3 Reminder, Day 4 Auto-Reject |
+| KYC Dedup | PAN Dedup, Aadhaar Dedup, GST Dedup |
+| Bank | Penny Drop Failed, Bank Name Mismatch, Bank Account Dedup |
+| Verification | Verification Pending, Verification Rejected, Refund (Success/In-Progress/Failed) |
+| Onboarding & Setup | ₹20K Success/Failed/Timeout, Account Setup Failed/Pending |
 
 ## Tech Stack
 

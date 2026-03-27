@@ -76,6 +76,15 @@ class PhotosViewModel @Inject constructor(
         OnboardingState.equipmentPhotoCount = _uiState.value.equipmentPhotoCount
     }
 
+    fun addEquipmentPhoto() {
+        _uiState.update { state ->
+            val newCount = (state.equipmentPhotoCount + 1).coerceAtMost(state.maxEquipmentPhotos)
+            state.copy(equipmentPhotoCount = newCount, equipmentPhotoUploaded = newCount >= 1)
+        }
+        OnboardingState.equipmentPhotoCount = _uiState.value.equipmentPhotoCount
+        OnboardingState.equipmentPhotoUploaded = _uiState.value.equipmentPhotoUploaded
+    }
+
     fun confirmEquipmentPage() {
         val state = _uiState.value
         if (state.equipmentPhotoCount >= state.maxEquipmentPhotos) {

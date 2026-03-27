@@ -81,6 +81,21 @@ class DashboardReceiver : BroadcastReceiver() {
                 }
             }
 
+            // QA decision (legacy dashboard compatibility)
+            "com.wiom.csp.QA" -> {
+                val decision = intent.getStringExtra("decision") ?: "approved"
+                when (decision) {
+                    "approved" -> {
+                        OnboardingState.verificationRejected = false
+                        OnboardingState.goTo(10)
+                    }
+                    "rejected" -> {
+                        OnboardingState.verificationRejected = true
+                        OnboardingState.goTo(9)
+                    }
+                }
+            }
+
             // Set tech assessment decision (approved/rejected)
             "com.wiom.csp.TECHASSESSMENT" -> {
                 val action = intent.getStringExtra("action") ?: "approved"

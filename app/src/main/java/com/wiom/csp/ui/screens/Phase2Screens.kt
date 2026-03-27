@@ -324,13 +324,86 @@ fun IspAgreementScreen(viewModel: IspAgreementViewModel, onNext: () -> Unit, onB
             )
             Spacer(Modifier.height(14.dp))
 
-            // Upload row
-            UploadRow(
-                icon = "\uD83D\uDCC4",
-                label = t("ISP अनुबंध", "ISP Agreement"),
-                isUploaded = state.isUploaded,
-                onUpload = { if (state.isUploaded) viewModel.resetUpload() else viewModel.uploadPdf() },
-            )
+            // Upload options (3 methods per prototype)
+            var showUploadOptions by remember { mutableStateOf(false) }
+
+            if (state.isUploaded) {
+                UploadRow(
+                    icon = "\uD83D\uDCC4",
+                    label = t("ISP अनुबंध", "ISP Agreement"),
+                    isUploaded = true,
+                    onUpload = { viewModel.resetUpload(); showUploadOptions = false },
+                )
+            } else if (showUploadOptions) {
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color.White,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, WiomBorder),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(
+                            t("अपलोड का तरीका चुनें", "Choose upload method"),
+                            fontSize = 13.sp, fontWeight = FontWeight.Bold, color = WiomText,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        // Option 1: PDF
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = WiomBgSec,
+                            modifier = Modifier.fillMaxWidth().clickable { viewModel.uploadPdf(); showUploadOptions = false },
+                        ) {
+                            Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Text("\uD83D\uDCC4", fontSize = 20.sp)
+                                Spacer(Modifier.width(12.dp))
+                                Column {
+                                    Text(t("PDF अपलोड", "PDF Upload"), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomText)
+                                    Text(t("PDF फ़ाइल चुनें", "Select PDF file"), fontSize = 12.sp, color = WiomTextSec)
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        // Option 2: Camera
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = WiomBgSec,
+                            modifier = Modifier.fillMaxWidth().clickable { viewModel.uploadPdf(); showUploadOptions = false },
+                        ) {
+                            Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Text("\uD83D\uDCF7", fontSize = 20.sp)
+                                Spacer(Modifier.width(12.dp))
+                                Column {
+                                    Text(t("कैमरा", "Camera"), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomText)
+                                    Text(t("7 पेज तक फ़ोटो लें", "Take photos up to 7 pages"), fontSize = 12.sp, color = WiomTextSec)
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        // Option 3: Gallery
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = WiomBgSec,
+                            modifier = Modifier.fillMaxWidth().clickable { viewModel.uploadPdf(); showUploadOptions = false },
+                        ) {
+                            Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Text("\uD83D\uDDBC\uFE0F", fontSize = 20.sp)
+                                Spacer(Modifier.width(12.dp))
+                                Column {
+                                    Text(t("गैलरी", "Gallery"), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomText)
+                                    Text(t("7 पेज तक चुनें", "Select up to 7 pages"), fontSize = 12.sp, color = WiomTextSec)
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                UploadRow(
+                    icon = "\uD83D\uDCC4",
+                    label = t("ISP अनुबंध", "ISP Agreement"),
+                    isUploaded = false,
+                    onUpload = { showUploadOptions = true },
+                )
+            }
             Spacer(Modifier.height(8.dp))
 
             // View sample document link
@@ -411,14 +484,65 @@ fun ShopPhotosScreen(viewModel: PhotosViewModel, onNext: () -> Unit, onBack: () 
             )
             Spacer(Modifier.height(12.dp))
 
-            // Equipment Photos
-            FieldLabel(t("राउटर/उपकरण फ़ोटो", "Router/Equipment Photos"))
-            UploadRow(
-                icon = "\uD83D\uDCE1",
-                label = t("राउटर/उपकरण फ़ोटो", "Router/Equipment Photos"),
-                isUploaded = state.equipmentPhotoUploaded,
-                onUpload = { if (state.equipmentPhotoUploaded) viewModel.resetEquipmentPhotos() else viewModel.finishEquipmentUpload() },
-            )
+            // Equipment Photos (up to 5)
+            FieldLabel(t("राउटर/उपकरण फ़ोटो (${state.equipmentPhotoCount}/5)", "Router/Equipment Photos (${state.equipmentPhotoCount}/5)"))
+            if (state.equipmentPhotoCount > 0) {
+                // Show count of uploaded photos
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = WiomPositive100,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, WiomPositive300),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("✅", fontSize = 16.sp)
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                t("${state.equipmentPhotoCount} फ़ोटो अपलोड हुई", "${state.equipmentPhotoCount} photos uploaded"),
+                                fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomPositive,
+                            )
+                        }
+                        Text(
+                            t("हटाएं", "Remove"),
+                            fontSize = 12.sp, color = WiomNegative, fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.clickable { viewModel.resetEquipmentPhotos() },
+                        )
+                    }
+                }
+                // Add more button (if less than 5)
+                if (state.equipmentPhotoCount < 5) {
+                    Spacer(Modifier.height(6.dp))
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = WiomBgSec,
+                        modifier = Modifier.fillMaxWidth().clickable { viewModel.addEquipmentPhoto() },
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text("➕ ", fontSize = 14.sp)
+                            Text(
+                                t("और फ़ोटो जोड़ें", "Add more photos"),
+                                fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary,
+                            )
+                        }
+                    }
+                }
+            } else {
+                UploadRow(
+                    icon = "\uD83D\uDCE1",
+                    label = t("राउटर/उपकरण फ़ोटो", "Router/Equipment Photos"),
+                    isUploaded = false,
+                    onUpload = { viewModel.addEquipmentPhoto() },
+                )
+            }
             Spacer(Modifier.height(4.dp))
             Text(
                 "\uD83D\uDCCB ${t("सैंपल दस्तावेज़ देखें", "View sample document")}",
