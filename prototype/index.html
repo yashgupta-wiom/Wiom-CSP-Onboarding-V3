@@ -1543,21 +1543,27 @@ const screens = [
    types:[{label:'System Auto',cls:'sys-gen',icon:'🎉'}],
    render:()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="htitle">${t('पार्टनर ऐप होम','Partner App Home')}</span><span class="hright">${t('स्टेप 5/5','Step 5/5')}</span></div>
+    <div class="hdr"><span class="htitle">${t('एक्टिवेशन','Activation')}</span><span class="hright">${t('स्टेप 5/5','Step 5/5')}</span></div>
     <div class="scontent"><div class="pad" style="text-align:center;">
-      <div style="font-size:40px;margin:12px 0;">🎉</div>
-      <div style="font-size:24px;font-weight:700;color:var(--text);">${t('बधाई हो, राजेश!','Congratulations, Rajesh!')}</div>
-      <div style="font-size:14px;color:var(--text-sec);margin-top:4px;">${t('आप अब Wiom पार्टनर हैं','You are now a Wiom Partner')}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:16px 0;">
-        <span class="chip chip-g">✓ ${t('पंजीकृत','Registered')}</span><span class="chip chip-g">✓ ${t('KYC सत्यापित','KYC Verified')}</span><span class="chip chip-g">✓ ${t('बैंक सत्यापित','Bank Verified')}</span><span class="chip chip-g">✓ ${t('ISP अनुबंध','ISP Agreement')}</span><span class="chip chip-g">✓ ${t('फ़ोटो जमा','Photos')}</span><span class="chip chip-g">✓ ${t('सत्यापन स्वीकृत','Verification Approved')}</span><span class="chip chip-g">✓ ${t('तकनीकी मूल्यांकन','Tech Assessment')}</span><span class="chip chip-g">✓ ${t('खाता सेटअप','Account Setup')}</span>
+      <div style="font-size:48px;margin:16px 0;">🎉</div>
+      <div style="font-size:24px;font-weight:700;color:var(--text);line-height:32px;">${t('बधाई हो, राजेश!','Congratulations, Rajesh!')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-top:6px;line-height:20px;">${t('आप अब Wiom कनेक्शन सर्विस प्रोवाइडर हैं','You are now a Wiom Connection Service Provider')}</div>
+      <div style="margin-top:20px;text-align:left;">
+        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;">${t('अगले कदम','Next Steps')}</div>
+        <div class="card" style="border-color:var(--pri);background:var(--pri-light);text-align:center;">
+          <div style="font-size:32px;margin-bottom:8px;">📲</div>
+          <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px;">${t('Wiom Partner Plus ऐप डाउनलोड करें','Download Wiom Partner Plus App')}</div>
+          <button style="margin-top:10px;padding:10px 24px;border-radius:var(--r-btn);border:2px solid var(--pri);background:#fff;color:var(--pri);font:700 14px/20px inherit;cursor:pointer;">${t('अभी इंस्टॉल करें','Install Now')}</button>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 0;">
-        <div class="card" style="text-align:center;"><div style="font-size:24px;">👤</div><div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px;">${t('ग्राहक जोड़ें','Add Customer')}</div></div>
-        <div class="card" style="text-align:center;"><div style="font-size:24px;">💰</div><div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px;">${t('कमाई देखें','View Earnings')}</div></div>
-        <div class="card" style="text-align:center;"><div style="font-size:24px;">📝</div><div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px;">${t('कार्य','Tasks')}</div></div>
-        <div class="card" style="text-align:center;"><div style="font-size:24px;">🎓</div><div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px;">${t('प्रशिक्षण','Training')}</div></div>
+      <div style="margin-top:16px;text-align:left;">
+        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;">${t('महत्वपूर्ण निर्देश','Important Instructions')}</div>
+        <div style="font-size:13px;color:var(--text);line-height:22px;padding:12px 14px;background:var(--bg-sec);border-radius:var(--r-sm);">
+          <div style="display:flex;gap:8px;margin-bottom:4px;">1. ${t('Wiom Partner Plus ऐप में लॉगिन करें','Login to Wiom Partner Plus app')}</div>
+          <div style="display:flex;gap:8px;margin-bottom:4px;">2. ${t('सभी आवश्यक अनुमतियां दें','Allow all required permissions')}</div>
+          <div style="display:flex;gap:8px;">3. ${t('अनिवार्य Wiom प्रशिक्षण पूरा करें','Complete Mandatory Wiom Training')}</div>
+        </div>
       </div>
-      <div class="card" style="border-color:var(--pri);background:var(--pri-light);text-align:center;"><div style="font-size:24px;">🚀</div><div style="font-size:14px;font-weight:700;color:var(--pri);">${t('Wiom CSP ऐप डाउनलोड करें','Download Wiom CSP App')}</div></div>
     </div></div>
     </div>`},
 ];
