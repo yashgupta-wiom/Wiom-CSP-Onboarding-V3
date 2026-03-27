@@ -430,7 +430,8 @@ const scenarios = {
   'refund-in-progress-vr': {screen:9, label:'Refund In Progress (VR)', icon:'⏳', cat:'documentation'},
   'policy-sla': {screen:10, label:'Policy & SLA', icon:'📋', cat:'documentation'},
   // Onboarding & Training
-  'onboardfee-failed': {screen:12, label:'₹20K Payment Failed', icon:'💸', cat:'payment'},
+  'onboardfee-failed': {screen:12, label:'₹20K Payment Failed', icon:'💸', cat:'onboardfee'},
+  'onboardfee-timeout': {screen:12, label:'₹20K Payment Timeout', icon:'⏳', cat:'onboardfee'},
   'training-quiz-fail': {screen:14, label:'Quiz Failed', icon:'📝', cat:'training'},
 };
 
@@ -886,17 +887,31 @@ const errorScreens = {
       <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('चिंता न करें — आपका पैसा सुरक्षित है','Don\'t worry — your money is safe')}</div>
       <div class="card" style="text-align:left;border-color:var(--pos-300);background:var(--pos-100);">
         <div style="font-size:12px;font-weight:700;color:var(--positive);margin-bottom:4px;">${t('🛡️ पैसा कटा नहीं है','🛡️ No money was deducted')}</div>
-        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('UPI transaction में error हुआ — आपकी कोई गलती नहीं है','There was an error in the UPI transaction — this is not your fault')}</div>
+        <div style="font-size:14px;color:var(--text);line-height:20px;">${t('बैंक या UPI ऐप से कनेक्शन में दिक़्क़त हुई — आपकी कोई गलती नहीं है','There was a connection issue with the bank or UPI app — this is not your fault')}</div>
       </div>
-      <div class="card" style="text-align:left;">
-        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;">${t('Transaction Details','Transaction Details')}</div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--hint);">${t('Amount','Amount')}</span><b>₹20,000</b></div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;"><span style="color:var(--hint);">Error</span><b style="color:var(--negative);">UPI_LIMIT_EXCEEDED</b></div>
-      </div>
-      <div class="ibox ibox-o" style="text-align:left;"><span class="ii">💡</span><span>${t('UPI limit ₹1L/day है। कृपया 2-3 मिनट बाद दोबारा कोशिश करें','UPI limit is ₹1L/day. Please try again in 2-3 minutes')}</span></div>
     </div>
     <div class="bbar">
       <button class="cta" onclick="clearScenario()">${t('दोबारा भुगतान करें','Retry Payment')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="window.open('tel:7836811111')">${t('हमसे बात करें','Talk to Us')}</button>
+    </div>
+    </div>`,
+
+  'onboardfee-timeout': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('भुगतान स्टेटस','Payment Status')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:40px;margin:16px 0;">⏳</div>
+      <div style="font-size:20px;font-weight:700;color:var(--warn-700);line-height:28px;">${t('भुगतान pending है','Payment is pending')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 16px;line-height:20px;">${t('बैंक से response देर से आ रहा है। कभी-कभी 2-5 मिनट लग सकते हैं।','Bank response is delayed. Sometimes it can take 2-5 minutes.')}</div>
+      <div class="card" style="text-align:left;border-color:var(--border-input);background:#fff;">
+        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;">${t('लेन-देन विवरण','Transaction Details')}</div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;"><span style="color:var(--text-sec);font-weight:600;">${t('राशि','Amount')}</span><span style="color:var(--text);font-weight:700;">₹20,000</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:14px;"><span style="color:var(--text-sec);font-weight:600;">UPI Ref</span><span style="color:var(--text);font-weight:700;">UPI83746251</span></div>
+      </div>
+    </div>
+    <div class="bbar">
+      <button class="cta" onclick="clearScenario()" style="background:var(--info);">${t('Status Refresh करें','Refresh Status')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="window.open('tel:7836811111')">${t('हमसे बात करें','Talk to Us')}</button>
     </div>
     </div>`,
 
@@ -1025,6 +1040,25 @@ function showPaymentSuccess(){
   </div>`;
   document.getElementById('stepInfo').textContent = t('भुगतान सफल','Payment Successful');
   addLog('✓ ₹2,000 registration fee paid via UPI','payment');
+  toast(t('भुगतान सफल! 🎉','Payment Successful! 🎉'),'g');
+  setTimeout(function(){ next(); }, 3000);
+}
+function showOnboardPaymentSuccess(){
+  var phone = document.getElementById('phoneFrame');
+  phone.innerHTML = `<div class="phone-content-enter">
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('भुगतान स्टेटस','Payment Status')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:64px;margin:40px 0 16px;">🎉</div>
+      <div style="font-size:24px;font-weight:700;color:var(--positive);line-height:32px;">${t('भुगतान सफल!','Payment Successful!')}</div>
+      <div style="font-size:16px;color:var(--text);margin:8px 0 4px;font-weight:600;">₹20,000</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:32px;line-height:20px;">${t('ऑनबोर्डिंग शुल्क प्राप्त हुआ','Onboarding Fee received')}</div>
+      <div style="font-size:13px;color:var(--text-sec);line-height:18px;">${t('अगले चरण पर ले जा रहे हैं...','Moving to next step...')}</div>
+      <div class="spinner" style="margin:12px auto;border-top-color:var(--positive);"></div>
+    </div>
+  </div>`;
+  document.getElementById('stepInfo').textContent = t('भुगतान सफल','Payment Successful');
+  addLog('✓ ₹20,000 onboarding fee paid via UPI','payment');
   toast(t('भुगतान सफल! 🎉','Payment Successful! 🎉'),'g');
   setTimeout(function(){ next(); }, 3000);
 }
@@ -1464,12 +1498,19 @@ const screens = [
    types:[{label:'User Action',cls:'user-action',icon:'💳'}],
    render:()=>`
     <div class="sbar"><span>9:41</span><span>100%</span></div>
-    <div class="hdr"><span class="htitle">${t('ऑनबोर्डिंग शुल्क','Onboarding Fee')}</span><span class="hright">${t('स्टेप 3/7','Step 3/7')}</span></div>
+    <div class="hdr"><span class="back" onclick="prev()">&larr;</span><span class="htitle">${t('एक्टिवेशन','Activation')}</span><span class="hright">${t('स्टेप 3/7','Step 3/7')}</span></div>
     <div class="scontent"><div class="pad">
-      <div class="amt-box"><div class="amt">₹20,000</div><div class="amt-lbl">${t('ऑनबोर्डिंग शुल्क (GST सहित)','Onboarding Fee (incl. GST)')}</div></div>
-      <div class="card" style="background:#fff;"><div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;"><span style="color:var(--text-sec);">${t('पंजीकरण शुल्क (भुगतान हुआ)','Reg Fee (paid)')}</span><span style="color:var(--text);">₹2,000</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;"><span style="color:var(--text-sec);">${t('ऑनबोर्डिंग शुल्क','Onboarding Fee')}</span><span style="color:var(--text);">₹20,000</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;font-weight:700;"><span style="color:var(--text);">${t('कुल निवेश','Total Investment')}</span><span style="color:var(--text);">₹22,000</span></div></div>
+      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">💳 ${t('ऑनबोर्डिंग शुल्क','Onboarding Fee')}</div>
+      <div style="font-size:13px;color:var(--text-sec);margin-bottom:14px;line-height:18px;">${t('यह राशि आपके व्यापार स्थान पर WiFi उपकरण भेजने के लिए आवश्यक है','This amount is required to send WiFi devices to your business location')}</div>
+      <div class="amt-box"><div class="amt">₹20,000</div><div class="amt-lbl">${t('अभी भुगतान करें','Pay Now')}</div></div>
+      <div class="card" style="background:#fff;">
+        <div style="font-size:12px;font-weight:700;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;">${t('निवेश विवरण','INVESTMENT SUMMARY')}</div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--text-sec);">${t('पंजीकरण शुल्क','Reg Fee')}</span><span style="color:var(--positive);font-weight:600;">₹2,000 ✓ ${t('भुगतान हुआ','Paid')}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--text-sec);">${t('ऑनबोर्डिंग शुल्क','Onboarding Fee')}</span><span style="color:var(--pri);font-weight:600;">₹20,000 ${t('बकाया','Due')}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0 2px;font-size:14px;font-weight:700;"><span style="color:var(--text);">${t('कुल निवेश','Total Investment')}</span><span style="color:var(--text);">₹22,000</span></div>
+      </div>
     </div>
-    <div class="bbar"><button class="cta" onclick="next()">₹20,000 ${t('भुगतान करें','Pay Now')}</button></div>
+    <div class="bbar"><button class="cta" onclick="showOnboardPaymentSuccess()">₹20,000 ${t('अभी भुगतान करें','Pay Now')}</button></div>
     </div>`},
 
   // 13: CSP Account Setup
@@ -1850,6 +1891,7 @@ function renderDashboard(){
     registration: {label:'Registration & OTP', icon:'📱'},
     regfee: {label:'Reg Fee', icon:'💰'},
     kyc: {label:'KYC', icon:'🪪'},
+    onboardfee: {label:'Onboarding Fee', icon:'💰'},
     payment: {label:'Payment Failures', icon:'💳'},
     bank: {label:'Bank & Dedup', icon:'🏦'},
     documentation: {label:'Agreement & Tech', icon:'📝'},
