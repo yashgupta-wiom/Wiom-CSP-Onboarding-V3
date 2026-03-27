@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -696,7 +697,7 @@ fun KycScreen(viewModel: KycViewModel, onNext: () -> Unit, onBack: () -> Unit) {
 }
 
 @Composable
-private fun KycPanSubStage(state: KycUiState, viewModel: KycViewModel, onMoveToAadhaar: () -> Unit) {
+private fun ColumnScope.KycPanSubStage(state: KycUiState, viewModel: KycViewModel, onMoveToAadhaar: () -> Unit) {
     val canProceed = state.isPanStageComplete
     Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp)) {
         Text("🪪 ${t("पैन विवरण", "PAN Details")}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = WiomText)
@@ -728,7 +729,7 @@ private fun KycPanSubStage(state: KycUiState, viewModel: KycViewModel, onMoveToA
 }
 
 @Composable
-private fun KycAadhaarSubStage(state: KycUiState, viewModel: KycViewModel, onMoveToGst: () -> Unit) {
+private fun ColumnScope.KycAadhaarSubStage(state: KycUiState, viewModel: KycViewModel, onMoveToGst: () -> Unit) {
     val canProceed = state.isAadhaarStageComplete
     Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp)) {
         Text("📄 ${t("आधार विवरण", "Aadhaar Details")}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = WiomText)
@@ -762,7 +763,7 @@ private fun KycAadhaarSubStage(state: KycUiState, viewModel: KycViewModel, onMov
 }
 
 @Composable
-private fun KycGstSubStage(state: KycUiState, viewModel: KycViewModel, onComplete: () -> Unit) {
+private fun ColumnScope.KycGstSubStage(state: KycUiState, viewModel: KycViewModel, onComplete: () -> Unit) {
     val canProceed = state.isGstStageComplete
     Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp)) {
         Text("📋 ${t("जीएसटी विवरण", "GST Details")}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = WiomText)
