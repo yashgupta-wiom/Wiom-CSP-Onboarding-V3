@@ -893,7 +893,7 @@ fun RegFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit, onBack: () -> 
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
         AppHeader(
-            title = t("पंजीकरण शुल्क", "Registration Fee"),
+            title = t("पंजीकरण", "Registration"),
             onBack = onBack,
         )
 
@@ -911,45 +911,40 @@ fun RegFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit, onBack: () -> 
                     Text("\uD83D\uDE1F", fontSize = 40.sp)
                     Spacer(Modifier.height(16.dp))
                     Text(
-                        t("भुगतान नहीं हो पाया", "Payment could not be processed"),
+                        t("भुगतान नहीं हो पाया", "Payment failed"),
                         fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomNegative,
                         textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        t("चिंता न करें — आपका पैसा सुरक्षित है", "Don't worry — your money is safe"),
+                        fontSize = 14.sp, color = WiomTextSec, textAlign = TextAlign.Center, lineHeight = 20.sp,
                     )
                     Spacer(Modifier.height(16.dp))
                     WiomCard(borderColor = WiomPositive300, backgroundColor = WiomPositive100) {
                         Text(
-                            "\u2705 ${t("पैसा कटा नहीं है", "No money deducted")}",
-                            fontWeight = FontWeight.Bold, fontSize = 14.sp, color = WiomPositive,
+                            "\uD83D\uDEE1\uFE0F ${t("पैसा कटा नहीं है", "No money was deducted")}",
+                            fontWeight = FontWeight.Bold, fontSize = 12.sp, color = WiomPositive,
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            t("चिंता न करें — आपके अकाउंट से कोई पैसा नहीं कटा है।", "Don't worry — no money has been deducted from your account."),
-                            fontSize = 14.sp, color = WiomTextSec, lineHeight = 20.sp,
+                            t("बैंक या UPI ऐप से कनेक्शन में दिक़्क़त हुई — आपकी कोई गलती नहीं है", "There was a connection issue with the bank or UPI app — this is not your fault"),
+                            fontSize = 14.sp, color = WiomText, lineHeight = 20.sp,
                         )
                     }
                     Spacer(Modifier.height(8.dp))
                     WiomCard {
-                        Text(t("ट्रांज़ैक्शन विवरण", "TRANSACTION DETAILS"), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = WiomTextSec, letterSpacing = 0.5.sp)
+                        Text(t("अमाउंट", "Amount"), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = WiomTextSec)
                         Spacer(Modifier.height(8.dp))
-                        Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Amount", fontSize = 13.sp, color = WiomTextSec)
-                            Text("\u20B92,000", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = WiomText)
-                        }
-                        Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Error", fontSize = 13.sp, color = WiomTextSec)
-                            Text("BANK_GATEWAY_TIMEOUT", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = WiomNegative)
-                        }
-                        Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Time", fontSize = 13.sp, color = WiomTextSec)
-                            Text("just now", fontSize = 13.sp, color = WiomText)
-                        }
+                        Text("₹2,000", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = WiomText)
+                        Spacer(Modifier.height(4.dp))
+                        Text("Error: BANK_GATEWAY_TIMEOUT", fontSize = 12.sp, color = WiomHint)
                     }
                     Spacer(Modifier.height(8.dp))
-                    InfoBox("\uD83D\uDCA1", t("2-3 मिनट बाद दोबारा कोशिश करें", "Try again after 2-3 minutes"), type = InfoBoxType.WARNING)
-                    Spacer(Modifier.height(16.dp))
+                    InfoBox("\uD83D\uDCA1", t("दूसरा payment method try करें, या 2-3 मिनट बाद retry करें", "Try a different payment method, or retry in 2-3 minutes"))
+                }
+                BottomBar {
                     WiomButton(t("दोबारा भुगतान करें", "Retry Payment"), onClick = {})
-                    Spacer(Modifier.height(8.dp))
-                    WiomButton(t("बाद में करें", "Pay Later"), onClick = {}, isSecondary = true)
                 }
             }
             Scenario.REGFEE_TIMEOUT -> {
@@ -969,36 +964,28 @@ fun RegFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit, onBack: () -> 
                         fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomWarning700,
                         textAlign = TextAlign.Center,
                     )
-                    Spacer(Modifier.height(16.dp))
-                    ErrorCard(
-                        icon = "\u23F3",
-                        titleHi = "Bank response में देरी",
-                        titleEn = "Bank response delayed",
-                        messageHi = "Bank से response आने में 2-5 मिनट लग सकते हैं। कृपया थोड़ा इंतज़ार करें।",
-                        messageEn = "Bank response may take 2-5 minutes. Please wait.",
-                        type = "warning",
-                    )
                     Spacer(Modifier.height(8.dp))
-                    WiomCard {
-                        Text(t("ट्रांज़ैक्शन विवरण", "TRANSACTION DETAILS"), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = WiomTextSec, letterSpacing = 0.5.sp)
-                        Spacer(Modifier.height(8.dp))
-                        Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Amount", fontSize = 13.sp, color = WiomTextSec)
-                            Text("\u20B92,000", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = WiomText)
+                    Text(
+                        t("बैंक से response देर से आ रहा है। कभी-कभी 2-5 मिनट लग सकते हैं।", "Bank response is delayed. Sometimes it can take 2-5 minutes."),
+                        fontSize = 14.sp, color = WiomTextSec, textAlign = TextAlign.Center, lineHeight = 20.sp,
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    WiomCard(borderColor = WiomBorderInput, backgroundColor = Color.White) {
+                        Text(t("लेन-देन विवरण", "Transaction Details"), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = WiomText)
+                        Spacer(Modifier.height(10.dp))
+                        Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(t("राशि", "Amount"), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomTextSec)
+                            Text("₹2,000", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = WiomText)
                         }
-                        Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("UPI Ref", fontSize = 13.sp, color = WiomTextSec)
-                            Text("UPI123456789", fontSize = 13.sp, color = WiomText)
-                        }
-                        Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Status", fontSize = 13.sp, color = WiomTextSec)
-                            Text("\u23F3 Pending", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = WiomWarning700)
+                        HorizontalDivider(color = WiomBorder)
+                        Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("UPI Ref", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomTextSec)
+                            Text("UPI29384756", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = WiomText)
                         }
                     }
-                    Spacer(Modifier.height(8.dp))
-                    InfoBox("\uD83D\uDD12", t("48 घंटे में auto-refund अगर fail हो", "Auto-refund within 48hrs if failed"))
-                    Spacer(Modifier.height(16.dp))
-                    WiomButton(t("Status Refresh करें", "Refresh Status"), onClick = {})
+                }
+                BottomBar {
+                    WiomButton(t("Status Refresh करें", "Refresh Status"), onClick = {}, backgroundColor = WiomInfo)
                     Spacer(Modifier.height(8.dp))
                     WiomButton(t("हमसे बात करें", "Talk to us"), onClick = {}, isSecondary = true)
                 }
@@ -1036,19 +1023,17 @@ fun RegFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit, onBack: () -> 
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 Text(
-                                    t(
-                                        "भुगतान के बाद आपकी profile Business/QA team द्वारा review की जाएगी।",
-                                        "After payment, your profile will be reviewed by the Business/QA team."
-                                    ),
-                                    fontSize = 14.sp, color = WiomTextSec, lineHeight = 20.sp,
+                                    "1. ${t("पंजीकरण शुल्क भुगतान के बाद दस्तावेज़ सत्यापन प्रक्रिया शुरू होगी।", "Document Verification process will start after Registration fee payment.")}",
+                                    fontSize = 13.sp, color = WiomText, lineHeight = 20.sp,
                                 )
-                                Spacer(Modifier.height(8.dp))
-                                TrustBadge("\uD83D\uDD12", t("Reject होने पर full refund मिलेगा", "Full refund if rejected"))
+                                Spacer(Modifier.height(6.dp))
+                                Text(
+                                    "2. ${t("कृपया भुगतान के 3 दिनों के भीतर सभी आवश्यक दस्तावेज़ जमा करें ताकि आपका आवेदन सक्रिय रहे।", "Please submit your documents within 3 days to keep your application active.")}",
+                                    fontSize = 13.sp, color = WiomText, lineHeight = 20.sp,
+                                )
+                                Spacer(Modifier.height(12.dp))
+                                TrustBadge("\uD83D\uDD12", t("आवेदन अस्वीकार होने पर पूरा रिफंड", "Full Refund if application rejected"))
                             }
-                            Spacer(Modifier.height(8.dp))
-                            InfoBox("1.", t("पंजीकरण शुल्क भुगतान के बाद दस्तावेज़ सत्यापन प्रक्रिया शुरू होगी।", "Document Verification process will start after Registration fee payment."))
-                            Spacer(Modifier.height(4.dp))
-                            InfoBox("2.", t("कृपया भुगतान के 3 दिनों के भीतर सभी आवश्यक दस्तावेज़ जमा करें ताकि आपका आवेदन सक्रिय रहे।", "Please submit your documents within 3 days to keep your application active."))
                         }
                         BottomBar {
                             WiomButton(t("₹2,000 अभी भुगतान करें", "Pay ₹2,000 Now"), onClick = { showPaymentSuccess = true })
