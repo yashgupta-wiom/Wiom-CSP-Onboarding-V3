@@ -433,6 +433,9 @@ const scenarios = {
   'onboardfee-success': {screen:12, label:'₹20K Payment Success', icon:'✅', cat:'onboardfee'},
   'onboardfee-failed': {screen:12, label:'₹20K Payment Failed', icon:'💸', cat:'onboardfee'},
   'onboardfee-timeout': {screen:12, label:'₹20K Payment Timeout', icon:'⏳', cat:'onboardfee'},
+  // Account Setup
+  'account-setup-failed': {screen:13, label:'Account Setup Failed', icon:'❌', cat:'accountsetup'},
+  'account-setup-pending': {screen:13, label:'Account Setup Pending', icon:'⏳', cat:'accountsetup'},
 };
 
 // Error screen renderers — Wiom-style: no blame, reassuring, benefit-first
@@ -923,6 +926,34 @@ const errorScreens = {
     </div>
     <div class="bbar">
       <button class="cta" onclick="clearScenario()" style="background:var(--info);">${t('Status Refresh करें','Refresh Status')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="window.open('tel:7836811111')">${t('हमसे बात करें','Talk to Us')}</button>
+    </div>
+    </div>`,
+
+  'account-setup-failed': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('एक्टिवेशन','Activation')}</span><span class="hright">${t('स्टेप 4/5','Step 4/5')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:48px;margin:24px 0 16px;">❌</div>
+      <div style="font-size:20px;font-weight:700;color:var(--negative);line-height:28px;">${t('खाता सेटअप विफल','Account Setup Failed')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('तकनीकी समस्या के कारण खाता सेटअप नहीं हो पाया','Account setup failed due to a technical issue')}</div>
+    </div>
+    <div class="bbar">
+      <button class="cta" onclick="clearScenario()">${t('दोबारा कोशिश करें','Retry')}</button>
+      <button class="cta sec" style="margin-top:8px;" onclick="window.open('tel:7836811111')">${t('हमसे बात करें','Talk to Us')}</button>
+    </div>
+    </div>`,
+
+  'account-setup-pending': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('एक्टिवेशन','Activation')}</span><span class="hright">${t('स्टेप 4/5','Step 4/5')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:48px;margin:24px 0 16px;">⏳</div>
+      <div style="font-size:20px;font-weight:700;color:var(--warning);line-height:28px;">${t('खाता सेटअप लंबित है','Account Setup Pending')}</div>
+      <div style="font-size:14px;color:var(--text-sec);margin:8px 0 20px;line-height:20px;">${t('खाता सेटअप अभी प्रोसेस हो रहा है','Account setup is being processed')}</div>
+    </div>
+    <div class="bbar">
+      <button class="cta" onclick="clearScenario()" style="background:var(--info);">${t('स्टेटस रिफ्रेश करें','Refresh Status')}</button>
       <button class="cta sec" style="margin-top:8px;" onclick="window.open('tel:7836811111')">${t('हमसे बात करें','Talk to Us')}</button>
     </div>
     </div>`,
@@ -1791,6 +1822,7 @@ function renderDashboard(){
     onboardfee: {label:'Onboarding Fee', icon:'💰'},
     payment: {label:'Payment Failures', icon:'💳'},
     bank: {label:'Bank & Dedup', icon:'🏦'},
+    accountsetup: {label:'Account Setup', icon:'⚙️'},
     documentation: {label:'Agreement & Tech', icon:'📝'},
   };
   let scnHTML = '';
