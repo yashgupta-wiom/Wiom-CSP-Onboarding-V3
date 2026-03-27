@@ -115,17 +115,6 @@
       <div id="scenarioContainer"></div>
     </div>
 
-    <!-- Training Module Manager -->
-    <div class="panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div class="panel-title" style="margin-bottom:0;">Training Module Manager</div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-green" style="font-size:11px;padding:4px 12px;" onclick="addModule()">+ Add Module</button>
-          <button class="btn btn-magenta" style="font-size:11px;padding:4px 12px;" onclick="saveTrainingConfig()">Save to App</button>
-        </div>
-      </div>
-      <div id="trainingModules"></div>
-    </div>
   </div>
 
   <!-- Live Preview -->
@@ -153,39 +142,53 @@ const screens = [
   { num: 5, hi: 'KYC दस्तावेज़', en: 'KYC' },
   { num: 6, hi: 'बैंक विवरण', en: 'Bank' },
   { num: 7, hi: 'ISP अनुबंध', en: 'ISP' },
-  { num: 8, hi: 'फ़ोटो', en: 'Photos' },
+  { num: 8, hi: 'शॉप फ़ोटो', en: 'Photos' },
   { num: 9, hi: 'सत्यापन', en: 'Verify' },
   { num: 10, hi: 'नीति और SLA', en: 'Policy' },
-  { num: 11, hi: 'ऑनबोर्डिंग फ़ीस', en: '₹20K Fee' },
-  { num: 12, hi: 'तकनीकी मूल्यांकन', en: 'TechAssess' },
-  { num: 13, hi: 'CSP खाता सेटअप', en: 'Setup' },
-  { num: 14, hi: 'ट्रेनिंग', en: 'Training' },
-  { num: 15, hi: 'नीति प्रश्नोत्तरी', en: 'Quiz' },
-  { num: 16, hi: 'Go Live!', en: 'Live' },
+  { num: 11, hi: 'तकनीकी मूल्यांकन', en: 'TechAssess' },
+  { num: 12, hi: 'ऑनबोर्डिंग फ़ीस', en: '₹20K Fee' },
+  { num: 13, hi: 'खाता सेटअप', en: 'Setup' },
+  { num: 14, hi: 'सफल ऑनबोर्डिंग', en: 'Onboarded' },
 ];
 
 const scenarios = [
+  // Registration & OTP
   { name: 'PHONE_DUPLICATE', icon: '📱', label: 'Phone Already Registered', category: 'registration', screen: 0 },
   { name: 'OTP_WRONG', icon: '❌', label: 'Wrong OTP', category: 'registration', screen: 1 },
   { name: 'OTP_EXPIRED', icon: '⏰', label: 'OTP Expired', category: 'registration', screen: 1 },
-  { name: 'AREA_NOT_SERVICEABLE', icon: '📍', label: 'Area Not Serviceable', category: 'verification', screen: 3 },
-  { name: 'REGFEE_FAILED', icon: '💳', label: '₹2K Payment Failed', category: 'payment', screen: 4 },
-  { name: 'REGFEE_TIMEOUT', icon: '⏳', label: '₹2K Payment Timeout', category: 'payment', screen: 4 },
-  { name: 'KYC_PAN_MISMATCH', icon: '🪪', label: 'PAN Name Mismatch', category: 'verification', screen: 5 },
-  { name: 'KYC_AADHAAR_EXPIRED', icon: '⚠️', label: 'Aadhaar Expired', category: 'verification', screen: 5 },
-  { name: 'KYC_PAN_AADHAAR_UNLINKED', icon: '🔗', label: 'PAN-Aadhaar Not Linked', category: 'verification', screen: 5 },
+  // Reg Fee
+  { name: 'REGFEE_FAILED', icon: '💳', label: '₹2K Payment Failed', category: 'regfee', screen: 4 },
+  { name: 'REGFEE_TIMEOUT', icon: '⏳', label: '₹2K Payment Timeout', category: 'regfee', screen: 4 },
+  { name: 'KYC_DAY1_REMINDER', icon: '🔔', label: 'Day 1 — 2 days left', category: 'regfee', screen: 5 },
+  { name: 'KYC_DAY2_REMINDER', icon: '⚠️', label: 'Day 2 — 1 day left', category: 'regfee', screen: 5 },
+  { name: 'KYC_DAY3_REMINDER', icon: '🚨', label: 'Day 3 — Last day', category: 'regfee', screen: 5 },
+  { name: 'KYC_DAY4_AUTOREJECT', icon: '❌', label: 'Day 4 — Auto Reject', category: 'regfee', screen: 5 },
+  { name: 'REFUND_SUCCESS', icon: '✅', label: 'Refund Success', category: 'regfee', screen: 5 },
+  { name: 'REFUND_IN_PROGRESS', icon: '⏳', label: 'Refund In Progress', category: 'regfee', screen: 5 },
+  { name: 'REFUND_FAILED', icon: '❌', label: 'Refund Failed', category: 'regfee', screen: 5 },
+  // KYC
+  { name: 'KYC_PAN_DEDUP', icon: '🔍', label: 'PAN Dedup', category: 'kyc', screen: 5 },
+  { name: 'KYC_AADHAAR_DEDUP', icon: '🔍', label: 'Aadhaar Dedup', category: 'kyc', screen: 5 },
+  { name: 'KYC_GST_DEDUP', icon: '🔍', label: 'GST Dedup', category: 'kyc', screen: 5 },
+  // Bank
   { name: 'BANK_PENNYDROP_FAIL', icon: '🏦', label: 'Penny Drop Failed', category: 'bank', screen: 6 },
   { name: 'BANK_NAME_MISMATCH', icon: '👤', label: 'Bank Name Mismatch', category: 'bank', screen: 6 },
-  { name: 'DEDUP_FOUND', icon: '🔍', label: 'Dedup Match Found', category: 'bank', screen: 6 },
-  { name: 'ISP_DOC_INVALID', icon: '📄', label: 'ISP Doc Invalid', category: 'verification', screen: 7 },
+  { name: 'BANK_DEDUP', icon: '🔍', label: 'Bank Account Dedup', category: 'bank', screen: 6 },
+  // Verification
+  { name: 'VERIFICATION_PENDING', icon: '⏳', label: 'Verification Pending', category: 'verification', screen: 9 },
   { name: 'VERIFICATION_REJECTED', icon: '❌', label: 'Verification Rejected', category: 'verification', screen: 9 },
-  { name: 'ONBOARDFEE_FAILED', icon: '💸', label: '₹20K Payment Failed', category: 'payment', screen: 11 },
-  { name: 'TECH_ASSESSMENT_REJECTED', icon: '🔧', label: 'Tech Assessment Rejected', category: 'verification', screen: 12 },
-  { name: 'TRAINING_QUIZ_FAIL', icon: '📝', label: 'Training Quiz Failed', category: 'training', screen: 14 },
-  { name: 'POLICY_QUIZ_FAIL', icon: '❓', label: 'Policy Quiz Failed', category: 'training', screen: 15 },
+  { name: 'POLICY_SLA', icon: '📋', label: 'Policy & SLA', category: 'verification', screen: 10 },
+  { name: 'TECH_ASSESSMENT_REJECTED', icon: '🔧', label: 'Tech Assessment Rejected', category: 'verification', screen: 11 },
+  // Onboarding Fee
+  { name: 'ONBOARDFEE_SUCCESS', icon: '✅', label: '₹20K Payment Success', category: 'onboardfee', screen: 12 },
+  { name: 'ONBOARDFEE_FAILED', icon: '💸', label: '₹20K Payment Failed', category: 'onboardfee', screen: 12 },
+  { name: 'ONBOARDFEE_TIMEOUT', icon: '⏳', label: '₹20K Payment Timeout', category: 'onboardfee', screen: 12 },
+  // Account Setup
+  { name: 'ACCOUNT_SETUP_FAILED', icon: '❌', label: 'Account Setup Failed', category: 'accountsetup', screen: 13 },
+  { name: 'ACCOUNT_SETUP_PENDING', icon: '⏳', label: 'Account Setup Pending', category: 'accountsetup', screen: 13 },
 ];
 
-const categoryNames = { registration: 'Registration', verification: 'Verification', payment: 'Payment', bank: 'Bank', training: 'Training' };
+const categoryNames = { registration: 'Registration & OTP', regfee: 'Reg Fee', kyc: 'KYC', bank: 'Bank & Dedup', verification: 'Agreement & Tech', onboardfee: 'Onboarding Fee', accountsetup: 'Account Setup' };
 
 function buildScreenGrid() {
   const grid = document.getElementById('screenGrid');
