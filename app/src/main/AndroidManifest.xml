@@ -36,8 +36,6 @@
                 <action android:name="com.wiom.csp.FILL"/>
                 <action android:name="com.wiom.csp.VERIFICATION"/>
                 <action android:name="com.wiom.csp.TECHASSESSMENT"/>
-                <action android:name="com.wiom.csp.TRAINING"/>
-                <action android:name="com.wiom.csp.POLICYQUIZ"/>
             </intent-filter>
         </receiver>
     </application>

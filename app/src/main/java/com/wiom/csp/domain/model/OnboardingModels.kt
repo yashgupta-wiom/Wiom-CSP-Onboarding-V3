@@ -1,5 +1,9 @@
 package com.wiom.csp.domain.model
 
+/**
+ * Domain models for CSP Onboarding — 15-screen flow.
+ */
+
 data class CspApplication(
     val id: String = "",
     val phone: String = "",
@@ -15,45 +19,35 @@ data class CspApplication(
     val address: String = "",
     val gpsCoordinates: String = "",
     val regFeePaid: Boolean = false,
+    // KYC
+    val panNumber: String = "",
     val panUploaded: Boolean = false,
+    val aadhaarNumber: String = "",
     val aadhaarFrontUploaded: Boolean = false,
     val aadhaarBackUploaded: Boolean = false,
+    val gstNumber: String = "",
     val gstUploaded: Boolean = false,
-    val ispAgreementUploaded: Boolean = false,
-    val shopPhotoUploaded: Boolean = false,
-    val equipmentPhotoUploaded: Boolean = false,
-    val bankAccountHolder: String = "",
-    val bankName: String = "",
+    // Bank (3 fields only — no account holder name or bank name)
     val bankAccountNumber: String = "",
     val bankIfsc: String = "",
     val bankVerified: Boolean = false,
+    val bankSupportDocUploaded: Boolean = false,
+    // ISP Agreement
+    val ispAgreementUploaded: Boolean = false,
+    val ispPageCount: Int = 0,
+    val ispUploadType: String = "", // "PDF" or "PHOTOS"
+    // Shop & Equipment
+    val shopPhotoUploaded: Boolean = false,
+    val equipmentPhotoUploaded: Boolean = false,
+    val equipmentPhotoCount: Int = 0,
+    // Verification
     val verificationStatus: VerificationStatus = VerificationStatus.PENDING,
-    val verificationReason: String = "",
+    // Onboarding fee
     val onboardFeePaid: Boolean = false,
+    // Tech assessment
     val techAssessmentStatus: VerificationStatus = VerificationStatus.PENDING,
-    val techAssessmentReason: String = "",
-    val trainingModulesCompleted: Int = 0,
-    val policyQuizPassed: Boolean = false,
-    val isLive: Boolean = false,
+    // Account setup
+    val isOnboarded: Boolean = false,
 )
 
 enum class VerificationStatus { PENDING, APPROVED, REJECTED }
-
-data class TrainingModule(
-    val id: String,
-    val titleHi: String,
-    val titleEn: String,
-    val subtitleHi: String,
-    val subtitleEn: String,
-    val icon: String,
-    val questions: List<QuizQuestion>,
-)
-
-data class QuizQuestion(
-    val questionHi: String,
-    val questionEn: String,
-    val options: List<Pair<String, String>>,
-    val correctIndex: Int,
-    val hintHi: String,
-    val hintEn: String,
-)

@@ -1,20 +1,24 @@
 package com.wiom.csp.data.repository
 
-import com.wiom.csp.domain.model.*
-
+/**
+ * Repository interface for CSP Onboarding — 15-screen flow.
+ *
+ * In production: replace MockOnboardingRepository with real API implementation
+ * using WiomApiService (Retrofit) and ApiContracts data classes.
+ */
 interface OnboardingRepository {
     suspend fun sendOtp(phone: String): Result<Boolean>
     suspend fun verifyOtp(phone: String, otp: String): Result<Boolean>
     suspend fun checkPhoneDuplicate(phone: String): Result<Boolean>
-    suspend fun checkServiceability(pincode: String): Result<Boolean>
     suspend fun processPayment(amount: Int): Result<String> // returns transaction ID
-    suspend fun verifyBankAccount(holder: String, bank: String, account: String, ifsc: String): Result<BankVerificationResult>
-    suspend fun getTrainingModules(): Result<List<TrainingModule>>
-    suspend fun getPolicyQuizQuestions(): Result<List<QuizQuestion>>
+    suspend fun verifyBankAccount(account: String, ifsc: String): Result<BankVerificationResult>
 }
 
 data class BankVerificationResult(
     val pennyDropVerified: Boolean,
     val dedupPassed: Boolean,
     val nameMatch: Boolean,
+    val accountHolderName: String = "",
+    val bankName: String = "",
+    val duplicateAccountPhone: String? = null,
 )
