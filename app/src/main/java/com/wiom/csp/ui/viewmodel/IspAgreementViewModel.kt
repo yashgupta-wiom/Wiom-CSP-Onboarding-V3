@@ -2,6 +2,7 @@ package com.wiom.csp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wiom.csp.data.OnboardingState
 import com.wiom.csp.data.repository.OnboardingRepository
 import com.wiom.csp.util.t
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,10 +14,35 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ISP Agreement Screen (Screen 7) — matches prototype exactly.
+ *
+ * Stage: Verification (Step 3/5)
+ * Header: "Verification"
+ *
+ * Upload options:
+ *   - PDF upload (single file)
+ *   - Camera photos (up to 7 pages)
+ *   - Gallery photos (up to 7 pages)
+ *
+ * Multi-page flow: After each page confirm, asks "Add more pages?" or "Finish Upload"
+ * Auto-finishes at 7 pages.
+ *
+ * Mandatory details checklist shown on screen:
+ *   ISP Company Name, LCO/Partner Name, Agreement Date,
+ *   Valid (Not Expired), License Number, Signatory Names,
+ *   Partner and ISP stamp and signature
+ *
+ * View sample document link with actual ISP agreement image.
+ * Update button resets all and reopens upload from scratch.
+ */
+
 data class IspAgreementUiState(
     val isUploaded: Boolean = false,
     val isUploading: Boolean = false,
-    val progress: Float = 0f,
+    val pageCount: Int = 0,
+    val uploadType: String = "",  // "PDF" or "PHOTOS"
+    val maxPages: Int = 7,
     val errorMessage: String? = null,
 )
 
@@ -25,41 +51,56 @@ class IspAgreementViewModel @Inject constructor(
     private val repo: OnboardingRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(IspAgreementUiState())
+    private val _uiState = MutableStateFlow(IspAgreementUiState(
+        isUploaded = OnboardingState.ispAgreementUploaded,
+        pageCount = OnboardingState.ispPageCount,
+        uploadType = OnboardingState.ispUploadType,
+    ))
     val uiState: StateFlow<IspAgreementUiState> = _uiState.asStateFlow()
 
-    fun uploadAgreement(uri: String) {
+    fun uploadPdf() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isUploading = true, progress = 0f, errorMessage = null) }
-
-            // Simulate upload progress
-            for (step in 1..10) {
-                delay(200)
-                _uiState.update { it.copy(progress = step / 10f) }
-            }
-
-            val result = runCatching {
-                delay(200)
-                true
-            }
-
-            result.onSuccess {
-                _uiState.update {
-                    it.copy(isUploaded = true, isUploading = false, progress = 1f)
-                }
-            }.onFailure {
-                _uiState.update {
-                    it.copy(
-                        isUploading = false,
-                        progress = 0f,
-                        errorMessage = t("अपलोड विफल, पुनः प्रयास करें", "Upload failed, try again")
-                    )
-                }
-            }
+            _uiState.update { it.copy(isUploading = true, errorMessage = null) }
+            delay(1500) // simulate upload
+            _uiState.update { it.copy(isUploaded = true, isUploading = false, uploadType = "PDF", pageCount = 1) }
+            syncToState()
         }
     }
 
-    fun removeAgreement() {
+    fun addPage() {
+        _uiState.update { state ->
+            val newCount = state.pageCount + 1
+            state.copy(pageCount = newCount)
+        }
+    }
+
+    fun confirmPage() {
+        _uiState.update { state ->
+            val finished = state.pageCount >= state.maxPages
+            state.copy(
+                isUploaded = finished,
+                uploadType = "PHOTOS"
+            )
+        }
+        syncToState()
+    }
+
+    fun finishUpload() {
+        _uiState.update { it.copy(isUploaded = true, uploadType = "PHOTOS") }
+        syncToState()
+    }
+
+    fun resetUpload() {
         _uiState.update { IspAgreementUiState() }
+        OnboardingState.ispAgreementUploaded = false
+        OnboardingState.ispPageCount = 0
+        OnboardingState.ispUploadType = ""
+    }
+
+    private fun syncToState() {
+        val current = _uiState.value
+        OnboardingState.ispAgreementUploaded = current.isUploaded
+        OnboardingState.ispPageCount = current.pageCount
+        OnboardingState.ispUploadType = current.uploadType
     }
 }

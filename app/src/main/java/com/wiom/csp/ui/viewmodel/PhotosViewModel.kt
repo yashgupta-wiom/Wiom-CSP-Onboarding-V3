@@ -2,6 +2,7 @@ package com.wiom.csp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wiom.csp.data.OnboardingState
 import com.wiom.csp.data.repository.OnboardingRepository
 import com.wiom.csp.util.t
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,60 +14,84 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Shop & Equipment Photos Screen (Screen 8) — matches prototype exactly.
+ *
+ * Stage: Verification (Step 4/5)
+ * Header: "Verification", sub "Shop Verification"
+ *
+ * Shop Front Photo: Single photo upload via camera/gallery
+ *   Pro Tips: Complete shop front, business name visible, LCO match
+ *   View sample document
+ *
+ * Equipment Photos: Multi-photo upload (up to 5) via camera/gallery
+ *   Mandatory Requirements: Power backup, OLT photo, ISP switch with >1 connectivity
+ *   View sample document
+ *
+ * Update button resets and reopens upload from scratch.
+ * Both required before proceeding.
+ */
+
 data class PhotosUiState(
     val shopPhotoUploaded: Boolean = false,
-    val shopPhotoUploading: Boolean = false,
     val equipmentPhotoUploaded: Boolean = false,
-    val equipmentPhotoUploading: Boolean = false,
+    val equipmentPhotoCount: Int = 0,
+    val maxEquipmentPhotos: Int = 5,
     val errorMessage: String? = null,
-    val bothUploaded: Boolean = false,
-)
+) {
+    val bothUploaded: Boolean get() = shopPhotoUploaded && equipmentPhotoUploaded
+}
 
 @HiltViewModel
 class PhotosViewModel @Inject constructor(
     private val repo: OnboardingRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(PhotosUiState())
+    private val _uiState = MutableStateFlow(PhotosUiState(
+        shopPhotoUploaded = OnboardingState.shopPhotoUploaded,
+        equipmentPhotoUploaded = OnboardingState.equipmentPhotoUploaded,
+        equipmentPhotoCount = OnboardingState.equipmentPhotoCount,
+    ))
     val uiState: StateFlow<PhotosUiState> = _uiState.asStateFlow()
 
-    fun uploadShopPhoto(uri: String) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(shopPhotoUploading = true, errorMessage = null) }
-            delay(1500) // Simulate upload
-            _uiState.update {
-                it.copy(
-                    shopPhotoUploaded = true,
-                    shopPhotoUploading = false,
-                    bothUploaded = true && it.equipmentPhotoUploaded
-                )
-            }
+    // ── Shop Front Photo ─────────────────────────────────────────────────
+
+    fun onShopPhotoUploaded() {
+        _uiState.update { it.copy(shopPhotoUploaded = true) }
+        OnboardingState.shopPhotoUploaded = true
+    }
+
+    fun resetShopPhoto() {
+        _uiState.update { it.copy(shopPhotoUploaded = false) }
+        OnboardingState.shopPhotoUploaded = false
+    }
+
+    // ── Equipment Photos (multi-photo, up to 5) ─────────────────────────
+
+    fun addEquipmentPage() {
+        _uiState.update { state ->
+            val newCount = state.equipmentPhotoCount + 1
+            state.copy(equipmentPhotoCount = newCount)
+        }
+        OnboardingState.equipmentPhotoCount = _uiState.value.equipmentPhotoCount
+    }
+
+    fun confirmEquipmentPage() {
+        val state = _uiState.value
+        if (state.equipmentPhotoCount >= state.maxEquipmentPhotos) {
+            finishEquipmentUpload()
         }
     }
 
-    fun uploadEquipmentPhoto(uri: String) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(equipmentPhotoUploading = true, errorMessage = null) }
-            delay(1500) // Simulate upload
-            _uiState.update {
-                it.copy(
-                    equipmentPhotoUploaded = true,
-                    equipmentPhotoUploading = false,
-                    bothUploaded = it.shopPhotoUploaded && true
-                )
-            }
-        }
+    fun finishEquipmentUpload() {
+        _uiState.update { it.copy(equipmentPhotoUploaded = true) }
+        OnboardingState.equipmentPhotoUploaded = true
+        OnboardingState.equipmentPhotoCount = _uiState.value.equipmentPhotoCount
     }
 
-    fun removeShopPhoto() {
-        _uiState.update {
-            it.copy(shopPhotoUploaded = false, bothUploaded = false)
-        }
-    }
-
-    fun removeEquipmentPhoto() {
-        _uiState.update {
-            it.copy(equipmentPhotoUploaded = false, bothUploaded = false)
-        }
+    fun resetEquipmentPhotos() {
+        _uiState.update { it.copy(equipmentPhotoUploaded = false, equipmentPhotoCount = 0) }
+        OnboardingState.equipmentPhotoUploaded = false
+        OnboardingState.equipmentPhotoCount = 0
     }
 }
