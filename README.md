@@ -1,6 +1,6 @@
 # Wiom CSP Onboarding App (V3)
 
-Android app (Kotlin + Jetpack Compose) for the **Wiom Channel Sales Partner (CSP) onboarding flow** — an 18-screen interactive prototype (Pitch + 17 screens) with **two browser-based dashboards** for controlling the app and reviewing QA applications.
+Android app (Kotlin + Jetpack Compose) for the **Wiom Channel Sales Partner (CSP) onboarding flow** — a 15-screen interactive prototype (Pitch + Screens 0-14) with **two browser-based dashboards** for controlling the app and reviewing QA applications.
 
 ## Quick Start
 
@@ -32,18 +32,16 @@ open dashboard/qa-review.html    # QA Review Dashboard
 This repo includes **two browser-based dashboards** that connect to the Android app running in an emulator via a Python bridge server.
 
 ### Control Dashboard (`dashboard/control.html`)
-- Navigate all 18 screens (Pitch through GoLive)
+- Navigate all 15 screens (Pitch through Successfully Onboarded)
 - Fill/empty all form data with one click
 - Switch Hindi/English language
-- Simulate 18 error scenarios (wrong OTP, payment failure, KYC mismatch, etc.)
-- Manage training quiz modules
+- Simulate 30+ error scenarios across 9 categories
 - Live app screenshot preview
 
 ### QA Review Dashboard (`dashboard/qa-review.html`)
 - List of all CSP applications with filter (Pending/Approved/Rejected) and search
 - Click any application to view full details: Personal Info, Location, KYC Documents, Registration Fee
-- Approve or Reject with mandatory rejection reason (7 reasons)
-- Rejection reasons that are resolvable show resolution CTA in the app
+- Approve or Reject with mandatory rejection reason
 - Reversible decisions — can change Approve/Reject anytime
 - LIVE device connection — real-time data from emulator
 
@@ -51,7 +49,7 @@ This repo includes **two browser-based dashboards** that connect to the Android 
 - Python HTTP server (port 8092) that connects dashboards to the Android emulator via ADB
 - Endpoints: `/status`, `/data`, `/screenshot`, POST actions (navigate, fill, scenario, qa, lang)
 
-## The 18-Screen Onboarding Flow (V3)
+## The 15-Screen Onboarding Flow (V3)
 
 ### Pitch Screen (Pre-flow)
 Welcome screen with Wiom branding — "Wiom पार्टनर बनें". CTA: "शुरू करें"
@@ -64,45 +62,29 @@ Welcome screen with Wiom branding — "Wiom पार्टनर बनें".
 | 1 | **OTP Verification** | — | 4-digit OTP input, 28s resend timer. CTA: "वेरीफाई करें" |
 | 2 | **Personal Info** | Step 1/3 | Name, email, entity type (Individual), trade name. CTA: "अब लोकेशन बताइए" |
 | 3 | **Location** | Step 2/3 | State (36 Indian states/UTs dropdown), city, pincode, address, GPS. CTA: "अब registration शुल्क भरें" |
-| 4 | **Registration Fee** | Step 3/3 | ₹2,000 payment with refund guarantee. CTA: "₹2,000 भुगतान करें" |
+| 4 | **Registration Fee** | Step 3/3 | ₹2,000 payment with auto-refund guarantee. CTA: "₹2,000 भुगतान करें" |
 
 ### Phase 2 — Documentation & Verification (Screens 5-9)
 
 | # | Screen | Step | What happens |
 |---|--------|------|-------------|
-| 5 | **KYC Documents** | Step 1/5 | PAN, Aadhaar (front+back), GST upload with camera/gallery. CTA: "अब बैंक का विवरण दें" |
-| 6 | **Bank Details** | Step 2/5 | Account holder, bank name, account number, IFSC, penny drop verify. CTA: "अब ISP अनुबंध अपलोड करें" |
-| 7 | **ISP Agreement** | Step 3/5 | DOT compliance, TRAI guidelines, ISP agreement upload. CTA: "आगे बढ़ें" |
-| 8 | **Shop & Equipment Photos** | Step 4/5 | Shop front photo + router/equipment photo with helper hints. CTA: "सत्यापन के लिए जमा करें" |
-| 9 | **Verification** | Step 5/5 | Checklist of all submitted items. **Two paths:** Approved → Policy screen, Rejected → shows reason + resolution CTA |
+| 5 | **KYC Documents** | Step 1/5 | 3 sub-stages: PAN → Aadhaar (front+back) → GST upload with camera/gallery. CTA: "अब बैंक का विवरण दें" |
+| 6 | **Bank Details** | Step 2/5 | 3 fields: Account number, IFSC, Account holder name. CTA: "अब ISP अनुबंध अपलोड करें" |
+| 7 | **ISP Agreement** | Step 3/5 | Multi-page ISP agreement upload. CTA: "आगे बढ़ें" |
+| 8 | **Shop & Equipment Photos** | Step 4/5 | Multi-photo: Shop front + router/equipment photos with helper hints. CTA: "सत्यापन के लिए जमा करें" |
+| 9 | **Verification** | Step 5/5 | Checklist of all submitted items. **Two paths:** Approved → Policy screen, Rejected → auto refund (no re-upload) |
 
-### Phase 3 — Activation (Screens 10-16)
+### Phase 3 — Activation (Screens 10-14)
 
 | # | Screen | Step | What happens |
 |---|--------|------|-------------|
-| 10 | **Policy & SLA** | Step 1/7 | Commission rates (₹300), SLA terms, compliance rules. CTA: "समझ गया, आगे बढ़ें" |
-| 11 | **Onboarding Fee ₹20K** | Step 2/7 | Fee breakdown, payment. CTA: "₹20,000 भुगतान करें" |
-| 12 | **Technical Assessment** | Step 3/7 | Device + infra check. **Two paths:** Pass → next, Fail → retry |
-| 13 | **CSP Account Setup** | Step 4/7 | Auto-setup: ledger, payout, invoice, TDS config. CTA: "Training शुरू करें" |
-| 14 | **Training Modules** | Step 5/7 | 3 video modules with quiz questions |
-| 15 | **Policy Quiz** | Step 6/7 | 5-question quiz on Wiom policies. Pass: 3/5+ |
-| 16 | **Go Live!** | Step 7/7 | Celebration with 9 completion chips, quick actions |
+| 10 | **Policy & SLA** | Step 1/5 | "Important Terms" — Commission rates (₹300), SLA terms, compliance rules. CTA: "समझ गया, आगे बढ़ें" |
+| 11 | **Technical Assessment** | Step 2/5 | Device + infra check. **Two paths:** Pass → Onboarding Fee, Fail → retry |
+| 12 | **Onboarding Fee ₹20K** | Step 3/5 | Fee breakdown, payment. CTA: "₹20,000 भुगतान करें" |
+| 13 | **Account Setup** | Step 4/5 | Auto-progress setup: ledger, payout, invoice, TDS config. Completes automatically. |
+| 14 | **Successfully Onboarded** | Step 5/5 | Celebration with completion chips, quick actions |
 
-## QA Rejection Reasons
-
-When QA rejects an application, they must select one of these reasons:
-
-| # | Reason | Resolvable? | Resolution Screen |
-|---|--------|-------------|-------------------|
-| 1 | KYC दस्तावेज़ अस्पष्ट / अमान्य | Yes | Screen 5 (KYC) |
-| 2 | PAN और आधार में नाम मेल नहीं खाता | Yes | Screen 5 (KYC) |
-| 3 | दुकान की फ़ोटो स्वीकार्य नहीं | Yes | Screen 8 (Photos) |
-| 4 | ISP अनुबंध अमान्य / अधूरा | Yes | Screen 7 (ISP) |
-| 5 | पता सत्यापन विफल | Yes | Screen 3 (Location) |
-| 6 | बैंक विवरण मेल नहीं खाता | Yes | Screen 6 (Bank) |
-| 7 | एरिया में पहले से CSP मौजूद | No | Refund initiated |
-
-## Error Scenarios (18 total)
+## Error Scenarios (30+ across 9 categories)
 
 | Category | Scenarios |
 |----------|-----------|
@@ -113,8 +95,8 @@ When QA rejects an application, they must select one of these reasons:
 | KYC | PAN Name Mismatch, Aadhaar Expired, PAN-Aadhaar Not Linked |
 | Bank | Penny Drop Failed, Bank Name Mismatch, Dedup Match Found |
 | Documentation | ISP Document Invalid |
-| Verification | Verification Rejected, Tech Assessment Rejected |
-| Training | Training Quiz Failed, Policy Quiz Failed |
+| Verification | Verification Rejected (auto refund), Tech Assessment Rejected |
+| Technical | Device Check Failed, Infra Check Failed |
 
 ## Tech Stack
 
@@ -139,13 +121,13 @@ Wiom-CSP-Dashboards/
 │   └── src/main/java/com/wiom/csp/
 │       ├── DashboardReceiver.kt       # ADB broadcast receiver for dashboard control
 │       ├── data/
-│       │   └── OnboardingState.kt     # Global state + rejection reasons + scenarios
+│       │   └── OnboardingState.kt     # Global state + scenarios
 │       └── ui/screens/
 │           ├── PitchScreen.kt         # Pitch screen (pre-flow)
 │           ├── OnboardingHost.kt      # Screen router + progress bar
 │           ├── Phase1Screens.kt       # Screens 0-4 (Phone → RegFee)
 │           ├── Phase2Screens.kt       # Screens 5-9 (KYC → Verification)
-│           └── Phase3Screens.kt       # Screens 10-16 (Policy → GoLive)
+│           └── Phase3Screens.kt       # Screens 10-14 (Policy → Successfully Onboarded)
 ├── dashboard/
 │   ├── bridge.py                      # Python bridge server (port 8092)
 │   ├── control.html                   # Control Dashboard
@@ -160,12 +142,14 @@ Wiom-CSP-Dashboards/
 
 ## Key Business Values
 
-- **Registration Fee:** ₹2,000 (refundable if QA rejected)
+- **Registration Fee:** ₹2,000 (auto-refund if rejected in Phase 1)
 - **Onboarding Fee:** ₹20,000 (incl. GST)
 - **Total Investment:** ₹22,000
 - **New Connection Commission:** ₹300/connection
 - **Recharge Commission:** ₹300
+- **Payout:** Every Monday by 10 AM
 - **SLA:** 4hr complaint resolution, 95%+ uptime
+- **Help Number:** 7836811111
 
 ## Wiom UX Principles
 

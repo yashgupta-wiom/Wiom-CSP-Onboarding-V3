@@ -1,6 +1,6 @@
 # Wiom CSP Onboarding App — Product Requirements Document
 
-**Version:** 3.0 | **Date:** 24 March 2026 | **Status:** Prototype
+**Version:** 3.1 | **Date:** 26 March 2026 | **Status:** Prototype
 **Repos:** [vikashPD/Wiom-CSP-Dashboards](https://github.com/vikashPD/Wiom-CSP-Dashboards) | [ashishagrawal-iam/Wiom-csp-onboarding-v2](https://github.com/ashishagrawal-iam/Wiom-csp-onboarding-v2)
 **Package:** `com.wiom.csp`
 
@@ -10,45 +10,47 @@
 
 1. [What This App Does](#1-what-this-app-does)
 2. [Who Uses It](#2-who-uses-it)
-3. [The Onboarding Journey (18 Screens)](#3-the-onboarding-journey)
+3. [The Onboarding Journey (15 Screens + Pitch)](#3-the-onboarding-journey)
 4. [Flow Diagram](#4-flow-diagram)
 5. [Screen-by-Screen Specification](#5-screen-by-screen-specification)
-6. [QA Rejection Reasons (7 Cases)](#6-qa-rejection-reasons)
-7. [Error Scenarios (18 Cases)](#7-error-scenarios)
-8. [Empty States & Edge Cases](#8-empty-states--edge-cases)
-9. [Dashboard System (2 Dashboards)](#9-dashboard-system)
-10. [Dashboard-App Interaction](#10-dashboard-app-interaction)
-11. [Business Rules & Constants](#11-business-rules--constants)
-12. [Validation Rules](#12-validation-rules)
-13. [Design System Reference](#13-design-system-reference)
-14. [QA Test Cases](#14-qa-test-cases)
-15. [UAT Test Cases](#15-uat-test-cases)
-16. [What's Prototype vs Production](#16-whats-prototype-vs-production)
+6. [Error Scenarios & Scenario Simulator](#6-error-scenarios--scenario-simulator)
+7. [Empty States & Edge Cases](#7-empty-states--edge-cases)
+8. [Dashboard System (2 Dashboards)](#8-dashboard-system)
+9. [Dashboard-App Interaction](#9-dashboard-app-interaction)
+10. [Business Rules & Constants](#10-business-rules--constants)
+11. [Validation Rules](#11-validation-rules)
+12. [Design System Reference](#12-design-system-reference)
+13. [QA Test Cases](#13-qa-test-cases)
+14. [UAT Test Cases](#14-uat-test-cases)
+15. [What's Prototype vs Production](#15-whats-prototype-vs-production)
 
 ---
 
 ## 1. What This App Does
 
-This Android app takes a new Channel Sales Partner (CSP) through the complete journey of becoming a Wiom partner — from a pitch screen to going live and serving customers.
+This Android app takes a new Channel Sales Partner (CSP) through the complete journey of becoming a Wiom partner — from a pitch screen to being successfully onboarded and ready to serve customers.
 
-The flow has **18 screens** (Pitch + Screens 0-16) across **3 phases**, with **18 documented error scenarios**, **7 QA rejection reasons**, and **2 companion dashboards** (Control + QA Review).
+The flow has **15 screens + Pitch** (Screens 0-14) across **3 phases**, with **30+ documented error scenarios** across **9 simulator categories**, and **2 companion dashboards** (Control + QA Review).
 
-**V3 Changes from V2:**
-- Added Pitch screen (welcome/branding)
-- Added T&C checkbox on Phone screen (must check to enable OTP)
-- Phone validation: error if >10 digits
-- Entity type fixed to "Individual" only
-- State dropdown with all 36 Indian states/UTs
-- Screen order changed: Location → Registration Fee → KYC → Bank → ISP → Shop Photos → Verification
-- Added ISP Agreement upload screen
-- Added Shop & Equipment Photos screen
-- Removed old Agreement screen, replaced with Verification checklist
-- Added Technical Assessment as branch point (pass/fail)
-- Added Policy Quiz screen (5 questions, pass 3/5)
-- Go Live expanded to 9 completion chips
-- QA rejection now requires selecting 1 of 7 reasons
-- Resolvable rejections show CTA in app to fix the issue
-- Dashboard split into Control Dashboard + QA Review Dashboard
+**V3.1 Changes from V3.0:**
+- Total screens reduced from 18 to 15 + Pitch (removed Training Modules, Policy Quiz, Go Live)
+- Screen order changed: Tech Assessment (11) now BEFORE Onboarding Fee (12)
+- KYC Documents (Screen 5) redesigned as 3 sub-stages with progress bar (PAN → Aadhaar → GST)
+- Each KYC sub-stage: number entry with regex validation + document upload + view sample doc
+- All KYC validations show errors on blur only (not while typing)
+- Dedup checks added for PAN, Aadhaar, and GST
+- Bank Details (Screen 6) simplified to 3 fields (removed account holder name and bank name)
+- Bank verification uses bottom sheet overlays for failure scenarios
+- ISP Agreement (Screen 7) now supports multi-page upload (PDF + up to 7 photos)
+- Equipment Photos (Screen 8) now supports multi-photo (up to 5)
+- All document screens have "View sample document" with actual sample images
+- Verification rejected: auto refund flow, no re-upload option in Phase 1
+- Tech Assessment rejected: no refund of Rs.2K, "Talk to Us" CTA (7836811111)
+- Account Setup (Screen 13) auto-progresses after 3 seconds, no CTA
+- Final screen (14): "Successfully Onboarded" with app download + instructions (replaces Go Live with chips)
+- Removed PAN Name Mismatch, Aadhaar Expired, ISP Doc Invalid, Dedup Match Found scenarios
+- Added PAN/Aadhaar/GST dedup scenarios, Bank Account Dedup scenario
+- Activation phase steps changed from 1/7 to 1/5
 
 **Key design philosophy:**
 - **Hindi-first** — All text defaults to Hindi with a runtime toggle to English
@@ -63,9 +65,9 @@ The flow has **18 screens** (Pitch + Screens 0-16) across **3 phases**, with **1
 
 | Actor | Role | How They Interact |
 |-------|------|-------------------|
-| **Partner** | New CSP applicant | Goes through the 18-screen onboarding flow on their Android phone |
+| **Partner** | New CSP applicant | Goes through the 15-screen onboarding flow on their Android phone |
 | **QA Team** | Wiom Business/QA reviewers | Uses the **QA Review Dashboard** to review applications, view submitted data, and approve/reject with reasons |
-| **Admin** | Dashboard operator | Uses the **Control Dashboard** to navigate screens, trigger scenarios, manage training modules |
+| **Admin** | Dashboard operator | Uses the **Control Dashboard** to navigate screens, trigger scenarios, manage app state |
 | **System** | Automated backend | Handles OTP, KYC verification, penny drop, dedup check, financial setup |
 
 ---
@@ -73,39 +75,37 @@ The flow has **18 screens** (Pitch + Screens 0-16) across **3 phases**, with **1
 ## 3. The Onboarding Journey
 
 ### Pitch Screen (Pre-flow)
-Welcome screen — "Wiom पार्टनर बनें". CTA: "शुरू करें"
+Welcome screen — Wiom Partner+ branding. CTA: "Get Started"
 
 ### Phase 1 — Registration (Screens 0-4)
 
 | Screen | Name | Step | What Happens |
 |--------|------|------|-------------|
-| 0 | Phone Entry | — | Mobile number (+91, 10 digits), T&C checkbox, "नियम व शर्तें पढ़ें" link opens webpage. Error if >10 digits. CTA: "OTP भेजें" (enabled only when 10 digits + T&C checked) |
-| 1 | OTP Verification | — | 4-digit OTP with 28-second countdown timer. CTA: "वेरीफाई करें" |
-| 2 | Personal Info | Step 1/3 | Name, email, entity type (Individual only), trade name. CTA: "अब लोकेशन बताइए" |
-| 3 | Location | Step 2/3 | State (36 Indian states/UTs dropdown), city, pincode, address, GPS capture. CTA: "अब registration शुल्क भरें" |
-| 4 | Registration Fee | Step 3/3 | Pay Rs.2,000 (refundable if QA rejects). CTA: "₹2,000 भुगतान करें" |
+| 0 | Phone Entry | — | Mobile number (+91, 10 digits), T&C checkbox. CTA: "Send OTP" (enabled only when 10 digits + T&C checked) |
+| 1 | OTP Verification | — | 4-digit OTP with 28-second countdown timer. CTA: "Verify" |
+| 2 | Personal & Business Info | Step 1/3 | Name, email, entity type (Individual only), trade name. CTA: "Next" |
+| 3 | Business Location | Step 2/3 | State (36 Indian states/UTs dropdown), city, pincode, address, GPS capture. CTA: "Next" |
+| 4 | Registration Fee | Step 3/3 | Pay Rs.2,000 (refundable). CTA: "Pay Rs.2,000 Now" |
 
-### Phase 2 — Documentation & Verification (Screens 5-9)
+### Phase 2 — Verification (Screens 5-9)
 
-| Screen | Name | Step | What Happens |
-|--------|------|------|-------------|
-| 5 | KYC Documents | Step 1/5 | Upload PAN, Aadhaar (front+back), GST certificate. CTA: "अब बैंक का विवरण दें" |
-| 6 | Bank Details | Step 2/5 | Account holder, bank name, account number, IFSC, penny drop verify. CTA: "अब ISP अनुबंध अपलोड करें" |
-| 7 | ISP Agreement | Step 3/5 | DOT compliance info, TRAI guidelines, ISP agreement upload. CTA: "आगे बढ़ें" |
-| 8 | Shop & Equipment Photos | Step 4/5 | Shop front photo + router/equipment photo with quality hints. CTA: "सत्यापन के लिए जमा करें" |
-| 9 | Verification | Step 5/5 | Checklist of all submitted items. **Branch point:** Approved → Policy, Rejected → shows reason + resolution CTA |
+| Screen | Name | Step | Header | What Happens |
+|--------|------|------|--------|-------------|
+| 5 | KYC Documents | Step 1/5 | Verification | 3 sub-stages with progress bar: PAN → Aadhaar → GST. Each sub-stage has number entry + document upload + view sample doc. Dedup checks on all three. |
+| 6 | Bank Details | Step 2/5 | Verification | 3 fields: Account Number, Re-enter Account Number, IFSC Code. Verify via penny drop → bottom sheet results. |
+| 7 | ISP Agreement Upload | Step 3/5 | Verification | Multi-page upload: PDF / Camera (up to 7 pages) / Gallery (up to 7 pages). Mandatory details checklist. |
+| 8 | Shop & Equipment Photos | Step 4/5 | Verification | Shop Front Photo (single) + Equipment Photos (multi, up to 5). Sub-header: "Shop Verification". |
+| 9 | Verification Status | Step 5/5 | Verification | "All Documents Submitted" checklist. Branch: Approved → next / Rejected → refund flow (no re-upload in Phase 1). |
 
-### Phase 3 — Activation (Screens 10-16)
+### Phase 3 — Activation (Screens 10-14)
 
-| Screen | Name | Step | What Happens |
-|--------|------|------|-------------|
-| 10 | Policy & SLA | Step 1/7 | Commission rates (Rs.300), SLA terms, compliance rules. CTA: "समझ गया, आगे बढ़ें" |
-| 11 | Onboarding Fee Rs.20K | Step 2/7 | Fee breakdown + payment. CTA: "₹20,000 भुगतान करें" |
-| 12 | Technical Assessment | Step 3/7 | Device + infra check. **Branch:** Pass → next, Fail → retry with recommendations |
-| 13 | CSP Account Setup | Step 4/7 | Auto-setup: ledger, RazorpayX, Zoho, TDS config. CTA: "Training शुरू करें" |
-| 14 | Training Modules | Step 5/7 | 3 video modules with quiz questions |
-| 15 | Policy Quiz | Step 6/7 | 5-question quiz on Wiom policies (pass: 3/5+) |
-| 16 | Go Live! | Step 7/7 | Celebration with 9 completion chips, quick actions |
+| Screen | Name | Step | Header | What Happens |
+|--------|------|------|--------|-------------|
+| 10 | Policy & SLA | Step 1/5 | Important Terms | Commission rates, payout schedule, service levels to maintain. CTA: "I Understand, Proceed" |
+| 11 | Technical Assessment | Step 2/5 | Activation | Infrastructure review, network readiness, location feasibility. TAT: 4-5 business days. Branch: Passed → next / Rejected → no refund + Talk to Us. |
+| 12 | Onboarding Fee Rs.20K | Step 3/5 | Activation | Investment summary with Rs.2K (Paid) + Rs.20K (Due) = Rs.22K total. CTA: "Pay Rs.20,000 Now" |
+| 13 | Account Setup | Step 4/5 | Activation | Loading screen auto-progresses after 3 seconds. No CTA. |
+| 14 | Successfully Onboarded | Step 5/5 | Activation | Congratulations + Download Wiom Partner Plus App + Important Instructions. |
 
 ---
 
@@ -115,64 +115,63 @@ Welcome screen — "Wiom पार्टनर बनें". CTA: "शुरू
 START
   |
   v
-[Pitch Screen] ──────────────────────────────────────── CTA: "शुरू करें"
+[Pitch Screen] ──────────────────────────────────────── Wiom Partner+ branding
   |
   v
 [Screen 0: Phone Entry] ─────error──→ PHONE_DUPLICATE (blocked)
   |  (10 digits + T&C checkbox required)
-  |  (>10 digits → error)
   v
 [Screen 1: OTP Verify] ──────error──→ OTP_WRONG (retry, 3 max)
   |                       ───error──→ OTP_EXPIRED (resend)
   v
-[Screen 2: Personal Info] ──────────── Entity type: Individual only
+[Screen 2: Personal & Business Info] ── Step 1/3
   |
   v
-[Screen 3: Location] ────────error──→ AREA_NOT_SERVICEABLE (waitlist)
-  |  (36 Indian states dropdown)
+[Screen 3: Business Location] ───────── Step 2/3
+  |
   v
 [Screen 4: Rs.2,000 Fee] ───error──→ REGFEE_FAILED (retry)
   |                        ──error──→ REGFEE_TIMEOUT (retry)
   v
-[Screen 5: KYC Upload] ─────error──→ KYC_PAN_MISMATCH (blocked)
-  |                       ──error──→ KYC_AADHAAR_EXPIRED (blocked)
-  |                       ──error──→ KYC_PAN_AADHAAR_UNLINKED (blocked)
+[Screen 5: KYC Documents] ──── 3 sub-stages (PAN → Aadhaar → GST)
+  |  PAN ──────error──→ PAN_DEDUP (blocked)
+  |  Aadhaar ──error──→ AADHAAR_DEDUP (blocked)
+  |  GST ──────error──→ GST_DEDUP (blocked)
+  |  (errors shown on blur, not while typing)
   v
-[Screen 6: Bank Details] ───error──→ BANK_PENNYDROP_FAIL (retry)
-  |                        ──error──→ BANK_NAME_MISMATCH (retry)
-  |                        ──error──→ DEDUP_FOUND (blocked)
+[Screen 6: Bank Details] ──── Verify → 2s spinner → result:
+  |  ──success──→ Verified delight → next
+  |  ──error────→ PENNY_DROP_FAIL (bottom sheet: Change / Upload Doc)
+  |  ──error────→ NAME_MISMATCH (bottom sheet: Change / Upload Doc)
+  |  ──error────→ BANK_DEDUP (bottom sheet: Change only)
   v
-[Screen 7: ISP Agreement] ──error──→ ISP_DOCUMENT_INVALID (retry)
+[Screen 7: ISP Agreement] ── Multi-page upload (PDF + up to 7 photos)
   |
   v
-[Screen 8: Shop Photos]
+[Screen 8: Shop & Equipment Photos] ── Shop front (1) + Equipment (up to 5)
   |
   v
-[Screen 9: Verification] ═══════════ BRANCH POINT ═══════════
-  |                                                           |
-  |── QA APPROVED                                QA REJECTED ──|
-  |   (with reason from 7 options)               (reason shown)|
-  v                                                           v
-[Screen 10: Policy & SLA]                    RESOLUTION CTA
-  |                                          (if resolvable)
-  v                                          OR Rs.2K REFUND
-[Screen 11: Rs.20,000 Fee] ──error──→ ONBOARDFEE_FAILED (retry)
-  |
+[Screen 9: Verification Status] ═══════ BRANCH POINT ═══════
+  |                                                          |
+  |── APPROVED                                    REJECTED ──|
+  v                                                          v
+[Screen 10: Policy & SLA]                    AUTO REFUND FLOW
+  |                                          (no re-upload in Phase 1)
   v
-[Screen 12: Tech Assessment] ═══════ BRANCH POINT ═══════
-  |                                                       |
-  |── PASS                                      FAIL ─────|
-  v                                          (retry with recommendations)
-[Screen 13: Account Setup] (auto, no input)
-  |
+[Screen 11: Tech Assessment] ══════════ BRANCH POINT ═══════
+  |                                                          |
+  |── PASSED                                      REJECTED ──|
+  v                                          "No refund at this moment"
+[Screen 12: Rs.20,000 Fee] ──error──→ ONBOARDFEE_FAILED (retry)
+  |                         ──error──→ ONBOARDFEE_TIMEOUT (refresh)
   v
-[Screen 14: Training] ──────error──→ TRAINING_QUIZ_FAIL (retry)
-  |
+[Screen 13: Account Setup] (auto-progress, 3 seconds, no CTA)
+  |  ──error──→ SETUP_FAILED (retry + talk to us)
+  |  ──error──→ SETUP_PENDING (refresh + talk to us)
   v
-[Screen 15: Policy Quiz] ───error──→ POLICY_QUIZ_FAIL (retry)
-  |  (pass: 3/5+)
-  v
-[Screen 16: GO LIVE!] ──── 9 completion chips + quick actions
+[Screen 14: Successfully Onboarded]
+  |  Download Wiom Partner Plus App
+  |  Important Instructions
   |
   END
 ```
@@ -181,8 +180,9 @@ START
 
 | Type | Errors | Behavior |
 |------|--------|----------|
-| **Blocking** | PHONE_DUPLICATE, AREA_NOT_SERVICEABLE, KYC_PAN_MISMATCH, KYC_AADHAAR_EXPIRED, KYC_PAN_AADHAAR_UNLINKED, DEDUP_FOUND, TECH_ASSESSMENT_REJECTED | Cannot proceed — needs external resolution |
-| **Retryable** | OTP_WRONG, OTP_EXPIRED, REGFEE_FAILED, REGFEE_TIMEOUT, BANK_PENNYDROP_FAIL, BANK_NAME_MISMATCH, ISP_DOCUMENT_INVALID, ONBOARDFEE_FAILED, TRAINING_QUIZ_FAIL, POLICY_QUIZ_FAIL, VERIFICATION_REJECTED | Can retry immediately or after fixing input |
+| **Blocking** | PHONE_DUPLICATE, PAN_DEDUP, AADHAAR_DEDUP, GST_DEDUP, BANK_DEDUP, TECH_ASSESSMENT_REJECTED | Cannot proceed — needs external resolution or "Talk to Us" |
+| **Retryable** | OTP_WRONG, OTP_EXPIRED, REGFEE_FAILED, REGFEE_TIMEOUT, PENNY_DROP_FAIL, NAME_MISMATCH, ONBOARDFEE_FAILED, ONBOARDFEE_TIMEOUT, SETUP_FAILED, SETUP_PENDING | Can retry immediately or after fixing input |
+| **Terminal** | VERIFICATION_REJECTED | Auto refund flow, no re-upload in Phase 1 |
 
 ---
 
@@ -193,10 +193,9 @@ START
 **Purpose:** Welcome and branding — first impression before onboarding starts.
 
 **What the partner sees:**
-- Wiom branding with handshake emoji
-- "Wiom पार्टनर बनें" (Become a Wiom Partner)
+- Wiom Partner+ branding
 - Brief value proposition
-- Pink CTA button: "शुरू करें" (Get Started)
+- CTA button: "Get Started"
 
 **Rules:**
 - No form fields, just a CTA to begin
@@ -211,18 +210,14 @@ START
 **What the partner sees:**
 - Header: "Wiom Partner+"
 - Phone input field with +91 country code prefix
-- Character count hint showing "X/10 digits"
-- Error message if >10 digits entered: "केवल 10 अंकों का नंबर डालें"
-- T&C checkbox: "मैं सभी नियम व शर्तें स्वीकार करता/करती हूँ"
-- "नियम व शर्तें पढ़ें" link (opens a webpage)
-- Pink CTA button: "OTP भेजें" (Send OTP)
+- 10-digit phone number input (numeric only)
+- T&C checkbox with link to terms
+- CTA button: "Send OTP"
 
 **Rules:**
 - CTA disabled until BOTH conditions met: exactly 10 digits + T&C checkbox checked
 - If user unchecks T&C, CTA becomes disabled again
 - Only numeric input allowed
-- Error shown if >10 digits entered
-- "नियम व शर्तें पढ़ें" opens external webpage
 
 ---
 
@@ -232,22 +227,22 @@ START
 
 **What the partner sees:**
 - Message showing which number OTP was sent to
-- 4 input boxes (auto-focus, fills left to right)
+- 4-digit OTP input (auto-focus)
 - Countdown timer starting at 28 seconds
 - After timer expires: "Resend OTP" + "Change Number" links
 
 **Rules:**
-- CTA ("वेरीफाई करें") enabled only when all 4 digits filled
+- CTA enabled only when all 4 digits filled
 - Timer counts down 1 second at a time
 - Resend restarts the timer
 
 ---
 
-### Screen 2: Personal Info
+### Screen 2: Personal & Business Info
 
 **Purpose:** Collect identity and business details.
 
-**Step Label:** स्टेप 1/3
+**Step Label:** Step 1/3
 
 **Fields:**
 1. **Name (as per Aadhaar)** — Required
@@ -255,7 +250,7 @@ START
 3. **Entity Type** — Dropdown with only "Individual" option
 4. **Trade Name** — Required; gets locked after registration fee is paid
 
-**CTA:** "अब लोकेशन बताइए" (Now provide location)
+**CTA:** "Next"
 
 **Rules:**
 - CTA enabled only when all 4 fields are filled
@@ -263,11 +258,11 @@ START
 
 ---
 
-### Screen 3: Location
+### Screen 3: Business Location
 
-**Purpose:** Capture shop/office location for service area validation.
+**Purpose:** Capture shop/office location for service area mapping.
 
-**Step Label:** स्टेप 2/3
+**Step Label:** Step 2/3
 
 **Fields:**
 1. **State** — Dropdown with all 36 Indian states and union territories
@@ -278,7 +273,7 @@ START
 **Special Elements:**
 - GPS badge showing captured coordinates
 
-**CTA:** "अब registration शुल्क भरें" (Now pay registration fee)
+**CTA:** "Next"
 
 **Indian States/UTs in dropdown (36):**
 Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Haryana, Himachal Pradesh, Jharkhand, Karnataka, Kerala, Madhya Pradesh, Maharashtra, Manipur, Meghalaya, Mizoram, Nagaland, Odisha, Punjab, Rajasthan, Sikkim, Tamil Nadu, Telangana, Tripura, Uttar Pradesh, Uttarakhand, West Bengal, Andaman & Nicobar, Chandigarh, Dadra & Nagar Haveli and Daman & Diu, Delhi, Jammu & Kashmir, Ladakh, Lakshadweep, Puducherry
@@ -287,16 +282,16 @@ Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Har
 
 ### Screen 4: Registration Fee (Rs.2,000)
 
-**Purpose:** First payment — initiates QA review after documentation.
+**Purpose:** First payment — initiates the verification process.
 
-**Step Label:** स्टेप 3/3
+**Step Label:** Step 3/3
 
 **What the partner sees:**
 - Large amount display: Rs.2,000
-- Important info card explaining QA review process
-- Trust badge: "Full refund if rejected" (with lock icon)
+- Info about the registration process
+- Trust badge: "Refundable"
 
-**CTA:** "₹2,000 भुगतान करें"
+**CTA:** "Pay Rs.2,000 Now"
 
 **On payment:**
 - 2-second simulated processing delay
@@ -307,26 +302,49 @@ Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Har
 
 ### Screen 5: KYC Documents
 
-**Purpose:** Upload and verify identity documents.
+**Purpose:** Collect and verify identity documents via 3 sub-stages.
 
-**Step Label:** स्टेप 1/5
+**Step Label:** Step 1/5 | **Header:** Verification
 
-**4 Documents Required:**
-1. PAN Card
-2. Aadhaar Card — Front
-3. Aadhaar Card — Back
-4. GST Certificate
+**Sub-stage progress bar** shows PAN → Aadhaar → GST progression.
 
-**Upload Flow (3 steps per document):**
-1. **Choose Source** — "Take Photo" or "Choose from Gallery"
-2. **Preview** — Quality badges + "Save" or "Retake"
-3. **Uploading** — Progress bar, then green checkmark
+#### Sub-stage 1: PAN
 
-**CTA:** "अब बैंक का विवरण दें" (Now provide bank details)
+**Fields:**
+- PAN Number entry — Regex: `/^[A-Z]{5}[0-9]{4}[A-Z]$/` (10 characters, e.g., ABCDE1234F)
+- PAN Card upload (camera or gallery)
+- "View sample document" link with actual sample image
+
+**Validation:** Error shown on blur only, not while typing.
+**Dedup check:** After valid PAN entry, system checks for duplicate PAN. If duplicate found → dedup error overlay.
+
+#### Sub-stage 2: Aadhaar
+
+**Fields:**
+- Aadhaar Number entry — 12 digits, displayed formatted as 4-4-4 (e.g., 1234 5678 9012)
+- Aadhaar Front upload (camera or gallery)
+- Aadhaar Back upload (camera or gallery)
+- "View sample document" link with actual sample image
+
+**Validation:** Error shown on blur only, not while typing.
+**Dedup check:** After valid Aadhaar entry, system checks for duplicate. If duplicate found → dedup error overlay.
+
+#### Sub-stage 3: GST
+
+**Fields:**
+- GST Number entry — 15 characters, regex: `/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]{3}$/`
+  - Characters 3-12 must match the PAN number entered earlier
+- GST Certificate upload (camera or gallery)
+- "View sample document" link with actual sample image
+
+**Validation:** Error shown on blur only, not while typing.
+**Dedup check:** After valid GST entry, system checks for duplicate. If duplicate found → dedup error overlay.
 
 **Rules:**
-- All 4 documents must be uploaded before CTA is enabled
-- Each document can be removed and re-uploaded
+- Header says "Verification" for all sub-stages
+- All number entries validated on blur only
+- Each sub-stage must be completed before proceeding to the next
+- All 3 sub-stages must be completed before moving to Screen 6
 
 ---
 
@@ -334,323 +352,312 @@ Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Har
 
 **Purpose:** Verify partner's bank account via penny drop.
 
-**Step Label:** स्टेप 2/5
+**Step Label:** Step 2/5 | **Header:** Verification
 
-**Fields:**
-1. Account Holder Name
-2. Bank Name
-3. Account Number
-4. IFSC Code
+**Fields (3 only):**
+1. **Account Number** — Numeric only, 9-18 digits. Field changes to type=password (masked) on blur.
+2. **Re-enter Account Number** — Must match Account Number exactly.
+3. **IFSC Code** — Regex: `/^[A-Z]{4}0[A-Z0-9]{6}$/` (11 characters)
 
-**Two-Phase Flow:**
-1. **Before verification:** CTA: "Penny Drop Verify करें" (enabled when all fields filled)
-2. **After verification (2s):** Green success cards (penny drop + dedup check)
+**Hint text:** "Bank details should belong to [Personal Name] or [Business Name]"
 
-**Post-verification CTA:** "अब ISP अनुबंध अपलोड करें" (Now upload ISP agreement)
+**CTA:** "Verify Bank Details"
+
+**Verification Flow:**
+1. CTA triggers 2-second spinner
+2. Result is one of four outcomes:
+
+| Outcome | What Shows | Options |
+|---------|------------|---------|
+| **Success** | Verified delight screen | Auto-proceeds → "Add ISP Agreement" |
+| **Penny Drop Fail** | Bottom sheet overlay | "Change Bank Details" / "Upload Bank Document" |
+| **Name Mismatch** | Bottom sheet overlay with name comparison | "Change Bank Details" / "Upload Bank Document" |
+| **Bank Dedup** | Bottom sheet overlay | "Change Bank Details" only (no upload option) |
+
+**Supporting Document Screen** (when "Upload Bank Document" chosen):
+- Upload options: Bank Statement / Cancelled Cheque / Bank Passbook
+- "View sample document" link with actual sample image
 
 ---
 
-### Screen 7: ISP Agreement (NEW in V3)
+### Screen 7: ISP Agreement Upload
 
-**Purpose:** Upload ISP agreement document for DOT compliance.
+**Purpose:** Upload ISP agreement document for compliance verification.
 
-**Step Label:** स्टेप 3/5
+**Step Label:** Step 3/5 | **Header:** Verification
 
 **What the partner sees:**
-- Info card: "DOT अनुपालन के लिए अनिवार्य" (Mandatory for DOT compliance)
-- "ISP अनुबंध दूरसंचार विभाग की जांच के लिए आवश्यक है।"
-- Two badges: "DOT अनुपालन" + "TRAI दिशानिर्देश"
-- ISP agreement upload row with "अपलोड" button
-- Tip: "साफ़ फ़ोटो लें — सारा टेक्स्ट दिखना चाहिए"
+- Multi-page upload options:
+  - **PDF** upload
+  - **Camera** capture (up to 7 pages)
+  - **Gallery** selection (up to 7 pages)
+- Mandatory details checklist:
+  - ISP Company Name
+  - LCO/Partner Name
+  - Agreement Date
+  - Valid (validity period)
+  - License Number
+  - Signatory Names
+  - Stamp & Signature
+- "View sample document" link with actual sample image
+- Pro tips shown in upload sheet
 
-**CTA:** "ISP अनुबंध अपलोड करें"
-
-**Rules:**
-- CTA enabled after ISP agreement document uploaded
+**CTA:** Enabled after ISP agreement uploaded
 
 ---
 
-### Screen 8: Shop & Equipment Photos (NEW in V3)
+### Screen 8: Shop & Equipment Photos
 
 **Purpose:** Capture shop front and equipment photos for verification.
 
-**Step Label:** स्टेप 4/5
+**Step Label:** Step 4/5 | **Header:** Verification | **Sub-header:** Shop Verification
 
-**What the partner sees:**
-- Shop front photo upload with helper hints
-- Router/equipment photo upload
-- Quality tips for clear photos
+**Two upload sections:**
 
-**CTA:** "सत्यापन के लिए जमा करें" (Submit for verification)
+1. **Shop Front Photo**
+   - Single photo upload
+   - "View sample document" link
+   - Shop-specific pro tips
+
+2. **Equipment Photos**
+   - Multi-photo upload (up to 5 photos)
+   - "View sample document" link
+   - Mandatory requirements:
+     - Power Backup photo
+     - OLT Photo
+     - ISP Switch photo
 
 **Rules:**
-- Both photos must be uploaded before CTA is enabled
+- Both sections must have at least one photo before proceeding
 
 ---
 
-### Screen 9: Verification (REDESIGNED in V3)
+### Screen 9: Verification Status
 
-**Purpose:** Major decision point — QA team reviews and approves/rejects.
+**Purpose:** Confirmation that all documents are submitted, awaiting review.
 
-**Step Label:** स्टेप 5/5
+**Step Label:** Step 5/5 | **Header:** Verification
 
-**This screen has THREE views:**
+**What the partner sees:**
+- "All Documents Submitted" message
+- Completion checklist:
+  - KYC Documents ✓
+  - Bank Details ✓
+  - ISP Agreement ✓
+  - Shop & Equipment Photos ✓
+- Info: "Review may take 3 business days"
 
-**View A — Pending/Waiting:**
-- "Investigation in progress" message with magnifying glass icon
-- Checklist showing all completed steps (phone verified, personal info, location, KYC, registration fee, bank, ISP, photos)
-- QA Investigation as "waiting"
-- Info: "Review may take 2-3 business days"
+**Branch Point:**
 
-**View B — Rejected (with reason):**
-- Rejection reason displayed (from 7 predefined reasons)
-- If resolvable: CTA button to navigate to the relevant screen to fix the issue
-- If not resolvable: Rs.2,000 refund information
-- Example: "KYC दस्तावेज़ अस्पष्ट" → CTA: "दस्तावेज़ दोबारा अपलोड करें" → navigates to Screen 5
+| Outcome | What Happens |
+|---------|-------------|
+| **Approved** | Proceeds to Screen 10 (Policy & SLA) |
+| **Rejected** | Shows "Verification Rejected" with auto refund flow. **No re-upload option in Phase 1.** |
 
-**View C — Approved:**
-- Green success message
-- Navigates to Policy screen (Screen 10)
-
-**The decision is made by the QA team through the QA Review Dashboard (with mandatory reason selection for rejection).**
+**Rejected Flow:**
+- Refund status shown (Refund Success / Refund In Progress / Refund Failed)
+- No CTA to fix and resubmit — partner must start fresh or contact support
 
 ---
 
 ### Screen 10: Policy & SLA
 
-**Step Label:** स्टेप 1/7
+**Purpose:** Present Wiom's policies and service level agreement for partner acceptance.
 
-**Shows:**
-- Commission: Rs.300/new connection, Rs.300 recharge
-- SLA: 4hr complaint resolution, 95%+ uptime
-- Equipment care, brand compliance
+**Step Label:** Step 1/5 | **Header:** Important Terms
 
-**CTA:** "समझ गया, आगे बढ़ें"
+**Subheading:** "Wiom's Policy and Service Level Agreement"
 
----
+**Content:**
+- **Commission:** Rs.300 per new connection, Rs.300 per recharge
+- **Payout:** Every Monday by 10 AM
+- **Service Levels to be Maintained:**
+  - Complaints: 4-hour resolution
+  - Uptime: 95%+
+  - Equipment care
+  - Brand compliance
 
-### Screen 11: Onboarding Fee (Rs.20,000)
-
-**Step Label:** स्टेप 2/7
-
-**Shows:**
-- Amount: Rs.20,000 (GST inclusive)
-- Breakdown: Rs.2K (paid) + Rs.20K = Rs.22K total
-- Info: "Training modules will unlock after payment"
-
-**CTA:** "₹20,000 भुगतान करें"
+**CTA:** "I Understand, Proceed"
 
 ---
 
-### Screen 12: Technical Assessment (REDESIGNED in V3)
+### Screen 11: Technical Assessment
 
-**Step Label:** स्टेप 3/7
+**Purpose:** Wiom team assesses partner's infrastructure, network, and location feasibility.
 
-**Purpose:** Device and infrastructure compatibility check.
+**Step Label:** Step 2/5 | **Header:** Activation
+
+**What the partner sees:**
+- Assessment areas: Infrastructure Review, Network Readiness, Location Feasibility
+- TAT: 4-5 business days
+- "You will also receive a call from our Network Quality team"
 
 **Branch Point:**
-- **Pass** → Proceeds to Account Setup (Screen 13)
-- **Fail** → Shows failure reason + recommended devices, retry option
 
-**Checks:**
-- Device model + Android version
-- Internet connection type (Fiber/Cable/Wireless)
-- Minimum requirements: Android 11+, 3GB+ RAM
+| Outcome | What Happens |
+|---------|-------------|
+| **Passed** | Proceeds to Screen 12 (Onboarding Fee) |
+| **Rejected** | Shows "Profile not accepted yet" + "No refund will be done at this moment" + "Talk to Us" CTA (7836811111) |
 
 ---
 
-### Screen 13: CSP Account Setup (Automated)
+### Screen 12: Onboarding Fee (Rs.20,000)
 
-**Step Label:** स्टेप 4/7
+**Purpose:** Second and final payment to activate the partnership.
 
-**Auto-plays through 5 setup items (800ms each):**
-1. Partner Ledger Created
-2. RazorpayX Payout Link
-3. Zoho Invoice Setup
-4. Trade Name Locked
-5. TDS/TCS Configuration
+**Step Label:** Step 3/5 | **Header:** Activation
 
-**CTA:** "Training शुरू करें"
+**What the partner sees:**
+- WiFi devices message
+- **Investment Summary:**
+  - Registration Fee: Rs.2,000 (Paid ✓)
+  - Onboarding Fee: Rs.20,000 (Due)
+  - Total: Rs.22,000
 
----
+**CTA:** "Pay Rs.20,000 Now"
 
-### Screen 14: Training Modules
+**Payment outcomes:**
 
-**Step Label:** स्टेप 5/7
-
-**3 Modules:**
-
-| Module | Topic | Questions |
-|--------|-------|-----------|
-| 1. App Usage | Add customers, check recharge | 2 questions |
-| 2. SLA & Exposure | Complaint resolution, uptime | 2 questions |
-| 3. Money Matters | Commission, payout frequency | 2 questions |
-
-**Module Flow:** Watch Video → Take Quiz → Complete
+| Outcome | What Happens |
+|---------|-------------|
+| **Success** | Auto-moves to Screen 13 |
+| **Failed** | Retry CTA + "Talk to Us" (7836811111) |
+| **Timeout** | Refresh CTA + "Talk to Us" (7836811111) |
 
 ---
 
-### Screen 15: Policy Quiz (NEW in V3)
+### Screen 13: Account Setup
 
-**Step Label:** स्टेप 6/7
+**Purpose:** Automated backend setup of the partner's account.
 
-**Purpose:** Test partner's understanding of Wiom policies.
+**Step Label:** Step 4/5 | **Header:** Activation
 
-**5 questions** covering commission structure, SLA terms, compliance rules.
-**Pass threshold:** 3 out of 5 correct.
-**Fail:** Score card shown + "Review and retake" option (unlimited retries).
+**What the partner sees:**
+- Loading screen: "Account Setup in Progress for [Business Name]"
+- Auto-progresses to success screen after 3 seconds
+- **No CTA** — fully automated
 
----
+**Error outcomes:**
 
-### Screen 16: Go Live!
-
-**Step Label:** स्टेप 7/7
-
-**Shows:**
-- "Congratulations!" with celebration emoji
-- **9 Status Chips** (all green):
-  1. Registered
-  2. KYC Verified
-  3. Bank Verified
-  4. ISP Agreement
-  5. QA Approved
-  6. Policy Accepted
-  7. Tech Assessment
-  8. Financial Setup
-  9. Trained
-
-- **4 Quick Action Cards:** Add Customer, View Earnings, Tasks, Training
-- Download prompt for Wiom CSP production app
+| Outcome | What Happens |
+|---------|-------------|
+| **Failed** | Retry CTA + "Talk to Us" (7836811111) |
+| **Pending** | Refresh CTA + "Talk to Us" (7836811111) |
 
 ---
 
-## 6. QA Rejection Reasons
+### Screen 14: Successfully Onboarded
 
-When QA rejects an application via the QA Review Dashboard, they **must** select one of these 7 reasons:
+**Purpose:** Celebration and next steps for the newly onboarded partner.
 
-| # | Reason (Hindi) | Reason (English) | Resolvable? | Resolution Screen | App CTA |
-|---|---|---|---|---|---|
-| 1 | KYC दस्तावेज़ अस्पष्ट / अमान्य | KYC Document Unclear/Invalid | Yes | Screen 5 (KYC) | "दस्तावेज़ दोबारा अपलोड करें" |
-| 2 | PAN और आधार में नाम मेल नहीं खाता | PAN-Aadhaar Name Mismatch | Yes | Screen 5 (KYC) | "सही दस्तावेज़ अपलोड करें" |
-| 3 | दुकान की फ़ोटो स्वीकार्य नहीं | Shop Photo Not Acceptable | Yes | Screen 8 (Photos) | "फ़ोटो दोबारा अपलोड करें" |
-| 4 | ISP अनुबंध अमान्य / अधूरा | ISP Agreement Invalid/Incomplete | Yes | Screen 7 (ISP) | "ISP अनुबंध दोबारा अपलोड करें" |
-| 5 | पता सत्यापन विफल | Address Verification Failed | Yes | Screen 3 (Location) | "पता अपडेट करें" |
-| 6 | बैंक विवरण मेल नहीं खाता | Bank Details Mismatch | Yes | Screen 6 (Bank) | "बैंक विवरण अपडेट करें" |
-| 7 | एरिया में पहले से CSP मौजूद | Duplicate CSP in Area | No | — | "₹2,000 रिफंड प्रक्रिया शुरू" |
+**Step Label:** Step 5/5 | **Header:** Activation
 
-**Resolvable rejections:** App shows the reason + a CTA button that navigates the partner directly to the screen where they can fix the issue. After fixing, the application is re-submitted for QA review.
+**What the partner sees:**
+- "Congratulations, [Name]! You are now a Wiom Connection Service Provider"
+- **Next Steps:**
+  - Download Wiom Partner Plus App
+  - "Install Now" button
+- **Important Instructions:**
+  - Login to the app
+  - Allow all permissions
+  - Complete Mandatory Training
 
-**Non-resolvable rejection (Reason 7):** App shows refund information (Rs.2,000 refund in 5-7 working days).
-
----
-
-## 7. Error Scenarios (18 Cases)
-
-### Registration & OTP Errors
-
-#### PHONE_DUPLICATE (Screen 0)
-**When:** Phone number already registered.
-**Shows:** Error card + "Send OTP with new number" or "Login" CTAs.
-**Outcome:** Blocked.
-
-#### OTP_WRONG (Screen 1)
-**When:** Incorrect OTP digits.
-**Shows:** Red boxes, "2 attempts remaining."
-**Outcome:** Retryable (3 attempts max).
-
-#### OTP_EXPIRED (Screen 1)
-**When:** Timer ran out.
-**Shows:** Faded boxes, "Send new OTP" or "Change Number."
-**Outcome:** Retryable.
-
-### Location & KYC Errors
-
-#### AREA_NOT_SERVICEABLE (Screen 3)
-**When:** Pincode not in service area.
-**Shows:** "Join the waitlist!" with count.
-**Outcome:** Blocked.
-
-#### KYC_PAN_MISMATCH (Screen 5)
-**When:** PAN name differs from Aadhaar.
-**Shows:** PAN row red, both names shown.
-**Outcome:** Blocked.
-
-#### KYC_AADHAAR_EXPIRED (Screen 5)
-**When:** Aadhaar address outdated.
-**Shows:** Orange warning, UIDAI link.
-**Outcome:** Blocked.
-
-#### KYC_PAN_AADHAAR_UNLINKED (Screen 5)
-**When:** PAN-Aadhaar not linked.
-**Shows:** Linking error, incometax.gov.in link.
-**Outcome:** Blocked.
-
-### Payment Errors
-
-#### REGFEE_FAILED (Screen 4)
-**When:** Rs.2K payment declined.
-**Shows:** "No money deducted" + retry.
-**Outcome:** Retryable.
-
-#### REGFEE_TIMEOUT (Screen 4)
-**When:** Payment gateway timeout.
-**Shows:** Pending status + auto-refund info.
-**Outcome:** Retryable.
-
-#### ONBOARDFEE_FAILED (Screen 11)
-**When:** Rs.20K payment declined.
-**Shows:** UPI limit info + alternative methods.
-**Outcome:** Retryable.
-
-### Bank & Documentation Errors
-
-#### BANK_PENNYDROP_FAIL (Screen 6)
-**When:** Penny drop credit failed.
-**Shows:** Account field red, fix CTA.
-**Outcome:** Retryable.
-
-#### BANK_NAME_MISMATCH (Screen 6)
-**When:** Bank holder name differs from KYC.
-**Shows:** Side-by-side name comparison.
-**Outcome:** Retryable.
-
-#### DEDUP_FOUND (Screen 6)
-**When:** Existing partner with same PAN/Bank.
-**Shows:** Match details, contact support.
-**Outcome:** Blocked.
-
-#### ISP_DOCUMENT_INVALID (Screen 7)
-**When:** ISP agreement document is invalid or unreadable.
-**Shows:** Error message with re-upload CTA.
-**Outcome:** Retryable.
-
-### Verification & Tech Errors
-
-#### VERIFICATION_REJECTED (Screen 9)
-**When:** QA rejects the application (with reason).
-**Shows:** Rejection reason + resolution CTA (if resolvable) or refund info.
-**Outcome:** Retryable (if resolvable) or Blocked (if duplicate area).
-
-#### TECH_ASSESSMENT_REJECTED (Screen 12)
-**When:** Device/infra doesn't meet requirements.
-**Shows:** Specs comparison + recommended devices.
-**Outcome:** Blocked — must upgrade device.
-
-### Training & Quiz Errors
-
-#### TRAINING_QUIZ_FAIL (Screen 14)
-**When:** Failed training quiz.
-**Shows:** Score card + "Review and retake."
-**Outcome:** Retryable (unlimited).
-
-#### POLICY_QUIZ_FAIL (Screen 15)
-**When:** Failed policy quiz (<3/5).
-**Shows:** Score card + review option.
-**Outcome:** Retryable (unlimited).
+**Design notes:**
+- NO green status chips
+- NO 4 action cards
+- Clean, focused congratulations screen with clear next steps
 
 ---
 
-## 8. Empty States & Edge Cases
+## 6. Error Scenarios & Scenario Simulator
+
+### Scenario Simulator Categories (9 categories, 30+ scenarios)
+
+#### Category 1: Network/App Errors
+
+| Scenario | When | What Shows | Outcome |
+|----------|------|------------|---------|
+| **No Internet** | Any screen, no connectivity | No internet error overlay | Blocked until connection restored |
+| **Server Error** | Any screen, server down | Server error overlay | Retry |
+
+#### Category 2: Registration & OTP
+
+| Scenario | Screen | When | What Shows | Outcome |
+|----------|--------|------|------------|---------|
+| **Phone Duplicate** | 0 | Phone already registered | Error card + alternative CTAs | Blocked |
+| **Wrong OTP** | 1 | Incorrect OTP digits | Red boxes, attempt counter | Retryable (3 max) |
+| **OTP Expired** | 1 | Timer ran out | Faded boxes, "Resend OTP" / "Change Number" | Retryable |
+
+#### Category 3: Registration Fee (Rs.2K)
+
+| Scenario | Screen | When | What Shows | Outcome |
+|----------|--------|------|------------|---------|
+| **Rs.2K Failed** | 4 | Payment declined | "No money deducted" + retry | Retryable |
+| **Rs.2K Timeout** | 4 | Gateway timeout | Pending status + refresh | Retryable |
+| **Day 1-4 Nudges** | 4 | Payment pending for 1-4 days | Reminder nudges | Informational |
+| **Refund Success** | 9 | Refund completed | Refund confirmation | Terminal |
+| **Refund In Progress** | 9 | Refund processing | Progress status | Informational |
+| **Refund Failed** | 9 | Refund could not process | Error + contact support | Needs support |
+
+#### Category 4: KYC Dedup
+
+| Scenario | Screen | When | What Shows | Outcome |
+|----------|--------|------|------------|---------|
+| **PAN Dedup** | 5 (PAN sub-stage) | PAN already registered | Dedup error overlay (deferred — triggers on blur after valid entry) | Blocked |
+| **Aadhaar Dedup** | 5 (Aadhaar sub-stage) | Aadhaar already registered | Dedup error overlay (deferred — triggers on blur after valid entry) | Blocked |
+| **GST Dedup** | 5 (GST sub-stage) | GST already registered | Dedup error overlay (deferred — triggers on blur after valid entry) | Blocked |
+
+#### Category 5: Bank & Dedup
+
+| Scenario | Screen | When | What Shows | Outcome |
+|----------|--------|------|------------|---------|
+| **Penny Drop Failed** | 6 | Bank credit failed | Bottom sheet: "Change Bank Details" / "Upload Bank Document" | Retryable |
+| **Name Mismatch** | 6 | Bank holder name differs from KYC | Bottom sheet with name comparison: "Change Bank Details" / "Upload Bank Document" | Retryable |
+| **Bank Account Dedup** | 6 | Account already registered | Bottom sheet: "Change Bank Details" only (deferred — triggers after Verify) | Blocked |
+
+#### Category 6: Onboarding Fee (Rs.20K)
+
+| Scenario | Screen | When | What Shows | Outcome |
+|----------|--------|------|------------|---------|
+| **Rs.20K Success** | 12 | Payment succeeds | Auto-move to Screen 13 | Success |
+| **Rs.20K Failed** | 12 | Payment declined | Retry + "Talk to Us" (7836811111) | Retryable |
+| **Rs.20K Timeout** | 12 | Gateway timeout | Refresh + "Talk to Us" (7836811111) | Retryable |
+
+#### Category 7: Account Setup
+
+| Scenario | Screen | When | What Shows | Outcome |
+|----------|--------|------|------------|---------|
+| **Setup Failed** | 13 | Backend setup error | Retry + "Talk to Us" (7836811111) | Retryable |
+| **Setup Pending** | 13 | Setup taking longer | Refresh + "Talk to Us" (7836811111) | Retryable |
+
+#### Category 8: Agreement & Tech Assessment
+
+| Scenario | Screen | When | What Shows | Outcome |
+|----------|--------|------|------------|---------|
+| **Verification Pending** | 9 | Review in progress | Waiting status with checklist | Informational |
+| **Verification Rejected** | 9 | QA rejects application | "Verification Rejected" + auto refund flow (no re-upload) | Terminal |
+| **Refund In Progress (VR)** | 9 | Refund processing after rejection | Refund progress status | Informational |
+| **Policy & SLA** | 10 | Displaying terms | Policy and SLA content | Normal flow |
+| **Tech Assessment Rejected** | 11 | Infrastructure/network fails | "Profile not accepted yet" + "No refund at this moment" + "Talk to Us" (7836811111) | Blocked |
+
+#### Category 9: Payment Failures
+
+Rs.20K payment failure scenarios are documented under Category 6 (Onboarding Fee).
+
+### Removed Scenarios (from V3.0)
+
+| Old Scenario | Old ID | Why Removed |
+|-------------|--------|-------------|
+| PAN Name Mismatch | kyc-pan-mismatch | Replaced by dedup check model |
+| Aadhaar Expired | kyc-aadhaar-expired | No longer in flow |
+| ISP Doc Invalid | isp-doc-invalid | No longer a separate error |
+| Dedup Match Found | dedup-found | Replaced by bank-dedup |
+| Training Quiz Fail | training-quiz-fail | Training screen removed |
+| Policy Quiz Fail | policy-quiz-fail | Quiz screen removed |
+
+---
+
+## 7. Empty States & Edge Cases
 
 ### Empty States
 
@@ -661,31 +668,38 @@ When QA rejects an application via the QA Review Dashboard, they **must** select
 | 0 | <10 digits + T&C checked | CTA disabled |
 | 1 | No OTP digits | CTA disabled |
 | 2 | Missing any field | CTA disabled |
-| 3 | No state selected | CTA still enabled |
-| 5 | No documents uploaded | CTA disabled |
-| 6 | Bank 3/4 fields | Verify button disabled |
-| 7 | No ISP document | CTA disabled |
-| 8 | Missing any photo | CTA disabled |
-| 14 | No modules done | CTA disabled |
-| 15 | Quiz not attempted | CTA disabled |
+| 3 | No state selected | CTA disabled |
+| 5 (PAN) | PAN number empty or invalid | Cannot proceed to upload |
+| 5 (Aadhaar) | Aadhaar number empty or invalid | Cannot proceed to upload |
+| 5 (GST) | GST number empty or invalid | Cannot proceed to upload |
+| 6 | Any of 3 fields empty | Verify button disabled |
+| 6 | Account numbers don't match | Verify button disabled |
+| 7 | No ISP document uploaded | CTA disabled |
+| 8 | Missing shop front photo | CTA disabled |
+| 8 | Missing equipment photos | CTA disabled |
 
 ### Edge Cases
 
 | Case | Expected Behavior |
 |------|-------------------|
-| Phone >10 digits | Error: "केवल 10 अंकों का नंबर डालें" |
+| Phone >10 digits | Error shown, extra digits blocked |
 | T&C checkbox toggled | CTA enables/disables accordingly |
-| QA rejected with resolvable reason | CTA navigates to fix screen |
-| QA rejected with non-resolvable reason | Refund info shown |
+| PAN entered while typing (not blurred) | No error shown yet |
+| PAN blurred with invalid format | Error shown on blur |
+| GST chars 3-12 don't match PAN | Error shown on blur |
+| Bank account number on blur | Field masks to type=password |
+| Re-enter account number mismatch | Error shown |
+| Penny drop fails | Bottom sheet with Change / Upload options |
+| Bank dedup found | Bottom sheet with Change only (no upload option) |
+| Verification rejected | Auto refund flow, no re-upload |
+| Tech assessment rejected | No refund, Talk to Us CTA |
+| Account setup takes >3s | Shows pending state |
 | Navigate back then forward | All data preserved |
 | Scenario trigger then clear | Returns to happy path |
-| Policy quiz 2/5 score | Fail, review + retake shown |
-| Policy quiz 3/5 score | Pass, proceeds to GoLive |
-| Tech assessment fail | Retry with device recommendations |
 
 ---
 
-## 9. Dashboard System (2 Dashboards)
+## 8. Dashboard System (2 Dashboards)
 
 ### Dashboard 1: Control Dashboard (`dashboard/control.html`)
 
@@ -693,9 +707,8 @@ When QA rejects an application via the QA Review Dashboard, they **must** select
 
 **Sections:**
 1. **Control Buttons** — Restart App, Reset, Hindi/English toggle, Fill/Empty data, Screenshot
-2. **Screen Navigation** — Grid of 18 screen tiles (Pitch + 0-16), active screen highlighted
-3. **Scenario Simulator** — 18 error scenario buttons grouped by category, with "Clear Scenario"
-4. **Training Module Manager** — Edit 3 modules (title, questions, answers), "Save to App"
+2. **Screen Navigation** — Grid of 16 screen tiles (Pitch + 0-14), active screen highlighted
+3. **Scenario Simulator** — 30+ error scenario buttons grouped by 9 categories, with "Clear Scenario"
 
 ### Dashboard 2: QA Review Dashboard (`dashboard/qa-review.html`)
 
@@ -712,7 +725,7 @@ When QA rejects an application via the QA Review Dashboard, they **must** select
 **Right Panel — Application Detail (on click):**
 - Applicant name, ID, trade name, submission date
 - **Approve/Reject CTAs** (for Pending applications)
-- **Mandatory reason selection** on Reject (7 reasons shown as selectable list)
+- **Mandatory reason selection** on Reject
 - Current decision badge + "Change Decision" button (for decided applications)
 - Summary strip: Phone, Entity Type, KYC count, Rs.2K status, City
 - Collapsible sections: Personal Info, Location, KYC Documents (with view option), Registration Fee
@@ -722,11 +735,10 @@ When QA rejects an application via the QA Review Dashboard, they **must** select
 - Reversible — any decision can be changed back to Pending
 - Live device sends Approve/Reject to emulator via bridge
 - Auto-refreshes live app data every 5 seconds
-- 7 mock applications + 1 live device application
 
 ---
 
-## 10. Dashboard-App Interaction
+## 9. Dashboard-App Interaction
 
 | Dashboard Action | Intent/Endpoint | App Receiver |
 |-----------------|----------------|--------------|
@@ -737,7 +749,6 @@ When QA rejects an application via the QA Review Dashboard, they **must** select
 | Reset state | `com.wiom.csp.RESET` | `DashboardReceiver` |
 | Fill/Empty forms | `com.wiom.csp.FILL` (filled/empty) | `DashboardReceiver` |
 | QA decision | `com.wiom.csp.QA` (approved/rejected + reason) | `DashboardReceiver` |
-| Update training | `com.wiom.csp.TRAINING` (JSON config) | `DashboardReceiver` |
 | Dump state | `com.wiom.csp.DUMP_STATE` | `DashboardReceiver` → writes state.json |
 | Restart app | `adb shell am force-stop` + `am start` | Direct ADB |
 | Screenshot | `adb exec-out screencap -p` | Direct ADB |
@@ -747,14 +758,14 @@ When QA rejects an application via the QA Review Dashboard, they **must** select
 
 ---
 
-## 11. Business Rules & Constants
+## 10. Business Rules & Constants
 
 ### Fee Structure
 
 | Fee | Amount | Refundable? | When |
 |-----|--------|-------------|------|
-| Registration | Rs.2,000 | Yes (if QA rejects) | Screen 4 |
-| Onboarding | Rs.20,000 (incl. GST) | No | Screen 11 |
+| Registration | Rs.2,000 | Yes (if verification rejects) | Screen 4 |
+| Onboarding | Rs.20,000 | No | Screen 12 |
 | **Total** | **Rs.22,000** | | |
 
 ### Commission Structure
@@ -763,9 +774,9 @@ When QA rejects an application via the QA Review Dashboard, they **must** select
 |------|--------|-----------|
 | New Connection | Rs.300 | Per event |
 | Recharge | Rs.300 | Per event |
-| Payout | Bank transfer (RazorpayX) | Every Monday |
+| Payout | Bank transfer | Every Monday by 10 AM |
 
-### SLA Terms
+### Service Levels to be Maintained
 
 | Metric | Requirement |
 |--------|-------------|
@@ -778,35 +789,38 @@ When QA rejects an application via the QA Review Dashboard, they **must** select
 
 | Scenario | Refund | Timeline |
 |----------|--------|----------|
-| QA Rejection | Rs.2,000 | 5-7 working days |
-| Payment Timeout | Full amount | 48 hours |
+| Verification Rejected | Rs.2,000 (auto refund) | Shown in app |
+| Payment Timeout | Full amount | Auto-refund |
+| Tech Assessment Rejected | No refund of Rs.2,000 | "Talk to Us" for support |
 
-### Device Requirements
+### Help Contact
 
-| Spec | Minimum |
-|------|---------|
-| Android Version | 11 |
-| RAM | 3 GB |
-| Recommended | Samsung M34, Redmi Note 12, Realme Narzo 60 |
-
----
-
-## 12. Validation Rules
-
-| Field | Rules | Error (Hindi) | Error (English) |
-|-------|-------|---------------|-----------------|
-| Phone | 10 digits exactly, numeric only | "10 अंकों का नंबर डालें" | "Enter 10-digit number" |
-| Phone >10 | Error if exceeds 10 digits | "केवल 10 अंकों का नंबर डालें" | "Only 10 digits allowed" |
-| T&C | Must be checked | CTA disabled | CTA disabled |
-| OTP | All 4 digits | "पूरा OTP डालें" | "Enter complete OTP" |
-| Name | Not blank | "नाम डालें" | "Enter name" |
-| Email | Contains @ and . | "सही ईमेल डालें" | "Enter valid email" |
-| Pincode | 6 digits exactly | "6 अंकों का पिनकोड" | "Enter 6-digit pincode" |
-| State | Must select from dropdown | Required | Required |
+| Channel | Number |
+|---------|--------|
+| Talk to Us (throughout app) | 7836811111 |
 
 ---
 
-## 13. Design System Reference
+## 11. Validation Rules
+
+| Field | Regex / Rule | Length | Notes |
+|-------|-------------|-------|-------|
+| Phone | `[0-9]{10}` | 10 digits | Numeric only |
+| OTP | `[0-9]{4}` | 4 digits | Auto-focus |
+| PAN | `/^[A-Z]{5}[0-9]{4}[A-Z]$/` | 10 chars | e.g., ABCDE1234F. Validated on blur. |
+| Aadhaar | `/^[0-9]{12}$/` | 12 digits | Displayed as 4-4-4 format. Validated on blur. |
+| GST | `/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]{3}$/` | 15 chars | Chars 3-12 must match PAN. Validated on blur. |
+| Bank Account | `[0-9]{9,18}` | 9-18 digits | Numeric only. Masked (type=password) on blur. Double entry must match. |
+| IFSC | `/^[A-Z]{4}0[A-Z0-9]{6}$/` | 11 chars | 5th char is always 0 |
+| Pincode | `[0-9]{6}` | 6 digits | Numeric only |
+| Email | Must contain `@` and `.` | — | Basic validation |
+| Name | Not blank | — | Required |
+
+**Validation timing:** All KYC number fields (PAN, Aadhaar, GST) show errors **only on blur**, not while the user is typing.
+
+---
+
+## 12. Design System Reference
 
 ### Colors
 
@@ -832,86 +846,98 @@ When QA rejects an application via the QA Review Dashboard, they **must** select
 
 ---
 
-## 14. QA Test Cases
+## 13. QA Test Cases
 
 ### Happy Path
 
 | ID | Test | Expected |
 |----|------|----------|
-| HP-01 | Complete full onboarding (18 screens) | Partner reaches Go Live with 9 green chips |
+| HP-01 | Complete full onboarding (15 screens) | Partner reaches "Successfully Onboarded" screen |
 | HP-02 | Language toggle on every screen | All text switches Hindi/English |
 | HP-03 | T&C checkbox toggle | CTA enables/disables correctly |
-| HP-04 | Phone >10 digits | Error shown |
-| HP-05 | State dropdown selection | All 36 states available |
-| HP-06 | ISP agreement upload | Document shown as uploaded |
-| HP-07 | Shop photos upload | Both photos captured |
-| HP-08 | QA reject with reason | Reason shown in app with resolution CTA |
-| HP-09 | QA reject → fix → resubmit | Re-enters QA review |
-| HP-10 | Policy quiz pass (3/5) | Proceeds to GoLive |
-| HP-11 | Policy quiz fail (2/5) | Score shown, retry available |
-| HP-12 | Tech assessment pass/fail | Correct branch taken |
+| HP-04 | PAN number entry + blur | Validation fires on blur, not while typing |
+| HP-05 | Aadhaar number formatting | Displays as 4-4-4 (1234 5678 9012) |
+| HP-06 | GST chars 3-12 match PAN | Accepted without error |
+| HP-07 | GST chars 3-12 don't match PAN | Error shown on blur |
+| HP-08 | Bank account masked on blur | Field changes to type=password |
+| HP-09 | Bank re-entry matches | Verify button enabled |
+| HP-10 | Penny drop success | Verified delight screen → next |
+| HP-11 | ISP multi-page upload (7 photos) | All pages captured and shown |
+| HP-12 | Equipment multi-photo (5 photos) | All photos captured and shown |
+| HP-13 | View sample document on all KYC screens | Sample image displayed |
+| HP-14 | Verification approved → Policy & SLA | Correct navigation |
+| HP-15 | Tech assessment passed → Onboarding fee | Correct navigation |
+| HP-16 | Account setup auto-progress | Screen auto-advances after 3 seconds |
+| HP-17 | Successfully onboarded screen | Shows congratulations + download app + instructions |
 
 ### Error Scenarios
 
 | ID | Scenario | Expected |
 |----|----------|----------|
-| ERR-01 | PHONE_DUPLICATE | Error + login/new number CTAs |
-| ERR-02 | OTP_WRONG | Red boxes, attempt counter |
-| ERR-03 | OTP_EXPIRED | Faded boxes, resend |
-| ERR-04 | AREA_NOT_SERVICEABLE | Waitlist, blocked |
-| ERR-05 | KYC_PAN_MISMATCH | PAN red, blocked |
-| ERR-06 | KYC_AADHAAR_EXPIRED | Orange warning, blocked |
-| ERR-07 | KYC_PAN_AADHAAR_UNLINKED | Linking error, blocked |
-| ERR-08 | REGFEE_FAILED | Retry |
-| ERR-09 | REGFEE_TIMEOUT | Pending + refresh |
-| ERR-10 | BANK_PENNYDROP_FAIL | Fix + retry |
-| ERR-11 | BANK_NAME_MISMATCH | Name comparison + fix |
-| ERR-12 | DEDUP_FOUND | Blocked, support |
-| ERR-13 | ISP_DOCUMENT_INVALID | Re-upload |
-| ERR-14 | VERIFICATION_REJECTED | Reason + resolution CTA |
-| ERR-15 | TECH_ASSESSMENT_REJECTED | Device recommendations |
-| ERR-16 | ONBOARDFEE_FAILED | Retry |
-| ERR-17 | TRAINING_QUIZ_FAIL | Review + retake |
-| ERR-18 | POLICY_QUIZ_FAIL | Score + retake |
+| ERR-01 | No Internet | No internet error overlay |
+| ERR-02 | Server Error | Server error overlay |
+| ERR-03 | Phone Duplicate | Error card, blocked |
+| ERR-04 | Wrong OTP | Red boxes, attempt counter |
+| ERR-05 | OTP Expired | Faded boxes, resend |
+| ERR-06 | Rs.2K Failed | "No money deducted" + retry |
+| ERR-07 | Rs.2K Timeout | Pending + refresh |
+| ERR-08 | PAN Dedup | Dedup overlay on blur |
+| ERR-09 | Aadhaar Dedup | Dedup overlay on blur |
+| ERR-10 | GST Dedup | Dedup overlay on blur |
+| ERR-11 | Penny Drop Failed | Bottom sheet: Change / Upload Doc |
+| ERR-12 | Name Mismatch | Bottom sheet: name comparison + Change / Upload Doc |
+| ERR-13 | Bank Account Dedup | Bottom sheet: Change only |
+| ERR-14 | Verification Rejected | Auto refund flow, no re-upload |
+| ERR-15 | Tech Assessment Rejected | "No refund" + Talk to Us |
+| ERR-16 | Rs.20K Failed | Retry + Talk to Us |
+| ERR-17 | Rs.20K Timeout | Refresh + Talk to Us |
+| ERR-18 | Account Setup Failed | Retry + Talk to Us |
+| ERR-19 | Account Setup Pending | Refresh + Talk to Us |
+| ERR-20 | Refund Success | Refund confirmation shown |
+| ERR-21 | Refund In Progress | Progress status shown |
+| ERR-22 | Refund Failed | Error + contact support |
+| ERR-23 | Day 1-4 Reg Fee Nudges | Reminder nudges shown |
 
 ---
 
-## 15. UAT Test Cases
+## 14. UAT Test Cases
 
 | ID | Persona | Scenario | Acceptance Criteria |
 |----|---------|----------|---------------------|
-| UAT-01 | Rajesh, Indore, Individual | Happy path (18 screens) | Go Live with 9 green chips |
-| UAT-02 | Sunita, Deoghar | Non-serviceable area | Waitlist joined |
-| UAT-03 | Anil, PAN mismatch | KYC rejection | QA rejects with reason 2, app shows fix CTA |
-| UAT-04 | Deepak, QA rejected (area) | Non-resolvable rejection | Rs.2K refund info shown |
-| UAT-05 | Mohit, UPI limit | Payment failure | Alternative method suggested |
-| UAT-06 | Kavita, old device | Tech assessment fail | Device recommendations shown |
-| UAT-07 | Priya, quiz fail | Policy quiz fail | Score + unlimited retries |
-| UAT-08 | Hindi speaker | Hindi-first UX | All text culturally appropriate |
-| UAT-09 | QA reviewer | Dashboard QA workflow | Reject with reason → app shows reason + fix CTA |
-| UAT-10 | Admin | Control dashboard | Navigate all 18 screens, trigger all 18 scenarios |
+| UAT-01 | Rajesh, Indore, Individual | Happy path (15 screens) | Reaches "Successfully Onboarded" with download + instructions |
+| UAT-02 | Anil, PAN dedup | KYC PAN already exists | Dedup overlay shown on blur after valid PAN entry |
+| UAT-03 | Sunita, Aadhaar dedup | KYC Aadhaar already exists | Dedup overlay shown on blur |
+| UAT-04 | Deepak, bank dedup | Bank account already exists | Bottom sheet with "Change Bank Details" only |
+| UAT-05 | Mohit, penny drop fail | Bank verification fails | Bottom sheet with Change / Upload Doc options |
+| UAT-06 | Priya, name mismatch | Bank holder name differs | Bottom sheet with name comparison |
+| UAT-07 | Kavita, verification rejected | QA rejects application | Auto refund flow, no re-upload |
+| UAT-08 | Ravi, tech assessment rejected | Infrastructure fails | "No refund" + Talk to Us (7836811111) |
+| UAT-09 | Neha, Rs.20K failed | Payment declined | Retry + Talk to Us |
+| UAT-10 | Hindi speaker | Hindi-first UX | All text culturally appropriate |
+| UAT-11 | QA reviewer | Dashboard QA workflow | Review → Approve/Reject with reason |
+| UAT-12 | Admin | Control dashboard | Navigate all 16 screens, trigger 30+ scenarios |
 
 ---
 
-## 16. What's Prototype vs Production
+## 15. What's Prototype vs Production
 
 | Feature | Prototype (Current) | Production (Needed) |
 |---------|---------------------|---------------------|
 | OTP | Simulated (any 4 digits) | Real SMS/WhatsApp OTP |
+| KYC Validation | Regex only, dedup simulated | Real PAN/Aadhaar/GST API verification + dedup |
 | KYC Upload | Simulated progress | Real camera/gallery + OCR |
 | Payments | 2-second delay | Real Razorpay gateway |
-| Penny Drop | Simulated success | Real Rs.1 bank credit |
-| Dedup Check | Simulated pass | Real database cross-reference |
+| Penny Drop | Simulated outcomes | Real Rs.1 bank credit |
+| Bank Dedup | Simulated | Real database cross-reference |
 | QA Review | Dashboard + localStorage | Backend queue + admin panel + database |
-| Rejection Reasons | 7 predefined, localStorage | Database + custom reasons + audit trail |
-| ISP Agreement | Simulated upload | Real document upload + DOT verification |
-| Tech Assessment | Simulated check | Real device API + connectivity test |
-| Policy Quiz | 5 hardcoded questions | Question bank + randomization |
-| Financial Setup | Animated checklist | Real RazorpayX + Zoho APIs |
-| Training Videos | Dark placeholder | Real video player + CDN |
+| ISP Agreement | Simulated multi-page upload | Real document upload + compliance verification |
+| Tech Assessment | Simulated check | Real infrastructure + network assessment |
+| Account Setup | 3-second auto-progress | Real RazorpayX + Zoho + ledger APIs |
 | GPS | Hardcoded coordinates | FusedLocationProvider |
 | T&C | Checkbox only | Real T&C document + versioning |
 | State Dropdown | 36 states | API-driven with city/pincode lookup |
+| Sample Documents | Static images | API-served latest samples |
+| Help Number | Hardcoded 7836811111 | Dynamic from config |
 | State Management | In-memory singleton | Room + DataStore |
 | Architecture | No ViewModel | MVVM + Hilt + Repository |
 | Backend | bridge.py (ADB) | REST API + auth + push notifications |
@@ -919,4 +945,4 @@ When QA rejects an application via the QA Review Dashboard, they **must** select
 
 ---
 
-*This document covers the complete specification of the Wiom CSP Onboarding App V3 — 18 screens, 7 QA rejection reasons, 18 error scenarios, 2 dashboards, business rules, validation, design tokens, QA cases, and UAT cases.*
+*This document covers the complete specification of the Wiom CSP Onboarding App V3.1 — 15 screens + Pitch, 30+ error scenarios across 9 categories, 2 dashboards, business rules, validation, design tokens, QA cases, and UAT cases.*

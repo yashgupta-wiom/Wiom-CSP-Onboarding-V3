@@ -1,7 +1,7 @@
 # Wiom CSP Onboarding App — Product Requirements Document (AI-Agent Format)
 
-> **Version:** 3.0
-> **Date:** 2026-03-24
+> **Version:** 4.0
+> **Date:** 2026-03-26
 > **Status:** Prototype (hardcoded data, no backend)
 > **Package:** `com.wiom.csp`
 > **Repos:**
@@ -19,7 +19,7 @@ platform: Android (Kotlin + Jetpack Compose + Material3)
 min_sdk: 24 (Android 7.0)
 target_sdk: 35
 architecture: Single-activity, composable screens, no ViewModel (prototype)
-navigation: AnimatedContent keyed on currentScreen integer (Pitch + 0-16, 18 screens total)
+navigation: AnimatedContent keyed on currentScreen integer (Pitch + 0-14, 16 screens total)
 language: Bilingual Hindi/English via runtime t(hi, en) toggle
 state_management: Global singleton OnboardingState with mutableStateOf
 build: Gradle 8.11.1 (Kotlin DSL), Kotlin 2.1.0
@@ -33,7 +33,7 @@ build: Gradle 8.11.1 (Kotlin DSL), Kotlin 2.1.0
 actors:
   - id: PARTNER
     description: New CSP applicant going through onboarding
-    actions: Fill forms, upload documents, make payments, complete training
+    actions: Fill forms, upload documents, make payments
 
   - id: QA_TEAM
     description: Wiom Business/QA team reviewing partner applications
@@ -42,11 +42,11 @@ actors:
 
   - id: SYSTEM
     description: Automated backend processes
-    actions: OTP generation, KYC auto-verify, penny drop, dedup check, financial setup, training module delivery
+    actions: OTP generation, KYC auto-verify, penny drop, dedup check, account setup
 
   - id: ADMIN
     description: Dashboard operator
-    actions: Navigate screens, trigger scenarios, control language, manage training modules
+    actions: Navigate screens, trigger scenarios, control language
     interface: Control Dashboard (dashboard/control.html)
 ```
 
@@ -62,14 +62,15 @@ phases:
     description: Partner identity capture, location, and registration fee collection
 
   - id: PHASE_2
-    name: Documentation & Verification
+    name: Verification
     screens: [5, 6, 7, 8, 9]
-    description: KYC documents, bank verification, ISP agreement, shop photos, QA review (approve/reject with reason)
+    description: KYC documents, bank verification, ISP agreement, shop photos, verification status
+    header: "Verification"
 
   - id: PHASE_3
     name: Activation
-    screens: [10, 11, 12, 13, 14, 15, 16]
-    description: Policy & SLA, onboarding fee, tech assessment, account setup, training, policy quiz, go-live
+    screens: [10, 11, 12, 13, 14]
+    description: Policy & SLA, technical assessment, onboarding fee, account setup, successfully onboarded
 ```
 
 ---
@@ -83,6 +84,7 @@ id: PITCH
 phase: PRE_FLOW
 title_hi: "Wiom पार्टनर बनें"
 title_en: "Become a Wiom Partner"
+branding: "Wiom Partner+"
 purpose: Introduce Wiom partnership opportunity and benefits before registration begins
 
 cta:
@@ -219,13 +221,13 @@ display_elements:
   - subtitle_en: "Sent to +91 XXXXX XXXXX"
 
 timer:
-  initial_seconds: 30
+  initial_seconds: 28
   countdown_interval_ms: 1000
   on_expire:
     show_resend_link: true
     resend_text_hi: "OTP दोबारा भेजें"
     resend_text_en: "Resend OTP"
-    resend_action: RESTART_TIMER(30)
+    resend_action: RESTART_TIMER(28)
     show_change_number: true
     change_number_text_hi: "नंबर बदलें"
     change_number_text_en: "Change Number"
@@ -371,7 +373,7 @@ cta:
 error_scenarios: []
 ```
 
-### SCREEN_3: Location
+### SCREEN_3: Business Location
 
 ```yaml
 id: SCREEN_3
@@ -463,41 +465,7 @@ cta:
   enabled_when: true  # all fields optional
   next_screen: 4
 
-error_scenarios:
-  - AREA_NOT_SERVICEABLE
-```
-
-### SCREEN_3_ERROR: AREA_NOT_SERVICEABLE
-
-```yaml
-id: AREA_NOT_SERVICEABLE
-trigger: Pincode/city not in Wiom service area
-screen: 3
-
-display:
-  error_card:
-    type: warning
-    icon: "📍"
-    title_hi: "यह एरिया अभी सर्विसेबल नहीं है"
-    title_en: "This area is not serviceable yet"
-    message_hi: "हम जल्द ही इस एरिया में आ रहे हैं। Waitlist में जुड़ें और पहले मौका पाएं!"
-    message_en: "We're coming to this area soon. Join the waitlist and get first opportunity!"
-  info_box:
-    icon: "📋"
-    text_hi: "Waitlist में 47 लोग पहले से हैं"
-    text_en: "47 people already on waitlist"
-
-ctas:
-  - text_hi: "Waitlist में जुड़ें"
-    text_en: "Join Waitlist"
-    type: primary
-    action: JOIN_WAITLIST
-  - text_hi: "दूसरा पिनकोड डालें"
-    text_en: "Try a different pincode"
-    type: secondary
-    action: CLEAR_PINCODE
-
-blocks_progression: true
+error_scenarios: []
 ```
 
 ### SCREEN_4: Registration Fee
@@ -508,7 +476,7 @@ phase: PHASE_1
 title_hi: "रजिस्ट्रेशन फ़ीस"
 title_en: "Registration Fee"
 step_label: "स्टेप 3/3 | Step 3/3"
-purpose: Collect ₹2,000 registration fee to initiate QA review
+purpose: Collect ₹2,000 registration fee (refundable on rejection)
 
 display_elements:
   - amount_box:
@@ -623,35 +591,86 @@ ctas:
 ```yaml
 id: SCREEN_5
 phase: PHASE_2
+header: "Verification"
 title_hi: "KYC दस्तावेज़"
 title_en: "KYC Documents"
 step_label: "स्टेप 1/5 | Step 1/5"
-purpose: Upload and auto-verify identity documents
+purpose: Capture and verify identity documents (PAN, Aadhaar, GST) with inline validation and dedup checks
 
-documents:
-  - id: pan_card
-    icon: "🪪"
-    label_hi: "PAN Card अपलोड करें"
-    label_en: "Upload PAN Card"
-    required: true
+sub_stages:
+  progress_bar: true  # visual progress bar across 3 sub-stages
 
-  - id: aadhaar_front
-    icon: "📄"
-    label_hi: "आधार कार्ड — सामने अपलोड करें"
-    label_en: "Upload Aadhaar Card — Front"
-    required: true
+  - id: pan
+    label_hi: "PAN Card"
+    label_en: "PAN Card"
+    fields:
+      - id: pan_number
+        type: text_input
+        label_hi: "PAN नंबर"
+        label_en: "PAN Number"
+        validation:
+          regex: "^[A-Z]{5}[0-9]{4}[A-Z]$"
+          validate_on: blur
+          error_hi: "सही PAN नंबर डालें (उदा: ABCDE1234F)"
+          error_en: "Enter valid PAN number (e.g., ABCDE1234F)"
+    upload:
+      - id: pan_card_photo
+        label_hi: "PAN Card अपलोड करें"
+        label_en: "Upload PAN Card"
+        required: true
+    view_sample_doc: true
+    dedup_check: true  # deferred — triggers kyc-pan-dedup scenario
 
-  - id: aadhaar_back
-    icon: "📄"
-    label_hi: "आधार कार्ड — पीछे अपलोड करें"
-    label_en: "Upload Aadhaar Card — Back"
-    required: true
+  - id: aadhaar
+    label_hi: "आधार कार्ड"
+    label_en: "Aadhaar Card"
+    fields:
+      - id: aadhaar_number
+        type: text_input
+        label_hi: "आधार नंबर"
+        label_en: "Aadhaar Number"
+        format: "4-4-4"  # displayed as XXXX XXXX XXXX
+        validation:
+          regex: "^[0-9]{12}$"
+          validate_on: blur
+          error_hi: "12 अंकों का आधार नंबर डालें"
+          error_en: "Enter 12-digit Aadhaar number"
+    upload:
+      - id: aadhaar_front
+        label_hi: "आधार कार्ड — सामने अपलोड करें"
+        label_en: "Upload Aadhaar Card — Front"
+        required: true
+      - id: aadhaar_back
+        label_hi: "आधार कार्ड — पीछे अपलोड करें"
+        label_en: "Upload Aadhaar Card — Back"
+        required: true
+    view_sample_doc: true
+    dedup_check: true  # deferred — triggers kyc-aadhaar-dedup scenario
 
-  - id: gst_certificate
-    icon: "📋"
-    label_hi: "GST प्रमाणपत्र अपलोड करें"
-    label_en: "Upload GST Certificate"
-    required: true
+  - id: gst
+    label_hi: "GST प्रमाणपत्र"
+    label_en: "GST Certificate"
+    fields:
+      - id: gst_number
+        type: text_input
+        label_hi: "GST नंबर"
+        label_en: "GST Number"
+        max_length: 15
+        validation:
+          regex: "^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]{3}$"
+          cross_validation: "characters 3-12 must match PAN number"
+          validate_on: blur
+          error_hi: "सही GST नंबर डालें"
+          error_en: "Enter valid GST number"
+    upload:
+      - id: gst_certificate
+        label_hi: "GST प्रमाणपत्र अपलोड करें"
+        label_en: "Upload GST Certificate"
+        required: true
+    view_sample_doc: true
+    dedup_check: true  # deferred — triggers kyc-gst-dedup scenario
+
+errors_shown_on: blur  # all validation errors appear only when field loses focus
 
 upload_flow:
   step_1_choose_source:
@@ -694,129 +713,115 @@ document_states:
 cta:
   text_hi: "अब बैंक का विवरण दें"
   text_en: "Next: Bank Details"
-  enabled_when: all_4_documents_uploaded
+  enabled_when: all_documents_uploaded_and_numbers_valid
   next_screen: 6
 
 error_scenarios:
-  - KYC_PAN_MISMATCH
-  - KYC_AADHAAR_EXPIRED
-  - KYC_PAN_AADHAAR_UNLINKED
+  - KYC_PAN_DEDUP
+  - KYC_AADHAAR_DEDUP
+  - KYC_GST_DEDUP
 ```
 
-### SCREEN_5_ERROR: KYC_PAN_MISMATCH
+### SCREEN_5_ERROR: KYC_PAN_DEDUP
 
 ```yaml
-id: KYC_PAN_MISMATCH
-trigger: PAN card name does not match Aadhaar name
+id: KYC_PAN_DEDUP
+trigger: PAN number already registered with another partner (deferred dedup check)
 screen: 5
 
 display:
-  document_states:
-    pan_card: { state: error, status_hi: "नाम मेल नहीं खाता", status_en: "Name Mismatch ✗" }
-    aadhaar_front: { state: uploaded }
-    aadhaar_back: { state: uploaded }
-    gst_certificate: { state: uploaded }
   error_card:
     type: error
     icon: "🪪"
-    title_hi: "PAN नाम मेल नहीं खाता"
-    title_en: "PAN Name Mismatch"
-    message_hi: "PAN पर नाम: Rajesh K Sharma\nआपने डाला: राजेश कुमार\n\nकृपया सही नाम डालें या PAN अपडेट कराएं"
-    message_en: "Name on PAN: Rajesh K Sharma\nYou entered: Rajesh Kumar\n\nPlease enter correct name or update PAN"
+    title_hi: "PAN पहले से रजिस्टर्ड है"
+    title_en: "PAN Already Registered"
+    message_hi: "इस PAN नंबर से पहले से एक पार्टनर रजिस्टर्ड है।"
+    message_en: "A partner is already registered with this PAN number."
 
+deferred: true  # check happens asynchronously, result shown later
 blocks_progression: true
 ```
 
-### SCREEN_5_ERROR: KYC_AADHAAR_EXPIRED
+### SCREEN_5_ERROR: KYC_AADHAAR_DEDUP
 
 ```yaml
-id: KYC_AADHAAR_EXPIRED
-trigger: Aadhaar card address is outdated
+id: KYC_AADHAAR_DEDUP
+trigger: Aadhaar number already registered with another partner (deferred dedup check)
 screen: 5
 
 display:
-  document_states:
-    pan_card: { state: uploaded }
-    aadhaar_front: { state: warning, status_hi: "पता पुराना", status_en: "Address Update Required" }
-    aadhaar_back: { state: warning }
-    gst_certificate: { state: uploaded }
-  error_card:
-    type: warning
-    icon: "⚠️"
-    title_hi: "Aadhaar पता पुराना है"
-    title_en: "Aadhaar Address Outdated"
-    message_hi: "आपके Aadhaar पर पता पुराना है। कृपया UIDAI पोर्टल पर अपडेट करें।"
-    message_en: "Address on Aadhaar is outdated. Please update on UIDAI portal."
-  info_box:
-    icon: "🌐"
-    text_hi: "uidai.gov.in पर अपडेट करें"
-    text_en: "Update at uidai.gov.in"
-
-blocks_progression: true
-```
-
-### SCREEN_5_ERROR: KYC_PAN_AADHAAR_UNLINKED
-
-```yaml
-id: KYC_PAN_AADHAAR_UNLINKED
-trigger: PAN and Aadhaar are not linked in NSDL database
-screen: 5
-
-display:
-  document_states:
-    pan_card: { state: uploaded }
-    aadhaar_front: { state: uploaded }
-    aadhaar_back: { state: uploaded }
-    gst_certificate: { state: uploaded }
   error_card:
     type: error
-    icon: "🔗"
-    title_hi: "PAN-Aadhaar लिंक नहीं है"
-    title_en: "PAN-Aadhaar Not Linked"
-    message_hi: "आगे बढ़ने के लिए PAN और Aadhaar लिंक होना ज़रूरी है।"
-    message_en: "PAN and Aadhaar must be linked to proceed."
-  info_box:
-    icon: "🌐"
-    text_hi: "incometax.gov.in पर लिंक करें"
-    text_en: "Link at incometax.gov.in"
+    icon: "📄"
+    title_hi: "आधार पहले से रजिस्टर्ड है"
+    title_en: "Aadhaar Already Registered"
+    message_hi: "इस आधार नंबर से पहले से एक पार्टनर रजिस्टर्ड है।"
+    message_en: "A partner is already registered with this Aadhaar number."
 
+deferred: true
 blocks_progression: true
 ```
 
-### SCREEN_6: Bank Details + Dedup Check
+### SCREEN_5_ERROR: KYC_GST_DEDUP
+
+```yaml
+id: KYC_GST_DEDUP
+trigger: GST number already registered with another partner (deferred dedup check)
+screen: 5
+
+display:
+  error_card:
+    type: error
+    icon: "📋"
+    title_hi: "GST पहले से रजिस्टर्ड है"
+    title_en: "GST Already Registered"
+    message_hi: "इस GST नंबर से पहले से एक पार्टनर रजिस्टर्ड है।"
+    message_en: "A partner is already registered with this GST number."
+
+deferred: true
+blocks_progression: true
+```
+
+### SCREEN_6: Bank Details
 
 ```yaml
 id: SCREEN_6
 phase: PHASE_2
+header: "Verification"
 title_hi: "Bank वेरिफिकेशन"
 title_en: "Bank Verification"
 step_label: "स्टेप 2/5 | Step 2/5"
 purpose: Verify bank account via penny drop and run dedup check
 
 fields:
-  - id: bank_account_holder
-    type: text_input
-    label_hi: "खाताधारक का नाम"
-    label_en: "Account Holder Name"
-    placeholder_hi: "नाम डालें"
-    placeholder_en: "Enter name"
-    required: true
-
-  - id: bank_name
-    type: text_input
-    label_hi: "बैंक का नाम"
-    label_en: "Bank Name"
-    placeholder_hi: "बैंक नाम डालें"
-    placeholder_en: "Enter bank name"
-    required: true
-
   - id: bank_account_number
     type: text_input
     label_hi: "अकाउंट नंबर"
     label_en: "Account Number"
     placeholder_hi: "अकाउंट नंबर डालें"
     placeholder_en: "Enter account number"
+    keyboard: numeric
+    min_length: 9
+    max_length: 18
+    mask_on_blur: true  # masked after field loses focus
     required: true
+    validation:
+      - rule: length_range(9, 18)
+        error_hi: "9-18 अंकों का अकाउंट नंबर डालें"
+        error_en: "Enter 9-18 digit account number"
+
+  - id: bank_account_number_confirm
+    type: text_input
+    label_hi: "अकाउंट नंबर दोबारा डालें"
+    label_en: "Re-enter Account Number"
+    placeholder_hi: "अकाउंट नंबर दोबारा डालें"
+    placeholder_en: "Re-enter account number"
+    keyboard: numeric
+    required: true
+    validation:
+      - rule: must_match(bank_account_number)
+        error_hi: "अकाउंट नंबर मेल नहीं खाता"
+        error_en: "Account numbers do not match"
 
   - id: bank_ifsc
     type: text_input
@@ -825,126 +830,96 @@ fields:
     placeholder_hi: "IFSC कोड डालें"
     placeholder_en: "Enter IFSC code"
     required: true
+    validation:
+      - rule: regex("^[A-Z]{4}0[A-Z0-9]{6}$")
+        error_hi: "सही IFSC कोड डालें"
+        error_en: "Enter valid IFSC code"
+
+# NOTE: No account holder name or bank name fields in this screen
+
+hint:
+  text_hi: "Bank details [Personal Name] या [Business Name] के नाम होनी चाहिए"
+  text_en: "Bank details should belong to [Personal Name] or [Business Name]"
 
 verification_flow:
-  pre_verify:
-    info_box:
-      icon: "📝"
-      text_hi: "सभी बैंक डिटेल्स भरें"
-      text_en: "Fill all bank details to proceed"
-    cta:
-      text_hi: "Penny Drop Verify करें"
-      text_en: "Verify via Penny Drop"
-      enabled_when: all_fields_filled
-      simulation_delay_ms: 2000
+  cta:
+    text_hi: "Verify Bank Details"
+    text_en: "Verify Bank Details"
+    enabled_when: all_fields_filled_and_valid
+    simulation_delay_ms: 2000  # 2s spinner
 
-  post_verify:
-    penny_drop_card:
-      type: success
-      icon: "✓"
-      title_hi: "पेनी ड्रॉप वेरीफाइड"
-      title_en: "PENNY DROP VERIFIED"
-      message_hi: "₹1 क्रेडिट और वेरीफाइड — नाम मैच कन्फ़र्म"
-      message_en: "₹1 credited & verified — Name match confirmed"
-    dedup_card:
-      type: success
-      icon: "✓"
-      title_hi: "डीडप चेक पास"
-      title_en: "DEDUP CHECK PASSED"
-      message_hi: "PAN, आधार, GST, Bank — कोई डुप्लिकेट नहीं मिला"
-      message_en: "PAN, Aadhaar, GST, Bank — No duplicates found"
-    cta:
-      text_hi: "अब ISP अनुबंध अपलोड करें"
-      text_en: "Next: ISP Agreement"
-      next_screen: 7
+  outcomes:
+    success:
+      display:
+        type: success_delight
+        title_hi: "बैंक वेरीफाइड!"
+        title_en: "Bank Verified!"
+      cta:
+        text_hi: "अब ISP अनुबंध अपलोड करें"
+        text_en: "Add ISP Agreement"
+        next_screen: 7
+
+    penny_drop_fail:
+      display:
+        type: bottom_sheet
+        title_hi: "₹1 credit नहीं हो पाया"
+        title_en: "Penny drop failed"
+        message_hi: "अकाउंट नंबर गलत हो सकता है या बैंक सर्वर डाउन है।"
+        message_en: "Account number may be wrong or bank server is down."
+      ctas:
+        - text_hi: "Bank Details बदलें"
+          text_en: "Change Bank Details"
+          type: primary
+          action: EDIT_BANK_FIELDS
+        - text_hi: "Bank Document अपलोड करें"
+          text_en: "Upload Bank Document"
+          type: secondary
+          action: UPLOAD_BANK_DOC
+      supporting_docs:
+        - "Bank Statement"
+        - "Cancelled Cheque"
+        - "Bank Passbook"
+
+    name_mismatch:
+      display:
+        type: bottom_sheet
+        title_hi: "Penny Drop — नाम मेल नहीं खाता"
+        title_en: "Penny Drop — Name Mismatch"
+        name_comparison:
+          bank_name: "Rajesh Kumar Sharma"
+          entered_name: "Rajesh Kumar"
+      ctas:
+        - text_hi: "Bank Details बदलें"
+          text_en: "Change Bank Details"
+          type: primary
+          action: EDIT_BANK_FIELDS
+        - text_hi: "Bank Document अपलोड करें"
+          text_en: "Upload Bank Document"
+          type: secondary
+          action: UPLOAD_BANK_DOC
+      supporting_docs:
+        - "Bank Statement"
+        - "Cancelled Cheque"
+        - "Bank Passbook"
+
+    bank_dedup:
+      display:
+        type: bottom_sheet
+        title_hi: "Bank Account पहले से रजिस्टर्ड है"
+        title_en: "Bank Account Already Registered"
+        message_hi: "इस Bank Account से पहले से एक पार्टनर रजिस्टर्ड है।"
+        message_en: "A partner is already registered with this bank account."
+      ctas:
+        - text_hi: "Bank Details बदलें"
+          text_en: "Change Bank Details"
+          type: primary
+          action: EDIT_BANK_FIELDS
+      # NOTE: No "Upload Bank Document" option for dedup — only change details
 
 error_scenarios:
   - BANK_PENNYDROP_FAIL
   - BANK_NAME_MISMATCH
-  - DEDUP_FOUND
-```
-
-### SCREEN_6_ERROR: BANK_PENNYDROP_FAIL
-
-```yaml
-id: BANK_PENNYDROP_FAIL
-trigger: ₹1 penny drop credit failed
-screen: 6
-
-display:
-  field_states:
-    bank_account_number: { state: error, border: red }
-    others: { state: normal }
-  error_card:
-    type: error
-    icon: "🏦"
-    title_hi: "₹1 credit नहीं हो पाया"
-    title_en: "Penny drop failed"
-    message_hi: "अकाउंट नंबर गलत हो सकता है या बैंक सर्वर डाउन है।"
-    message_en: "Account number may be wrong or bank server is down."
-
-cta:
-  text_hi: "अकाउंट नंबर ठीक करें"
-  text_en: "Fix Account Number"
-  action: FOCUS_ACCOUNT_NUMBER
-```
-
-### SCREEN_6_ERROR: BANK_NAME_MISMATCH
-
-```yaml
-id: BANK_NAME_MISMATCH
-trigger: Bank account holder name differs from KYC name
-screen: 6
-
-display:
-  mismatch_card:
-    bank_name: "Rajesh Kumar Sharma"
-    entered_name: "Rajesh Kumar"
-  error_card:
-    type: warning
-    icon: "👤"
-    title_hi: "Penny Drop — नाम मेल नहीं खाता"
-    title_en: "Penny Drop — Name Mismatch"
-    message_hi: "Bank account का नाम और आपका नाम अलग है।"
-    message_en: "Bank account name and your name are different."
-
-cta:
-  text_hi: "नाम ठीक करें और Retry"
-  text_en: "Fix Name and Retry"
-```
-
-### SCREEN_6_ERROR: DEDUP_FOUND
-
-```yaml
-id: DEDUP_FOUND
-trigger: Existing partner found with same PAN/Bank account
-screen: 6
-
-display:
-  penny_drop: { status: verified }  # penny drop passes even when dedup fails
-  error_card:
-    type: error
-    icon: "🔍"
-    title_hi: "DEDUP CHECK — Match Found!"
-    title_en: "DEDUP CHECK — Match Found!"
-    message_hi: "इस PAN और Bank Account से पहले से एक पार्टनर रजिस्टर्ड है।"
-    message_en: "A partner is already registered with this PAN and Bank Account."
-  match_details:
-    partner_id: "CSP-0031"
-    name: "Rajesh K."
-    city: "Indore"
-    match_on: "PAN + Bank A/C"
-  info_box:
-    icon: "📞"
-    text_hi: "Wiom सपोर्ट से बात करें"
-    text_en: "Talk to Wiom support"
-
-cta:
-  text_hi: "हमसे बात करें"
-  text_en: "Talk to us"
-  action: CONTACT_SUPPORT
-
-blocks_progression: true
+  - BANK_DEDUP
 ```
 
 ### SCREEN_7: ISP Agreement
@@ -952,30 +927,39 @@ blocks_progression: true
 ```yaml
 id: SCREEN_7
 phase: PHASE_2
+header: "Verification"
 title_hi: "ISP अनुबंध"
 title_en: "ISP Agreement"
 step_label: "स्टेप 3/5 | Step 3/5"
 purpose: Upload ISP agreement document for DOT compliance and TRAI guidelines
 
-display_elements:
-  - info_card:
-      icon: "📋"
-      title_hi: "ISP लाइसेंस अनुबंध"
-      title_en: "ISP License Agreement"
-      message_hi: "DOT compliance और TRAI guidelines के अनुसार ISP अनुबंध अपलोड करें।"
-      message_en: "Upload ISP agreement as per DOT compliance and TRAI guidelines."
-  - verification_card:
-      type: info
-      items:
-        - "DOT Compliance — अनिवार्य | DOT Compliance — Mandatory"
-        - "TRAI Guidelines — अनिवार्य | TRAI Guidelines — Mandatory"
+upload_methods:
+  - id: pdf
+    label_hi: "PDF अपलोड करें"
+    label_en: "Upload PDF"
+    type: file_picker
+    accept: "application/pdf"
 
-documents:
-  - id: isp_agreement
-    icon: "📄"
-    label_hi: "ISP अनुबंध अपलोड करें"
-    label_en: "Upload ISP Agreement"
-    required: true
+  - id: camera
+    label_hi: "कैमरा से फ़ोटो लें"
+    label_en: "Take Photo"
+    type: camera
+    max_pages: 7  # multi-page capture, up to 7 photos
+
+  - id: gallery
+    label_hi: "गैलरी से चुनें"
+    label_en: "Choose from Gallery"
+    type: gallery
+    max_pages: 7  # multi-select, up to 7 images
+
+mandatory_details_checklist:
+  title_hi: "ISP अनुबंध में ये ज़रूरी हैं"
+  title_en: "ISP Agreement must include"
+  items:
+    - "DOT Compliance — अनिवार्य | DOT Compliance — Mandatory"
+    - "TRAI Guidelines — अनिवार्य | TRAI Guidelines — Mandatory"
+
+view_sample_doc: true
 
 cta:
   text_hi: "अब दुकान की फ़ोटो दें"
@@ -983,30 +967,7 @@ cta:
   enabled_when: isp_agreement_uploaded
   next_screen: 8
 
-error_scenarios:
-  - ISP_DOCUMENT_INVALID
-```
-
-### SCREEN_7_ERROR: ISP_DOCUMENT_INVALID
-
-```yaml
-id: ISP_DOCUMENT_INVALID
-trigger: Uploaded ISP document is invalid or incomplete
-screen: 7
-
-display:
-  error_card:
-    type: error
-    icon: "📄"
-    title_hi: "ISP अनुबंध अमान्य / अधूरा"
-    title_en: "ISP Agreement Invalid/Incomplete"
-    message_hi: "कृपया सही और पूर्ण ISP अनुबंध अपलोड करें।"
-    message_en: "Please upload a valid and complete ISP agreement."
-
-cta:
-  text_hi: "ISP अनुबंध दोबारा अपलोड करें"
-  text_en: "Re-upload ISP Agreement"
-  action: RETRY_UPLOAD
+error_scenarios: []
 ```
 
 ### SCREEN_8: Shop & Equipment Photos
@@ -1014,10 +975,13 @@ cta:
 ```yaml
 id: SCREEN_8
 phase: PHASE_2
+header: "Verification"
+sub_header_hi: "दुकान सत्यापन"
+sub_header_en: "Shop Verification"
 title_hi: "दुकान और उपकरण फ़ोटो"
 title_en: "Shop & Equipment Photos"
 step_label: "स्टेप 4/5 | Step 4/5"
-purpose: Capture shop front and router/equipment photos for verification
+purpose: Capture shop front and equipment photos for verification
 
 documents:
   - id: shop_front_photo
@@ -1025,82 +989,75 @@ documents:
     label_hi: "दुकान के सामने की फ़ोटो"
     label_en: "Shop Front Photo"
     required: true
+    max_photos: 1  # single photo only
+    view_sample_doc: true
+    pro_tips: true  # shows tips for good photo capture
 
-  - id: router_photo
+  - id: equipment_photos
     icon: "📡"
-    label_hi: "राऊटर / उपकरण की फ़ोटो"
-    label_en: "Router / Equipment Photo"
+    label_hi: "उपकरण की फ़ोटो"
+    label_en: "Equipment Photos"
     required: true
+    max_photos: 5  # multi-photo, up to 5
+    view_sample_doc: true
+    mandatory_requirements: true  # shows mandatory checklist for equipment
 
 cta:
   text_hi: "सत्यापन के लिए जमा करें"
   text_en: "Submit for Verification"
-  enabled_when: shop_front_photo_uploaded AND router_photo_uploaded
+  enabled_when: shop_front_photo_uploaded AND at_least_one_equipment_photo_uploaded
   next_screen: 9
 
 error_scenarios: []
 ```
 
-### SCREEN_9: Verification
+### SCREEN_9: Verification Status
 
 ```yaml
 id: SCREEN_9
 phase: PHASE_2
+header: "Verification"
 title_hi: "सत्यापन"
-title_en: "Verification"
+title_en: "Verification Status"
 step_label: "स्टेप 5/5 | Step 5/5"
-purpose: QA review of all submitted documents — branch point (approved/rejected with reason)
+purpose: Confirmation that all documents are submitted, awaiting verification
+
+display_elements:
+  - title_hi: "सभी दस्तावेज़ जमा हो गए"
+  - title_en: "All Documents Submitted"
+
+checklist:
+  - { text_hi: "फ़ोन वेरीफाइड", text_en: "Phone Verified", status: done }
+  - { text_hi: "व्यक्तिगत जानकारी", text_en: "Personal Information", status: done }
+  - { text_hi: "लोकेशन सबमिट", text_en: "Location Submitted", status: done }
+  - { text_hi: "₹2,000 रजिस्ट्रेशन फ़ीस", text_en: "₹2,000 Registration Fee", status: done }
+  - { text_hi: "KYC दस्तावेज़ अपलोड", text_en: "KYC Documents Uploaded", status: done }
+  - { text_hi: "बैंक वेरीफाइड", text_en: "Bank Verified", status: done }
+  - { text_hi: "ISP अनुबंध", text_en: "ISP Agreement", status: done }
+  - { text_hi: "दुकान फ़ोटो", text_en: "Shop Photos", status: done }
+  - { text_hi: "सत्यापन", text_en: "Verification", status: waiting }
+
+tat:
+  text_hi: "Review में 3 business days लग सकते हैं। Notification मिलेगा।"
+  text_en: "Review may take 3 business days. You will be notified."
+
+cta: null  # No CTA — waits for verification decision
 
 decision_point:
   decision_maker: QA_TEAM (via QA Review Dashboard)
   outcomes:
     - APPROVED → SCREEN_10
-    - REJECTED → REJECTION_WITH_REASON (from QA_REJECTION_REASONS)
-
-approved_state:
-  emoji: "🔍"
-  title_hi: "सत्यापन चल रहा है"
-  title_en: "Verification in progress"
-  subtitle_hi: "Business/QA team आपके दस्तावेज़ चेक कर रही है"
-  subtitle_en: "Business/QA team is reviewing your documents"
-  checklist:
-    - { text_hi: "फ़ोन वेरीफाइड", text_en: "Phone Verified", status: done }
-    - { text_hi: "व्यक्तिगत जानकारी", text_en: "Personal Information", status: done }
-    - { text_hi: "लोकेशन सबमिट", text_en: "Location Submitted", status: done }
-    - { text_hi: "₹2,000 रजिस्ट्रेशन फ़ीस", text_en: "₹2,000 Registration Fee", status: done }
-    - { text_hi: "KYC दस्तावेज़ अपलोड", text_en: "KYC Documents Uploaded", status: done }
-    - { text_hi: "बैंक वेरीफाइड", text_en: "Bank Verified", status: done }
-    - { text_hi: "ISP अनुबंध", text_en: "ISP Agreement", status: done }
-    - { text_hi: "दुकान फ़ोटो", text_en: "Shop Photos", status: done }
-    - { text_hi: "सत्यापन", text_en: "Verification", status: waiting }
-  info_box:
-    type: warning
-    icon: "⏳"
-    text_hi: "Review में 2-3 business days लग सकते हैं। Notification मिलेगा।"
-    text_en: "Review may take 2-3 business days. You will be notified."
-  cta: null  # No CTA — waits for QA decision
+    - REJECTED → rejection with auto refund, no re-upload (Phase 1)
 
 rejected_state:
-  emoji: "😔"
-  title_hi: "सत्यापन सफल नहीं"
-  title_en: "Verification not successful"
-  subtitle_hi: "चिंता न करें — नीचे कारण और समाधान देखें"
-  subtitle_en: "Don't worry — see reason and resolution below"
-  reason_card:
-    type: error
-    title_hi: "कारण"
-    title_en: "Reason"
-    reason: DYNAMIC  # from QA_REJECTION_REASONS
-  resolution_cta: DYNAMIC  # from QA_REJECTION_REASONS based on resolvable flag
+  description: "Auto refund initiated, no re-upload option in Phase 1"
   refund_card:
     type: success
     icon: "🔒"
     title_hi: "Refund शुरू हो गया"
     title_en: "Refund initiated"
     amount: "₹2,000"
-    timeline: "5-7 working days"
-    ref: "RFD-2026-0042"
-    show_when: "rejection reason is not resolvable"
+    timeline: "5-6 working days"
 
 error_scenarios:
   - VERIFICATION_REJECTED
@@ -1110,17 +1067,24 @@ error_scenarios:
 
 ```yaml
 id: VERIFICATION_REJECTED
-trigger: QA team rejects the application with a reason from QA_REJECTION_REASONS
+trigger: QA team rejects the application
 screen: 9
 
 display:
   emoji: "😔"
   title_hi: "सत्यापन सफल नहीं"
   title_en: "Verification not successful"
-  reason: DYNAMIC  # one of 7 rejection reasons from QA_REJECTION_REASONS
-  resolution: DYNAMIC  # based on resolvable flag
+  subtitle_hi: "चिंता न करें — आपकी रजिस्ट्रेशन फ़ीस वापस होगी"
+  subtitle_en: "Don't worry — your registration fee will be refunded"
 
-blocks_progression: true (unless resolvable — then redirects to resolution_screen)
+refund:
+  amount: "₹2,000"
+  timeline: "5-6 working days"
+  auto_initiated: true
+
+re_upload: false  # no re-upload option in Phase 1
+
+blocks_progression: true
 ```
 
 ### SCREEN_10: Policy & SLA
@@ -1128,9 +1092,11 @@ blocks_progression: true (unless resolvable — then redirects to resolution_scr
 ```yaml
 id: SCREEN_10
 phase: PHASE_3
+header_hi: "महत्वपूर्ण शर्तें"
+header_en: "Important Terms"
 title_hi: "नीतियां और रेट कार्ड"
 title_en: "Policy & Rate Card"
-step_label: "स्टेप 1/7 | Step 1/7"
+step_label: "स्टेप 1/5 | Step 1/5"
 purpose: Partner reviews and acknowledges commission structure and SLA terms
 
 display_elements:
@@ -1141,9 +1107,13 @@ display_elements:
         - { label_hi: "नया कनेक्शन", label_en: "New Connection", value: "₹300/कनेक्शन", color: green }
         - { label_hi: "रिचार्ज कमीशन", label_en: "Recharge Commission", value: "₹300", color: green }
 
+  - payout_info:
+      text_hi: "Payout हर Monday, सुबह 10 बजे तक"
+      text_en: "Payout every Monday by 10 AM"
+
   - sla_card:
       title_hi: "SLA शर्तें"
-      title_en: "SLA TERMS"
+      title_en: "SERVICE LEVELS"
       items:
         - hi: "ग्राहक शिकायत: 4 घंटे में समाधान"
           en: "Customer complaints: 4hr resolution"
@@ -1162,31 +1132,103 @@ cta:
 error_scenarios: []
 ```
 
-### SCREEN_11: Onboarding Fee
+### SCREEN_11: Technical Assessment
 
 ```yaml
 id: SCREEN_11
 phase: PHASE_3
+header: "Activation"
+title_hi: "तकनीकी मूल्यांकन"
+title_en: "Technical Assessment"
+step_label: "स्टेप 2/5 | Step 2/5"
+purpose: Network quality team verifies infrastructure readiness — BEFORE onboarding fee
+
+tat:
+  text_hi: "4-5 business days में Network Quality team कॉल करेगी"
+  text_en: "Network Quality team will call within 4-5 business days"
+
+decision_point:
+  decision_maker: NETWORK_QUALITY_TEAM
+  method: phone_call
+  outcomes:
+    - PASSED → SCREEN_12 (Onboarding Fee)
+    - REJECTED → tech_assessment_rejected
+
+rejected_state:
+  display:
+    emoji: "❌"
+    title_hi: "तकनीकी मूल्यांकन पास नहीं हुआ"
+    title_en: "Technical Assessment Not Passed"
+  refund: false  # no refund on tech assessment rejection
+  contact:
+    text_hi: "हमसे बात करें"
+    text_en: "Talk to Us"
+    phone: "7836811111"
+
+cta: null  # waits for tech assessment decision
+
+error_scenarios:
+  - TECH_ASSESSMENT_REJECTED
+```
+
+### SCREEN_11_ERROR: TECH_ASSESSMENT_REJECTED
+
+```yaml
+id: TECH_ASSESSMENT_REJECTED
+trigger: Technical assessment failed due to infrastructure issues
+screen: 11
+
+display:
+  emoji: "❌"
+  title_hi: "तकनीकी मूल्यांकन पास नहीं हुआ"
+  title_en: "Technical Assessment Not Passed"
+  error_card:
+    type: error
+    icon: "🔧"
+    title_hi: "तकनीकी आवश्यकताएं पूरी नहीं"
+    title_en: "Technical Requirements Not Met"
+    message_hi: "कृपया तकनीकी आवश्यकताएं पूरी करें।"
+    message_en: "Please meet the technical requirements."
+
+refund: false  # no refund
+
+cta:
+  text_hi: "हमसे बात करें"
+  text_en: "Talk to Us"
+  action: CALL_SUPPORT
+  phone: "7836811111"
+
+blocks_progression: true
+```
+
+### SCREEN_12: Onboarding Fee
+
+```yaml
+id: SCREEN_12
+phase: PHASE_3
+header: "Activation"
 title_hi: "ऑनबोर्डिंग फ़ीस"
 title_en: "Onboarding Fee"
-step_label: "स्टेप 2/7 | Step 2/7"
-purpose: Collect ₹20,000 onboarding fee to unlock training and financial setup
+step_label: "स्टेप 3/5 | Step 3/5"
+purpose: Collect ₹20,000 onboarding fee after tech assessment passes
 
 display_elements:
   - amount_box:
       amount: "₹20,000"
-      label_hi: "ऑनबोर्डिंग फ़ीस (GST सहित)"
-      label_en: "Onboarding Fee (incl. GST)"
-  - details_card:
+      label_hi: "ऑनबोर्डिंग फ़ीस"
+      label_en: "Onboarding Fee"
+
+  - wifi_devices_message:
+      text_hi: "WiFi devices आपको दिए जाएंगे"
+      text_en: "WiFi devices will be provided to you"
+
+  - investment_summary:
+      title_hi: "निवेश सारांश"
+      title_en: "Investment Summary"
       rows:
         - { label_hi: "रजिस्ट्रेशन फ़ीस (भुगतान हुआ)", label_en: "Registration Fee (paid)", value: "₹2,000" }
         - { label_hi: "ऑनबोर्डिंग फ़ीस", label_en: "Onboarding Fee", value: "₹20,000" }
         - { label_hi: "कुल Investment", label_en: "Total Investment", value: "₹22,000", bold: true }
-  - info_box:
-      type: success
-      icon: "✓"
-      text_hi: "भुगतान के बाद Training modules unlock होंगे"
-      text_en: "Training modules will unlock after payment"
 
 cta:
   text_hi: "₹20,000 भुगतान करें"
@@ -1194,18 +1236,19 @@ cta:
   simulation_delay_ms: 2000
   on_success:
     set: onboardFeePaid = true
-    next_screen: 12
+    next_screen: 13
 
 error_scenarios:
   - ONBOARDFEE_FAILED
+  - ONBOARDFEE_TIMEOUT
 ```
 
-### SCREEN_11_ERROR: ONBOARDFEE_FAILED
+### SCREEN_12_ERROR: ONBOARDFEE_FAILED
 
 ```yaml
 id: ONBOARDFEE_FAILED
 trigger: ₹20,000 payment declined
-screen: 11
+screen: 12
 
 display:
   emoji: "😟"
@@ -1237,632 +1280,305 @@ ctas:
     type: secondary
 ```
 
-### SCREEN_12: Technical Assessment
+### SCREEN_12_ERROR: ONBOARDFEE_TIMEOUT
 
 ```yaml
-id: SCREEN_12
-phase: PHASE_3
-title_hi: "तकनीकी मूल्यांकन"
-title_en: "Technical Assessment"
-step_label: "स्टेप 3/7 | Step 3/7"
-purpose: Verify device compatibility and infrastructure readiness — branch point (pass/fail)
-
-sections:
-  - device_check:
-      title_hi: "डिवाइस चेक"
-      title_en: "DEVICE CHECK"
-      items:
-        - { text: "Samsung Galaxy M34", status: verified }
-        - { text_hi: "Android 14 — संगत", text_en: "Android 14 — Compatible", status: verified }
-        - { text_hi: "Wiom OS: तैयार", text_en: "Wiom OS: Ready", status: verified }
-
-  - infra_check:
-      title_hi: "इन्फ्रा चेक"
-      title_en: "INFRA CHECK"
-      fields:
-        - id: internet_setup_type
-          type: dropdown
-          options: ["Fiber (FTTH)", "Cable", "Wireless"]
-          required: true
-
-decision_point:
-  decision_maker: SYSTEM
-  outcomes:
-    - PASSED → SCREEN_13
-    - FAILED → TECH_ASSESSMENT_REJECTED
-
-completion_state:
-  title_hi: "तकनीकी मूल्यांकन पास!"
-  title_en: "Technical Assessment Passed!"
-  info_box:
-    type: success
-    icon: "✓"
-    text_hi: "Tech assessment पूरा! अब account setup होगा।"
-    text_en: "Tech assessment complete! Now account setup."
-
-cta:
-  text_hi: "Account Setup करें"
-  text_en: "Setup Account"
-  enabled_when: assessment_passed
-  next_screen: 13
-
-error_scenarios:
-  - TECH_DEVICE_INCOMPATIBLE
-  - TECH_ASSESSMENT_REJECTED
-```
-
-### SCREEN_12_ERROR: TECH_DEVICE_INCOMPATIBLE
-
-```yaml
-id: TECH_DEVICE_INCOMPATIBLE
-trigger: Device does not meet minimum Android/RAM requirements
+id: ONBOARDFEE_TIMEOUT
+trigger: ₹20,000 payment timeout / connection lost
 screen: 12
 
 display:
-  emoji: "📵"
-  title_hi: "Device Compatible नहीं है"
-  title_en: "Device is not compatible"
+  emoji: "⏳"
+  title_hi: "भुगतान pending है"
+  title_en: "Payment is pending"
   error_card:
-    type: error
-    title: "DEVICE CHECK FAILED"
-    message_hi: "आपका device minimum requirements पूरी नहीं करता।"
-    message_en: "Your device does not meet minimum requirements."
-    details:
-      device: "Samsung Galaxy J2 Core"
-      android: { value: "Android 8.1", min: "11", status: fail }
-      ram: { value: "1GB", min: "3GB", status: fail }
-  recommended_devices:
-    - "Samsung M34"
-    - "Redmi Note 12"
-    - "Realme Narzo 60"
+    type: warning
+    icon: "⏳"
+    title_hi: "Bank response में देरी"
+    title_en: "Bank response delayed"
+    message_hi: "Bank से response आने में 2-5 मिनट लग सकते हैं। कृपया थोड़ा इंतज़ार करें।"
+    message_en: "Bank response may take 2-5 minutes. Please wait."
+  transaction_details:
+    amount: "₹20,000"
+    status: "⏳ Pending"
   info_box:
-    icon: "📱"
-    text_hi: "नया device लेने के बाद यहीं से आगे बढ़ सकते हैं"
-    text_en: "You can continue from here after getting a new device"
+    icon: "🔒"
+    text_hi: "48 घंटे में auto-refund अगर fail हो"
+    text_en: "Auto-refund within 48hrs if failed"
 
-cta:
-  text_hi: "Device बदलें और Retry"
-  text_en: "Change Device and Retry"
-
-blocks_progression: true
+ctas:
+  - text_hi: "Status Refresh करें"
+    text_en: "Refresh Status"
+    type: primary
+  - text_hi: "हमसे बात करें"
+    text_en: "Talk to us"
+    type: secondary
 ```
 
-### SCREEN_12_ERROR: TECH_ASSESSMENT_REJECTED
-
-```yaml
-id: TECH_ASSESSMENT_REJECTED
-trigger: Technical assessment failed due to infrastructure or compatibility issues
-screen: 12
-
-display:
-  emoji: "❌"
-  title_hi: "तकनीकी मूल्यांकन पास नहीं हुआ"
-  title_en: "Technical Assessment Not Passed"
-  error_card:
-    type: error
-    icon: "🔧"
-    title_hi: "तकनीकी आवश्यकताएं पूरी नहीं"
-    title_en: "Technical Requirements Not Met"
-    message_hi: "कृपया तकनीकी आवश्यकताएं पूरी करें और दोबारा कोशिश करें।"
-    message_en: "Please meet the technical requirements and try again."
-
-cta:
-  text_hi: "दोबारा मूल्यांकन करें"
-  text_en: "Retry Assessment"
-  action: RETRY_ASSESSMENT
-```
-
-### SCREEN_13: CSP Account Setup
+### SCREEN_13: Account Setup
 
 ```yaml
 id: SCREEN_13
 phase: PHASE_3
-title_hi: "फ़ाइनेंशियल सेटअप"
-title_en: "CSP Account Setup"
-step_label: "स्टेप 4/7 | Step 4/7"
-purpose: Automated backend setup of partner financial accounts
+header: "Activation"
+title_hi: "अकाउंट सेटअप"
+title_en: "Account Setup"
+step_label: "स्टेप 4/5 | Step 4/5"
+purpose: Automated backend setup of partner accounts — auto-progression, no user interaction
 
-interaction: NONE (auto-progression, no user input)
+interaction: NONE
+auto_progress_seconds: 3  # auto-advances after 3 seconds
+cta: null  # no CTA button — auto-progression only
 
 animation:
   type: sequential_checklist
-  delay_per_item_ms: 800
-  total_items: 5
+  auto_advance: true
 
-checklist_items:
-  - id: ledger
-    title_hi: "पार्टनर लेजर बना"
-    title_en: "Partner Ledger Created"
-    subtitle_hi: "Commission tracking चालू"
-    subtitle_en: "Commission tracking active"
+error_states:
+  failed:
+    display:
+      title_hi: "सेटअप में समस्या"
+      title_en: "Setup Failed"
+    cta:
+      text_hi: "दोबारा कोशिश करें"
+      text_en: "Retry"
+      action: RETRY_SETUP
 
-  - id: razorpayx
-    title_hi: "RazorpayX Payout लिंक"
-    title_en: "RazorpayX Payout Link"
-    subtitle_hi: "SBI A/C XXXX4521 payouts के लिए लिंक"
-    subtitle_en: "SBI A/C XXXX4521 linked for payouts"
+  pending:
+    display:
+      title_hi: "सेटअप चल रहा है..."
+      title_en: "Setup in progress..."
+    cta:
+      text_hi: "Refresh करें"
+      text_en: "Refresh"
+      action: REFRESH_STATUS
 
-  - id: zoho
-    title_hi: "Zoho Invoice सेटअप"
-    title_en: "Zoho Invoice Setup"
-    subtitle_hi: "हर settlement के लिए auto-invoice"
-    subtitle_en: "Auto-invoice for every settlement"
-
-  - id: trade_name_lock
-    title_hi: "Trade Name लॉक"
-    title_en: "Trade Name Locked"
-    subtitle_hi: '"Rajesh Telecom" — आधिकारिक नाम'
-    subtitle_en: '"Rajesh Telecom" — official name'
-
-  - id: tds_tcs
-    title_hi: "TDS/TCS कॉन्फ़िगरेशन"
-    title_en: "TDS/TCS Configuration"
-    subtitle_hi: "PAN ABCDE1234F — auto deduction सेटअप"
-    subtitle_en: "PAN ABCDE1234F — auto deduction setup"
-
-item_states:
-  pending: { icon: gray_circle, text: "⋯" }
-  processing: { icon: spinner, text_hi: "प्रोसेस हो रहा है...", text_en: "Processing..." }
-  done: { icon: green_check, text: "✓" }
-
-completion_state:
-  title_hi: "सेटअप पूरा!"
-  title_en: "Setup Complete!"
-  success_card:
-    type: success
-    icon: "✓"
-    title_hi: "सब तैयार है!"
-    title_en: "All set!"
-    message_hi: "Ledger, payouts, invoicing, और tax setup पूरा। अब training शुरू!"
-    message_en: "Ledger, payouts, invoicing, and tax setup complete. Now start training!"
-  info_box:
-    type: success
-    icon: "💰"
-    text_hi: "Commission payouts हर Monday, सीधे आपके बैंक में"
-    text_en: "Commission payouts every Monday, directly to your bank"
-
-cta:
-  text_hi: "Training शुरू करें"
-  text_en: "Start Training"
-  enabled_when: all_items_done
+on_success:
   next_screen: 14
 
-error_scenarios: []
+error_scenarios:
+  - ACCOUNT_SETUP_FAILED
+  - ACCOUNT_SETUP_PENDING
 ```
 
-### SCREEN_14: Training Modules
+### SCREEN_13_ERROR: ACCOUNT_SETUP_FAILED
+
+```yaml
+id: ACCOUNT_SETUP_FAILED
+trigger: Backend account setup process failed
+screen: 13
+
+display:
+  emoji: "❌"
+  title_hi: "अकाउंट सेटअप विफल"
+  title_en: "Account Setup Failed"
+  error_card:
+    type: error
+    title_hi: "सेटअप में समस्या आई"
+    title_en: "Setup encountered an issue"
+    message_hi: "चिंता न करें — दोबारा कोशिश करें"
+    message_en: "Don't worry — please retry"
+
+cta:
+  text_hi: "दोबारा कोशिश करें"
+  text_en: "Retry"
+  action: RETRY_SETUP
+```
+
+### SCREEN_13_ERROR: ACCOUNT_SETUP_PENDING
+
+```yaml
+id: ACCOUNT_SETUP_PENDING
+trigger: Backend account setup is taking longer than expected
+screen: 13
+
+display:
+  emoji: "⏳"
+  title_hi: "सेटअप चल रहा है..."
+  title_en: "Setup in progress..."
+  info_card:
+    type: warning
+    title_hi: "कृपया थोड़ा इंतज़ार करें"
+    title_en: "Please wait a moment"
+    message_hi: "सेटअप में थोड़ी देरी हो रही है।"
+    message_en: "Setup is taking a bit longer."
+
+cta:
+  text_hi: "Refresh करें"
+  text_en: "Refresh"
+  action: REFRESH_STATUS
+```
+
+### SCREEN_14: Successfully Onboarded
 
 ```yaml
 id: SCREEN_14
 phase: PHASE_3
-title_hi: "ट्रेनिंग"
-title_en: "Training"
-step_label: "स्टेप 5/7 | Step 5/7"
-purpose: Partner completes 3 training modules with video + quiz before go-live
-
-module_list_view:
-  progress_bar: completed_count / total_count
-  subtitle_hi: "पूरा करें, फिर काम शुरू!"
-  subtitle_en: "Complete to start working!"
-
-modules:
-  - id: app_usage
-    icon: "📱"
-    title_hi: "App कैसे चलाएं"
-    title_en: "How to use the App"
-    subtitle_hi: "Customer, रिचार्ज, शिकायतें"
-    subtitle_en: "Customer, Recharge, Complaints"
-    questions:
-      - question_hi: "ग्राहक का नया कनेक्शन कैसे बनाएं?"
-        question_en: "How to create a new customer connection?"
-        options:
-          - ["Settings से", "From Settings"]
-          - ["Home > Add Customer से", "From Home > Add Customer"]
-          - ["Profile से", "From Profile"]
-          - ["Help से", "From Help"]
-        correct_index: 1
-        hint_hi: "Home screen पर 'Add Customer' बटन दबाएं"
-        hint_en: "Press 'Add Customer' button on Home screen"
-      - question_hi: "रीचार्ज status कहां देखें?"
-        question_en: "Where to check recharge status?"
-        options:
-          - ["Settings", "Settings"]
-          - ["Home", "Home"]
-          - ["Earnings > Transactions", "Earnings > Transactions"]
-          - ["Profile", "Profile"]
-        correct_index: 2
-        hint_hi: "Earnings section में Transactions tab पर जाएं"
-        hint_en: "Go to Transactions tab in Earnings section"
-
-  - id: sla_exposure
-    icon: "📊"
-    title_hi: "SLA और Exposure"
-    title_en: "SLA & Exposure"
-    subtitle_hi: "नियम, स्तर, प्रभाव"
-    subtitle_en: "Rules, Levels, Impact"
-    questions:
-      - question_hi: "ग्राहक शिकायत का resolution time क्या है?"
-        question_en: "What is customer complaint resolution time?"
-        options:
-          - ["24 घंटे", "24 hours"]
-          - ["4 घंटे", "4 hours"]
-          - ["48 घंटे", "48 hours"]
-          - ["1 हफ़्ता", "1 week"]
-        correct_index: 1
-        hint_hi: "SLA के अनुसार 4 घंटे में समाधान करना ज़रूरी है"
-        hint_en: "Resolution within 4 hours is required as per SLA"
-      - question_hi: "Minimum uptime requirement क्या है?"
-        question_en: "What is minimum uptime requirement?"
-        options:
-          - ["90%", "90%"]
-          - ["95%", "95%"]
-          - ["99%", "99%"]
-          - ["80%", "80%"]
-        correct_index: 1
-        hint_hi: "Connection 95%+ चालू रहना चाहिए"
-        hint_en: "Connection should be running 95%+"
-
-  - id: money_matters
-    icon: "💰"
-    title_hi: "पैसों की बात"
-    title_en: "Money Matters"
-    subtitle_hi: "Commission, TDS, TCS"
-    subtitle_en: "Commission, TDS, TCS"
-    questions:
-      - question_hi: "नए कनेक्शन पर कमीशन कितना है?"
-        question_en: "Commission on new connection?"
-        options:
-          - ["₹150", "₹150"]
-          - ["₹200", "₹200"]
-          - ["₹300", "₹300"]
-          - ["₹500", "₹500"]
-        correct_index: 2
-        hint_hi: "हर नए कनेक्शन पर ₹300 मिलता है"
-        hint_en: "You get ₹300 for every new connection"
-      - question_hi: "Commission payout कब होता है?"
-        question_en: "When is commission payout?"
-        options:
-          - ["Daily", "Daily"]
-          - ["Weekly (Monday)", "Weekly (Monday)"]
-          - ["Monthly", "Monthly"]
-          - ["Quarterly", "Quarterly"]
-        correct_index: 1
-        hint_hi: "हर Monday को bank account में payout होता है"
-        hint_en: "Payout happens every Monday to bank account"
-
-module_detail_view:
-  video_section:
-    before_play: { icon: "▶️", title: module.title, cta_hi: "Video देखें", cta_en: "Watch Video" }
-    playing: { icon: "🎬", text_hi: "चल रहा है...", text_en: "Playing...", simulation: "10 steps x 100ms" }
-    after_play: { icon: "✅", text_hi: "Video देखा गया", text_en: "Video watched", background: green }
-
-  quiz_section:
-    appears_after: video_watched
-    answer_flow:
-      1_select_option: { border: pink, background: pink_light }
-      2_check_button_hi: "जवाब चेक करें"
-      2_check_button_en: "Check Answer"
-      3a_correct: { background: green, icon: "✓", auto_advance_ms: 800 }
-      3b_wrong: { background: red, icon: "✗", show_hint: true, retry_button_hi: "फिर से कोशिश करें", retry_button_en: "Try Again" }
-    on_all_correct:
-      celebration_hi: "🎉 Quiz पास!"
-      celebration_en: "Quiz Passed!"
-      auto_complete_ms: 1000
-
-module_card_states:
-  done: { background: green_light, border: green, badge: "✓" }
-  current: { background: pink_light, border: pink, badge_hi: "शुरू करें", badge_en: "Start" }
-  not_started: { background: white, border: gray, badge_hi: "शुरू करें", badge_en: "Start" }
-
-cta:
-  text_hi: "Quiz पूरा करें"
-  text_en: "Complete Quiz"
-  enabled_when: all_modules_completed
-  next_screen: 15
-
-error_scenarios:
-  - TRAINING_QUIZ_FAIL
-```
-
-### SCREEN_14_ERROR: TRAINING_QUIZ_FAIL
-
-```yaml
-id: TRAINING_QUIZ_FAIL
-trigger: Partner fails training quiz (wrong answers)
-screen: 14
-
-display:
-  emoji: "📝"
-  title_hi: "Quiz पास नहीं हुई"
-  title_en: "Quiz not passed"
-  score_card:
-    score: "2/5"
-    passing: "4/5"
-    progress: 0.4
-    color: red
-  error_card:
-    type: warning
-    icon: "📝"
-    title_hi: "चिंता न करें"
-    title_en: "Don't worry"
-    message_hi: "Modules दोबारा review करें और फिर quiz दें"
-    message_en: "Review modules again and retake quiz"
-
-ctas:
-  - text_hi: "Modules Review करें"
-    text_en: "Review Modules"
-    type: primary
-  - text_hi: "Quiz दोबारा दें"
-    text_en: "Retake Quiz"
-    type: secondary
-```
-
-### SCREEN_15: Policy Quiz
-
-```yaml
-id: SCREEN_15
-phase: PHASE_3
-title_hi: "पॉलिसी क्विज़"
-title_en: "Policy Quiz"
-step_label: "स्टेप 6/7 | Step 6/7"
-purpose: Verify partner understanding of policies and SLA — 5 questions, pass 3/5+
-
-quiz:
-  total_questions: 5
-  passing_score: 3
-  retry: unlimited
-
-cta:
-  text_hi: "क्विज़ जमा करें"
-  text_en: "Submit Quiz"
-  enabled_when: all_5_questions_answered
-  on_success:
-    condition: score >= 3
-    next_screen: 16
-  on_fail:
-    action: SHOW_POLICY_QUIZ_FAIL
-
-error_scenarios:
-  - POLICY_QUIZ_FAIL
-```
-
-### SCREEN_15_ERROR: POLICY_QUIZ_FAIL
-
-```yaml
-id: POLICY_QUIZ_FAIL
-trigger: Partner scores less than 3/5 on policy quiz
-screen: 15
-
-display:
-  emoji: "📝"
-  title_hi: "क्विज़ पास नहीं हुई"
-  title_en: "Quiz not passed"
-  score_card:
-    score: DYNAMIC  # e.g. "2/5"
-    passing: "3/5"
-    color: red
-  error_card:
-    type: warning
-    icon: "📝"
-    title_hi: "चिंता न करें — दोबारा कोशिश करें"
-    title_en: "Don't worry — try again"
-    message_hi: "पॉलिसी और SLA शर्तें दोबारा पढ़ें और फिर क्विज़ दें"
-    message_en: "Review policy and SLA terms again, then retake quiz"
-
-ctas:
-  - text_hi: "पॉलिसी दोबारा पढ़ें"
-    text_en: "Review Policy"
-    type: primary
-  - text_hi: "क्विज़ दोबारा दें"
-    text_en: "Retake Quiz"
-    type: secondary
-```
-
-### SCREEN_16: Go Live
-
-```yaml
-id: SCREEN_16
-phase: PHASE_3
-title_hi: "पार्टनर ऐप होम"
-title_en: "Partner App Home"
-step_label: "स्टेप 7/7 | Step 7/7"
-purpose: Celebration and activation — partner is now live
+header: "Activation"
+title_hi: "ऑनबोर्डिंग सफल"
+title_en: "Successfully Onboarded"
+step_label: "स्टेप 5/5 | Step 5/5"
+purpose: Celebration and activation — partner is now a Wiom Connection Service Provider
 
 display_elements:
-  - emoji: "🎉"
-  - title_hi: "बधाई हो, राजेश!"
-  - title_en: "Congratulations, Rajesh!"
-  - subtitle_hi: "आप अब Wiom Partner हैं"
-  - subtitle_en: "You are now a Wiom Partner"
+  - title_hi: "Wiom Connection Service Provider"
+  - title_en: "Wiom Connection Service Provider"
+  - subtitle_hi: "बधाई हो! आप अब Wiom पार्टनर हैं"
+  - subtitle_en: "Congratulations! You are now a Wiom Partner"
 
-  - status_chips:
-      - { text_hi: "✓ रजिस्टर्ड", text_en: "✓ Registered" }
-      - { text_hi: "✓ KYC वेरीफाइड", text_en: "✓ KYC Verified" }
-      - { text_hi: "✓ Bank वेरीफाइड", text_en: "✓ Bank Verified" }
-      - { text_hi: "✓ ISP अनुबंध", text_en: "✓ ISP Agreement" }
-      - { text_hi: "✓ सत्यापन", text_en: "✓ Verified" }
-      - { text_hi: "✓ फ़ाइनेंशियल सेटअप", text_en: "✓ Financial Setup" }
-      - { text_hi: "✓ ट्रेनिंग पूरी", text_en: "✓ Trained" }
-      - { text_hi: "✓ पॉलिसी क्विज़", text_en: "✓ Policy Quiz" }
-      - { text_hi: "✓ Tech Assessment", text_en: "✓ Tech Assessment" }
+app_download:
+  title_hi: "Wiom Partner Plus App डाउनलोड करें"
+  title_en: "Download Wiom Partner Plus App"
+  cta:
+    text_hi: "Install Now"
+    text_en: "Install Now"
+    action: OPEN_PLAY_STORE
 
-  - quick_actions:
-      - icon: "👤"
-        title_hi: "Customer जोड़ें"
-        title_en: "Add Customer"
-        subtitle_hi: "नया कनेक्शन"
-        subtitle_en: "New connection"
-      - icon: "💰"
-        title_hi: "कमाई देखें"
-        title_en: "View Earnings"
-        subtitle: "Commission, TDS"
-      - icon: "📝"
-        title_hi: "टास्क"
-        title_en: "Tasks"
-        subtitle_hi: "रिस्टोर, शिकायतें"
-        subtitle_en: "Restore, complaints"
-      - icon: "🎓"
-        title_hi: "ट्रेनिंग"
-        title_en: "Training"
-        subtitle_hi: "Module दोबारा देखें"
-        subtitle_en: "Revisit modules"
-
-  - download_card:
-      icon: "🚀"
-      title_hi: "Wiom CSP App डाउनलोड करें"
-      title_en: "Download Wiom CSP App"
-      message_hi: "नए कनेक्शन बनाने के लिए Wiom CSP App इस्तेमाल करें"
-      message_en: "Use Wiom CSP App to create new connections"
-      cta_hi: "App डाउनलोड करें"
-      cta_en: "Download App"
+instructions:
+  - step: 1
+    text_hi: "App में Login करें"
+    text_en: "Login to the App"
+  - step: 2
+    text_hi: "Permissions दें"
+    text_en: "Grant Permissions"
+  - step: 3
+    text_hi: "Training पूरी करें"
+    text_en: "Complete Training"
 
 error_scenarios: []
 ```
 
 ---
 
-## QA_REJECTION_REASONS
+## SCENARIO_SIMULATOR
 
 ```yaml
-rejection_reasons:
-  - id: KYC_UNCLEAR
-    reason_hi: "KYC दस्तावेज़ अस्पष्ट / अमान्य"
-    reason_en: "KYC Document Unclear/Invalid"
-    resolvable: true
-    resolution_screen: 5
-    resolution_cta_hi: "दस्तावेज़ दोबारा अपलोड करें"
-  - id: PAN_AADHAAR_MISMATCH
-    reason_hi: "PAN और आधार में नाम मेल नहीं खाता"
-    reason_en: "PAN-Aadhaar Name Mismatch"
-    resolvable: true
-    resolution_screen: 5
-    resolution_cta_hi: "सही दस्तावेज़ अपलोड करें"
-  - id: SHOP_PHOTO_BAD
-    reason_hi: "दुकान की फ़ोटो स्वीकार्य नहीं"
-    reason_en: "Shop Photo Not Acceptable"
-    resolvable: true
-    resolution_screen: 8
-    resolution_cta_hi: "फ़ोटो दोबारा अपलोड करें"
-  - id: ISP_INVALID
-    reason_hi: "ISP अनुबंध अमान्य / अधूरा"
-    reason_en: "ISP Agreement Invalid/Incomplete"
-    resolvable: true
-    resolution_screen: 7
-    resolution_cta_hi: "ISP अनुबंध दोबारा अपलोड करें"
-  - id: ADDRESS_FAILED
-    reason_hi: "पता सत्यापन विफल"
-    reason_en: "Address Verification Failed"
-    resolvable: true
-    resolution_screen: 3
-    resolution_cta_hi: "पता अपडेट करें"
-  - id: BANK_MISMATCH
-    reason_hi: "बैंक विवरण मेल नहीं खाता"
-    reason_en: "Bank Details Mismatch"
-    resolvable: true
-    resolution_screen: 6
-    resolution_cta_hi: "बैंक विवरण अपडेट करें"
-  - id: DUPLICATE_AREA
-    reason_hi: "एरिया में पहले से CSP मौजूद"
-    reason_en: "Duplicate CSP in Area"
-    resolvable: false
-    resolution_cta_hi: "₹2,000 रिफंड प्रक्रिया शुरू"
-```
+scenario_categories:
+  - id: NETWORK_APP
+    name: "Network / App Errors"
+    scenarios:
+      - id: no-internet
+        description: "No internet connection"
+        display: generic offline error screen
+      - id: server-error
+        description: "Server error / 5xx response"
+        display: generic server error screen
 
----
+  - id: REGISTRATION_OTP
+    name: "Registration & OTP"
+    scenarios:
+      - id: phone-duplicate
+        screen: 0
+        description: "Phone number already registered"
+      - id: otp-wrong
+        screen: 1
+        description: "Incorrect OTP entered"
+      - id: otp-expired
+        screen: 1
+        description: "OTP validity period exceeded"
 
-## DASHBOARD_SYSTEM
+  - id: REG_FEE
+    name: "Registration Fee"
+    scenarios:
+      - id: regfee-failed
+        screen: 4
+        description: "Registration fee payment declined"
+      - id: regfee-timeout
+        screen: 4
+        description: "Registration fee payment timeout"
+      - id: kyc-day1-reminder
+        description: "Day 1 reminder to complete KYC"
+      - id: kyc-day2-reminder
+        description: "Day 2 reminder to complete KYC"
+      - id: kyc-day3-reminder
+        description: "Day 3 reminder to complete KYC"
+      - id: kyc-day4-reminder
+        description: "Day 4 reminder to complete KYC"
+      - id: refund-success
+        description: "Refund completed successfully"
+      - id: refund-in-progress
+        description: "Refund is being processed"
+      - id: refund-failed
+        description: "Refund failed"
 
-```yaml
-dashboard:
-  control_dashboard:
-    location: dashboard/control.html
-    purpose: Screen navigation, scenario triggering, language control, training manager
-    server_port: 8092
-    connection: ADB over USB/WiFi
-    protocol: HTTP POST with JSON body
-    status_check_interval_ms: 5000
+  - id: KYC
+    name: "KYC Dedup"
+    scenarios:
+      - id: kyc-pan-dedup
+        screen: 5
+        description: "PAN already registered (deferred check)"
+        deferred: true
+      - id: kyc-aadhaar-dedup
+        screen: 5
+        description: "Aadhaar already registered (deferred check)"
+        deferred: true
+      - id: kyc-gst-dedup
+        screen: 5
+        description: "GST already registered (deferred check)"
+        deferred: true
 
-    controls:
-      - id: restart_app
-        action: { action: "restart" }
-        adb: "am force-stop com.wiom.csp && am start -n com.wiom.csp/.MainActivity"
+  - id: BANK
+    name: "Bank Verification"
+    scenarios:
+      - id: bank-pennydrop-fail
+        screen: 6
+        description: "Penny drop verification failed"
+        deferred: true
+      - id: bank-name-mismatch
+        screen: 6
+        description: "Bank account holder name differs from KYC name"
+        deferred: true
+      - id: bank-dedup
+        screen: 6
+        description: "Bank account already registered with another partner"
+        deferred: true
 
-      - id: reset_to_screen_0
-        action: { action: "reset" }
-        intent: "com.wiom.csp.RESET"
+  - id: ONBOARD_FEE
+    name: "Onboarding Fee"
+    scenarios:
+      - id: onboardfee-success
+        screen: 12
+        description: "Onboarding fee payment successful"
+      - id: onboardfee-failed
+        screen: 12
+        description: "Onboarding fee payment declined"
+      - id: onboardfee-timeout
+        screen: 12
+        description: "Onboarding fee payment timeout"
 
-      - id: set_hindi
-        action: { action: "lang", lang: "hi" }
-        intent: "com.wiom.csp.LANG --es lang hi"
+  - id: ACCOUNT_SETUP
+    name: "Account Setup"
+    scenarios:
+      - id: account-setup-failed
+        screen: 13
+        description: "Account setup process failed"
+      - id: account-setup-pending
+        screen: 13
+        description: "Account setup taking longer than expected"
 
-      - id: set_english
-        action: { action: "lang", lang: "en" }
-        intent: "com.wiom.csp.LANG --es lang en"
+  - id: AGREEMENT_TECH
+    name: "Agreement & Tech Assessment"
+    scenarios:
+      - id: verification-pending
+        screen: 9
+        description: "Verification still in progress"
+      - id: verification-rejected
+        screen: 9
+        description: "Verification rejected by QA team"
+      - id: refund-in-progress-vr
+        screen: 9
+        description: "Refund in progress after verification rejection"
+      - id: policy-sla
+        screen: 10
+        description: "Policy & SLA acknowledgement"
+      - id: tech-assessment-rejected
+        screen: 11
+        description: "Technical assessment failed"
 
-      - id: fill_all
-        action: { action: "fill", mode: "filled" }
-        intent: "com.wiom.csp.FILL --es mode filled"
-
-      - id: empty_all
-        action: { action: "fill", mode: "empty" }
-        intent: "com.wiom.csp.FILL --es mode empty"
-
-      - id: navigate_to_screen
-        action: { action: "navigate", screen: N }
-        intent: "com.wiom.csp.NAVIGATE --ei screen N"
-        tiles: 18  # Pitch + 0-16
-
-      - id: trigger_scenario
-        action: { action: "scenario", name: "SCENARIO_NAME" }
-        intent: "com.wiom.csp.SCENARIO --es name SCENARIO_NAME"
-        scenarios: 18
-
-      - id: clear_scenario
-        action: { action: "scenario", name: "NONE" }
-
-      - id: save_training
-        action: { action: "training_config", modules: [...] }
-        intent: "com.wiom.csp.TRAINING --es config JSON"
-
-      - id: dump_state
-        action: { action: "data", mode: "DUMP_STATE" }
-        intent: "com.wiom.csp.DATA --es mode DUMP_STATE"
-        run_as: true
-
-    screenshot:
-      endpoint: "GET /screenshot"
-      adb: "adb exec-out screencap -p"
-      temp_file: "/tmp/csp_dash_screen.png"
-      format: PNG
-
-  qa_review_dashboard:
-    location: dashboard/qa-review.html
-    purpose: QA team reviews partner applications, approves/rejects with reasons
-    features:
-      - application_list: "List of all partner applications"
-      - detail_view: "Individual application detail with documents"
-      - approve_reject: "Approve or reject with reason from QA_REJECTION_REASONS"
-      - search_filter: "Search and filter applications"
-
-    controls:
-      - id: qa_approve
-        action: { action: "qa", decision: "approved" }
-        intent: "com.wiom.csp.QA --es action approved"
-
-      - id: qa_reject
-        action: { action: "qa", decision: "rejected", reason: "REASON_ID" }
-        intent: "com.wiom.csp.QA --es action rejected --es reason REASON_ID"
-
-  bridge_receiver: "com.wiom.csp/.DashboardReceiver"
-  intent_actions:
-    - "com.wiom.csp.SCENARIO"
-    - "com.wiom.csp.NAVIGATE"
-    - "com.wiom.csp.LANG"
-    - "com.wiom.csp.RESET"
-    - "com.wiom.csp.FILL"
-    - "com.wiom.csp.TRAINING"
-    - "com.wiom.csp.QA"
-    - "com.wiom.csp.DATA"
+  - id: PAYMENT_FAILURES
+    name: "Payment Failures (backward compat)"
+    description: "Legacy category maintained for backward compatibility"
+    scenarios: []  # references scenarios from REG_FEE and ONBOARD_FEE categories
 ```
 
 ---
@@ -1871,15 +1587,15 @@ dashboard:
 
 ```yaml
 fees:
-  registration: 2000  # INR, refundable if QA rejected
-  onboarding: 20000   # INR, inclusive GST
+  registration: 2000  # INR, refundable on rejection
+  onboarding: 20000   # INR
   total_investment: 22000
 
 commissions:
   new_connection: 300  # INR per connection
   recharge: 300        # INR flat
-  payout_frequency: "Weekly (Monday)"
-  payout_method: "Bank transfer via RazorpayX"
+  payout_frequency: "Every Monday by 10 AM"
+  payout_method: "Bank transfer"
 
 sla:
   complaint_resolution: "4 hours"
@@ -1887,30 +1603,19 @@ sla:
   equipment_care: "Partner responsibility"
   brand_compliance: "Mandatory"
 
+help:
+  phone: "7836811111"
+
+timelines:
+  verification_tat: "3 business days"
+  tech_assessment_tat: "4-5 business days"
+  refund_tat: "5-6 working days"
+  payment_timeout_auto_refund: "48 hours"
+
 agreement:
   term: "12 months, auto-renewable"
   termination_notice: "30 days"
   compliance: ["DOT", "TRAI", "Wiom brand guidelines"]
-
-refund:
-  qa_rejection_refund: 2000
-  refund_timeline: "5-7 working days"
-  payment_timeout_auto_refund: "48 hours"
-
-training:
-  modules_count: 3
-  passing_score: "4/5"
-  quiz_retry: unlimited
-
-policy_quiz:
-  questions_count: 5
-  passing_score: "3/5"
-  quiz_retry: unlimited
-
-device_requirements:
-  min_android: 11
-  min_ram_gb: 3
-  recommended_devices: ["Samsung M34", "Redmi Note 12", "Realme Narzo 60"]
 ```
 
 ---
@@ -1924,39 +1629,35 @@ states:
   - OTP_SENT → SCREEN_1 (OTP Verification)
   - REGISTERED → SCREEN_2-4 (Personal → RegFee)
   - DOCUMENTED → SCREEN_5-8 (KYC → Shop Photos)
-  - VERIFICATION → SCREEN_9 (Verification) [BRANCH POINT]
+  - VERIFICATION → SCREEN_9 (Verification Status) [BRANCH POINT]
     - → APPROVED → SCREEN_10 (Policy & SLA)
-    - → REJECTED → REJECTION_WITH_REASON (resolvable: redirect to fix screen, non-resolvable: refund)
+    - → REJECTED → auto refund, no re-upload (Phase 1)
   - POLICY_DONE → SCREEN_10 (Policy & SLA)
-  - PAYMENT_2 → SCREEN_11 (Onboarding Fee)
-  - TECH_ASSESS → SCREEN_12 (Technical Assessment) [BRANCH POINT]
-    - → PASSED → SCREEN_13
-    - → FAILED → TECH_ASSESSMENT_REJECTED
-  - SETUP → SCREEN_13 (CSP Account Setup, auto)
-  - TRAINING → SCREEN_14 (Training Modules)
-  - POLICY_QUIZ → SCREEN_15 (Policy Quiz)
-  - LIVE → SCREEN_16 (Go Live)
+  - TECH_ASSESS → SCREEN_11 (Technical Assessment) [BRANCH POINT]
+    - → PASSED → SCREEN_12 (Onboarding Fee)
+    - → FAILED → no refund, Talk to Us (7836811111)
+  - PAYMENT_2 → SCREEN_12 (Onboarding Fee)
+  - SETUP → SCREEN_13 (Account Setup, auto 3s)
+  - ONBOARDED → SCREEN_14 (Successfully Onboarded)
 
 error_states:
   PHONE_DUPLICATE: blocks at SCREEN_0
   OTP_WRONG: retryable at SCREEN_1 (max 3 attempts)
   OTP_EXPIRED: retryable at SCREEN_1
-  AREA_NOT_SERVICEABLE: blocks at SCREEN_3
   REGFEE_FAILED: retryable at SCREEN_4
   REGFEE_TIMEOUT: retryable at SCREEN_4
-  KYC_PAN_MISMATCH: blocks at SCREEN_5
-  KYC_AADHAAR_EXPIRED: blocks at SCREEN_5
-  KYC_PAN_AADHAAR_UNLINKED: blocks at SCREEN_5
-  BANK_PENNYDROP_FAIL: retryable at SCREEN_6
-  BANK_NAME_MISMATCH: retryable at SCREEN_6
-  DEDUP_FOUND: blocks at SCREEN_6 (needs support)
-  ISP_DOCUMENT_INVALID: retryable at SCREEN_7
-  VERIFICATION_REJECTED: blocks at SCREEN_9 (with reason from 7 options)
-  ONBOARDFEE_FAILED: retryable at SCREEN_11
-  TECH_DEVICE_INCOMPATIBLE: blocks at SCREEN_12
-  TECH_ASSESSMENT_REJECTED: blocks at SCREEN_12
-  TRAINING_QUIZ_FAIL: retryable at SCREEN_14
-  POLICY_QUIZ_FAIL: retryable at SCREEN_15 (score <3/5)
+  KYC_PAN_DEDUP: deferred, blocks at SCREEN_5
+  KYC_AADHAAR_DEDUP: deferred, blocks at SCREEN_5
+  KYC_GST_DEDUP: deferred, blocks at SCREEN_5
+  BANK_PENNYDROP_FAIL: deferred, bottom sheet at SCREEN_6 (Change Details / Upload Doc)
+  BANK_NAME_MISMATCH: deferred, bottom sheet at SCREEN_6 (Change Details / Upload Doc)
+  BANK_DEDUP: deferred, bottom sheet at SCREEN_6 (Change Details only)
+  VERIFICATION_REJECTED: blocks at SCREEN_9 (auto refund, no re-upload)
+  TECH_ASSESSMENT_REJECTED: blocks at SCREEN_11 (no refund, Talk to Us)
+  ONBOARDFEE_FAILED: retryable at SCREEN_12
+  ONBOARDFEE_TIMEOUT: retryable at SCREEN_12
+  ACCOUNT_SETUP_FAILED: retryable at SCREEN_13
+  ACCOUNT_SETUP_PENDING: refreshable at SCREEN_13
 ```
 
 ---
@@ -1965,10 +1666,12 @@ error_states:
 
 ```yaml
 phone:
-  - not_blank → "नंबर डालें / Enter phone number"
-  - length == 10 → "10 अंकों का नंबर डालें / Enter 10-digit number"
-  - digits_only → "केवल अंक डालें / Enter digits only"
-  - length > 10 → "केवल 10 अंकों का नंबर डालें / Only 10-digit numbers allowed"
+  regex: 10 digits
+  rules:
+    - not_blank → "नंबर डालें / Enter phone number"
+    - length == 10 → "10 अंकों का नंबर डालें / Enter 10-digit number"
+    - digits_only → "केवल अंक डालें / Enter digits only"
+    - length > 10 → "केवल 10 अंकों का नंबर डालें / Only 10-digit numbers allowed"
 
 otp:
   - all_4_filled → "पूरा OTP डालें / Enter complete OTP"
@@ -1981,8 +1684,32 @@ email:
   - contains_at_and_dot → "सही ईमेल डालें / Enter valid email"
 
 pincode:
-  - not_blank → "पिनकोड डालें / Enter pincode"
-  - length == 6 → "6 अंकों का पिनकोड डालें / Enter 6-digit pincode"
+  regex: /^[0-9]{6}$/
+  rules:
+    - not_blank → "पिनकोड डालें / Enter pincode"
+    - length == 6 → "6 अंकों का पिनकोड डालें / Enter 6-digit pincode"
+
+pan:
+  regex: /^[A-Z]{5}[0-9]{4}[A-Z]$/
+  validate_on: blur
+
+aadhaar:
+  regex: /^[0-9]{12}$/
+  format: "4-4-4"
+  validate_on: blur
+
+gst:
+  regex: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]{3}$/
+  cross_validation: "characters 3-12 must match PAN number"
+  validate_on: blur
+
+bank_account:
+  length: 9-18 digits
+  double_entry: must match
+  mask_on_blur: true
+
+ifsc:
+  regex: /^[A-Z]{4}0[A-Z0-9]{6}$/
 ```
 
 ---
@@ -2001,14 +1728,11 @@ pincode: "452010"
 address: "123, Vijay Nagar, Indore"
 state: "Madhya Pradesh"
 gps: "22.71° N, 75.85° E"
-bank_holder: "राजेश कुमार"
-bank_name: "State Bank of India"
+pan: "ABCDE1234F"
+aadhaar: "123456789012"
+gst: "23ABCDE1234F1ZT"
 bank_account: "XXXX XXXX 4521"
 bank_ifsc: "SBIN0001234"
-pan: "ABCDE1234F"
-internet_setup: "Fiber (FTTH)"
-device: "Samsung Galaxy M34"
-android: "14"
 ```
 
 ---
@@ -2020,8 +1744,8 @@ android: "14"
 ```yaml
 TC_HP_001:
   name: "Complete onboarding end-to-end"
-  steps: Pitch → Screen 0 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 (approved) → 10 → 11 → 12 (pass) → 13 → 14 → 15 → 16
-  expected: Partner reaches Go Live screen with all 9 status chips green
+  steps: Pitch → Screen 0 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 (approved) → 10 → 11 (pass) → 12 → 13 → 14
+  expected: Partner reaches Successfully Onboarded screen (Screen 14)
 
 TC_HP_002:
   name: "Language toggle works on all screens"
@@ -2035,38 +1759,38 @@ TC_HP_003:
 
 TC_HP_004:
   name: "OTP timer countdown and resend"
-  steps: Enter phone → go to OTP screen → wait 30s → tap resend
-  expected: Timer counts from 30 to 0, resend link appears, new timer starts
+  steps: Enter phone → go to OTP screen → wait 28s → tap resend
+  expected: Timer counts from 28 to 0, resend link appears, new timer starts
 
 TC_HP_005:
-  name: "KYC document upload flow (camera + gallery)"
-  steps: Tap upload → choose camera → preview → save → verify uploaded state
-  expected: Document shows green verified state with remove option
+  name: "KYC document upload with number entry + photo"
+  steps: Enter PAN number → upload PAN card → Enter Aadhaar → upload front + back → Enter GST → upload cert
+  expected: All 3 sub-stages completed with progress bar, documents in green verified state
 
 TC_HP_006:
   name: "Bank verification with penny drop"
-  steps: Fill all bank fields → tap Verify → wait 2s → verify success cards
-  expected: Penny drop verified + dedup check passed cards appear
+  steps: Enter account number → re-enter to confirm → enter IFSC → tap Verify → wait 2s
+  expected: Success delight shown, "Add ISP Agreement" CTA appears
 
 TC_HP_007:
-  name: "Financial setup auto-progression"
-  steps: Reach Screen 13 → observe 5 items completing sequentially
-  expected: Items complete one by one (800ms each), success card at end
+  name: "Account setup auto-progression"
+  steps: Reach Screen 13 → observe 3s auto-progression
+  expected: Auto-advances to Screen 14 after 3 seconds
 
 TC_HP_008:
-  name: "Training module video + quiz flow"
-  steps: Open module → watch video → answer quiz correctly → complete
-  expected: Module marked done, progress bar updates
+  name: "Successfully Onboarded screen"
+  steps: Complete full flow to Screen 14
+  expected: "Wiom Connection Service Provider" title, app download CTA, and instructions shown
 
 TC_HP_009:
-  name: "Go Live quick actions navigation"
-  steps: Reach Screen 16 → tap each quick action card
-  expected: Each card opens detail view with video placeholder and CTA
-
-TC_HP_010:
   name: "Filled mode populates all screens"
   steps: Trigger fill command from dashboard → navigate through all screens
   expected: All form fields pre-filled with mock data
+
+TC_HP_010:
+  name: "ISP Agreement multi-page upload"
+  steps: Screen 7 → upload via camera (3 pages) → verify all pages shown
+  expected: Multi-page upload works, up to 7 pages, mandatory checklist shown
 ```
 
 ### Error Scenario Tests
@@ -2074,117 +1798,125 @@ TC_HP_010:
 ```yaml
 TC_ERR_001:
   name: "Phone duplicate detection"
-  scenario: PHONE_DUPLICATE
+  scenario: phone-duplicate
   screen: 0
   expected: Error card shown, login + new number CTAs available
 
 TC_ERR_002:
   name: "Wrong OTP with attempt counter"
-  scenario: OTP_WRONG
+  scenario: otp-wrong
   screen: 1
   expected: Red OTP boxes, "2 attempts remaining" message
 
 TC_ERR_003:
   name: "OTP expiry with resend option"
-  scenario: OTP_EXPIRED
+  scenario: otp-expired
   screen: 1
   expected: Faded OTP boxes, "send new OTP" + "change number" buttons
 
 TC_ERR_004:
-  name: "Non-serviceable area with waitlist"
-  scenario: AREA_NOT_SERVICEABLE
-  screen: 3
-  expected: Orange error card, waitlist CTA, progression blocked
-
-TC_ERR_005:
-  name: "PAN name mismatch"
-  scenario: KYC_PAN_MISMATCH
-  screen: 5
-  expected: PAN card red, other docs green, mismatch details shown, progression blocked
-
-TC_ERR_006:
-  name: "Aadhaar address expired"
-  scenario: KYC_AADHAAR_EXPIRED
-  screen: 5
-  expected: Aadhaar orange warning, UIDAI update link shown, progression blocked
-
-TC_ERR_007:
-  name: "PAN-Aadhaar not linked"
-  scenario: KYC_PAN_AADHAAR_UNLINKED
-  screen: 5
-  expected: All docs green but linking error, incometax.gov.in link shown, blocked
-
-TC_ERR_008:
   name: "Registration fee payment failed"
-  scenario: REGFEE_FAILED
+  scenario: regfee-failed
   screen: 4
   expected: Reassurance card (no money deducted), retry + later CTAs
 
-TC_ERR_009:
+TC_ERR_005:
   name: "Registration fee payment timeout"
-  scenario: REGFEE_TIMEOUT
+  scenario: regfee-timeout
   screen: 4
   expected: Pending status with UPI ref, auto-refund info, refresh + support CTAs
 
-TC_ERR_010:
+TC_ERR_006:
+  name: "PAN dedup detected"
+  scenario: kyc-pan-dedup
+  screen: 5
+  expected: Deferred error, PAN already registered message, progression blocked
+
+TC_ERR_007:
+  name: "Aadhaar dedup detected"
+  scenario: kyc-aadhaar-dedup
+  screen: 5
+  expected: Deferred error, Aadhaar already registered message, progression blocked
+
+TC_ERR_008:
+  name: "GST dedup detected"
+  scenario: kyc-gst-dedup
+  screen: 5
+  expected: Deferred error, GST already registered message, progression blocked
+
+TC_ERR_009:
   name: "Penny drop verification failed"
-  scenario: BANK_PENNYDROP_FAIL
+  scenario: bank-pennydrop-fail
   screen: 6
-  expected: Account number field red, penny drop failed card, fix CTA
+  expected: Bottom sheet with Change Bank Details + Upload Bank Document CTAs
+
+TC_ERR_010:
+  name: "Bank account name mismatch"
+  scenario: bank-name-mismatch
+  screen: 6
+  expected: Bottom sheet with name comparison, Change Bank Details + Upload Bank Document CTAs
 
 TC_ERR_011:
-  name: "Bank account name mismatch"
-  scenario: BANK_NAME_MISMATCH
+  name: "Bank account dedup"
+  scenario: bank-dedup
   screen: 6
-  expected: Mismatch comparison shown, fix name + retry CTA
+  expected: Bottom sheet with Change Bank Details only (no upload option)
 
 TC_ERR_012:
-  name: "Dedup match found"
-  scenario: DEDUP_FOUND
-  screen: 6
-  expected: Penny drop passes, dedup alert with match details, contact support CTA, blocked
+  name: "Verification rejected"
+  scenario: verification-rejected
+  screen: 9
+  expected: Rejection shown, auto refund initiated, no re-upload option
 
 TC_ERR_013:
-  name: "ISP document invalid"
-  scenario: ISP_DOCUMENT_INVALID
-  screen: 7
-  expected: Error card shown, re-upload CTA available
+  name: "Technical assessment rejected"
+  scenario: tech-assessment-rejected
+  screen: 11
+  expected: Assessment failed, no refund, Talk to Us CTA with phone 7836811111
 
 TC_ERR_014:
-  name: "Verification rejected"
-  scenario: VERIFICATION_REJECTED
-  screen: 9
-  expected: Rejection reason shown from 7 options, resolution CTA if resolvable, refund if not
-
-TC_ERR_015:
-  name: "Device incompatible"
-  scenario: TECH_DEVICE_INCOMPATIBLE
-  screen: 12
-  expected: Device check failed card with specs, recommended devices list, blocked
-
-TC_ERR_016:
-  name: "Technical assessment rejected"
-  scenario: TECH_ASSESSMENT_REJECTED
-  screen: 12
-  expected: Assessment failed card, retry CTA available
-
-TC_ERR_017:
   name: "Onboarding fee payment failed"
-  scenario: ONBOARDFEE_FAILED
-  screen: 11
+  scenario: onboardfee-failed
+  screen: 12
   expected: Reassurance card, UPI limit info, retry + later CTAs
 
+TC_ERR_015:
+  name: "Onboarding fee payment timeout"
+  scenario: onboardfee-timeout
+  screen: 12
+  expected: Pending status, auto-refund info, refresh + support CTAs
+
+TC_ERR_016:
+  name: "Account setup failed"
+  scenario: account-setup-failed
+  screen: 13
+  expected: Failed message, Retry CTA
+
+TC_ERR_017:
+  name: "Account setup pending"
+  scenario: account-setup-pending
+  screen: 13
+  expected: Pending message, Refresh CTA
+
 TC_ERR_018:
-  name: "Training quiz failed"
-  scenario: TRAINING_QUIZ_FAIL
-  screen: 14
-  expected: Score card (2/5), review modules + retake quiz CTAs
+  name: "No internet connection"
+  scenario: no-internet
+  expected: Generic offline error screen
 
 TC_ERR_019:
-  name: "Policy quiz failed"
-  scenario: POLICY_QUIZ_FAIL
-  screen: 15
-  expected: Score card (<3/5), review policy + retake quiz CTAs
+  name: "Server error"
+  scenario: server-error
+  expected: Generic server error screen
+
+TC_ERR_020:
+  name: "KYC Day 1-4 reminders"
+  scenarios: kyc-day1-reminder, kyc-day2-reminder, kyc-day3-reminder, kyc-day4-reminder
+  expected: Reminder notifications shown for pending KYC completion
+
+TC_ERR_021:
+  name: "Refund scenarios"
+  scenarios: refund-success, refund-in-progress, refund-failed
+  expected: Appropriate refund status shown for each state
 ```
 
 ### Edge Case Tests
@@ -2197,27 +1929,27 @@ TC_EDGE_001:
 
 TC_EDGE_002:
   name: "Partial KYC upload"
-  steps: Upload 2 of 4 documents, try to proceed
-  expected: CTA disabled until all 4 documents uploaded
+  steps: Complete PAN sub-stage but not Aadhaar, try to proceed
+  expected: CTA disabled until all 3 sub-stages (PAN, Aadhaar, GST) completed
 
 TC_EDGE_003:
-  name: "Verification rejected then resolve"
-  steps: Trigger QA rejection with resolvable reason → tap resolution CTA → fix → resubmit
-  expected: Redirects to correct resolution screen, allows re-submission
+  name: "Bank account number mismatch"
+  steps: Enter account number, enter different number in re-enter field
+  expected: Validation error "Account numbers do not match"
 
 TC_EDGE_004:
-  name: "Bank fields partially filled"
-  steps: Fill 3 of 4 bank fields, try Penny Drop
-  expected: Verify button remains disabled
+  name: "GST-PAN cross validation"
+  steps: Enter PAN ABCDE1234F, then enter GST with different chars 3-12
+  expected: GST validation error on blur
 
 TC_EDGE_005:
-  name: "Training module revisit after completion"
-  steps: Complete module → return to list → tap completed module
-  expected: Module opens with completed state, video watched, quiz done
+  name: "Bank account masked on blur"
+  steps: Enter account number → tap outside field
+  expected: Account number gets masked (only last 4 digits visible)
 
 TC_EDGE_006:
   name: "Remove uploaded KYC document"
-  steps: Upload PAN → tap remove button
+  steps: Upload PAN card → tap remove button
   expected: Document returns to not-uploaded state
 
 TC_EDGE_007:
@@ -2256,9 +1988,19 @@ TC_EDGE_013:
   expected: Error shown "केवल 10 अंकों का नंबर डालें", CTA disabled
 
 TC_EDGE_014:
-  name: "Policy quiz score exactly 3/5"
-  steps: Answer exactly 3 questions correctly on policy quiz
-  expected: Quiz passes, proceeds to Go Live
+  name: "ISP Agreement max pages"
+  steps: Try uploading 8+ photos via camera or gallery
+  expected: Upload capped at 7, user informed of limit
+
+TC_EDGE_015:
+  name: "Equipment photos max limit"
+  steps: Try uploading 6+ equipment photos
+  expected: Upload capped at 5, user informed of limit
+
+TC_EDGE_016:
+  name: "Account setup auto-progression timing"
+  steps: Reach Screen 13, measure time before auto-advance
+  expected: Screen auto-advances to 14 after exactly 3 seconds
 ```
 
 ### UAT Test Cases
@@ -2267,80 +2009,160 @@ TC_EDGE_014:
 TC_UAT_001:
   name: "New partner completes full onboarding"
   persona: "Rajesh Kumar, Indore, Individual, first-time partner"
-  flow: Pitch → Phone → OTP → Personal → Location → ₹2K → KYC → Bank → ISP → Photos → Verification (approved) → Policy → ₹20K → Tech Assessment (pass) → Account Setup → Training → Policy Quiz → Go Live
-  acceptance: All 18 screens visited, all data captured, partner live with 9 status chips
+  flow: Pitch → Phone → OTP → Personal(1/3) → Location(2/3) → ₹2K(3/3) → KYC(1/5) → Bank(2/5) → ISP(3/5) → Photos(4/5) → Verification(5/5, approved) → Policy(1/5) → Tech Assessment(2/5, pass) → ₹20K(3/5) → Account Setup(4/5) → Onboarded(5/5)
+  acceptance: All 16 screens visited (Pitch + 0-14), partner successfully onboarded
 
 TC_UAT_002:
-  name: "Partner in non-serviceable area"
-  persona: "Sunita Devi, Deoghar (not serviceable)"
-  flow: Pitch → Phone → OTP → Personal → Location (pincode rejected) → Waitlist
-  acceptance: Partner added to waitlist, informed about next steps
+  name: "Partner with KYC dedup issue"
+  persona: "Anil Verma, PAN already registered with another partner"
+  flow: Pitch → Phone → OTP → Personal → Location → ₹2K → KYC (PAN dedup detected)
+  acceptance: Clear deferred error message, progression blocked
 
 TC_UAT_003:
-  name: "Partner with KYC issues"
-  persona: "Anil Verma, PAN name different from Aadhaar"
-  flow: Pitch → Phone → OTP → Personal → Location → ₹2K → KYC (PAN mismatch) → Fix → Retry
-  acceptance: Clear error message, path to resolution shown
+  name: "Partner verification rejected"
+  persona: "Deepak Jain, QA rejects application"
+  flow: ... → Verification (rejected) → Auto refund initiated
+  acceptance: ₹2,000 refund initiated, no re-upload option, 5-6 working days timeline shown
 
 TC_UAT_004:
-  name: "QA-rejected partner with resolvable reason"
-  persona: "Deepak Jain, shop photo not acceptable"
-  flow: ... → Verification (rejected: SHOP_PHOTO_BAD) → Re-upload photos → Resubmit
-  acceptance: Resolution CTA redirects to Screen 8, allows re-upload
+  name: "Partner with bank penny drop failure"
+  persona: "Sunita Devi, wrong account number"
+  flow: ... → Bank (penny drop fail) → Change details or Upload bank document
+  acceptance: Bottom sheet shown with two options, supporting doc types listed
 
 TC_UAT_005:
-  name: "QA-rejected partner with non-resolvable reason"
-  persona: "Meera Gupta, duplicate area"
-  flow: ... → Verification (rejected: DUPLICATE_AREA) → Refund initiated
-  acceptance: ₹2K refund initiated with tracking, no resolution path
+  name: "Partner with bank name mismatch"
+  persona: "Mohit Patel, bank name different from KYC"
+  flow: ... → Bank (name mismatch) → See comparison → Change details or Upload doc
+  acceptance: Name comparison shown in bottom sheet, two resolution options
 
 TC_UAT_006:
+  name: "Partner with bank dedup"
+  persona: "Kavita Singh, bank account already registered"
+  flow: ... → Bank (dedup) → Change bank details only
+  acceptance: Bottom sheet with only Change Bank Details (no upload option)
+
+TC_UAT_007:
   name: "Partner with payment issues"
   persona: "Mohit Patel, UPI limit exceeded for ₹20K"
   flow: ... → ₹20K (failed) → Switch to NEFT → ₹20K (success) → Continue
   acceptance: Helpful error message, alternative payment suggestion, no money lost
 
-TC_UAT_007:
-  name: "Partner with incompatible device"
-  persona: "Kavita Singh, Samsung J2 Core (Android 8.1, 1GB RAM)"
-  flow: ... → Tech Assessment (device incompatible) → Recommended devices shown
-  acceptance: Clear requirements listed, recommended devices shown, progress preserved
-
 TC_UAT_008:
-  name: "Partner fails training quiz"
-  persona: "Priya Sharma, answers 2/5 correctly"
-  flow: ... → Training → Quiz (fail) → Review → Retry → Pass → Policy Quiz → Go Live
-  acceptance: Encouraging failure message, modules available for review, unlimited retries
+  name: "Partner tech assessment rejected"
+  persona: "Ravi Kumar, infrastructure not ready"
+  flow: ... → Tech Assessment (rejected) → No refund, Talk to Us
+  acceptance: No refund info, Talk to Us CTA with phone 7836811111
 
 TC_UAT_009:
-  name: "Partner fails policy quiz"
-  persona: "Ravi Kumar, answers 2/5 correctly on policy quiz"
-  flow: ... → Policy Quiz (fail, 2/5) → Review Policy → Retry → Pass (3/5+) → Go Live
-  acceptance: Score shown, review + retry CTAs, unlimited retries
-
-TC_UAT_010:
   name: "Hindi-first UX verification"
   persona: Any partner, Hindi-speaking
   flow: Complete entire flow in Hindi
   acceptance: All text meaningful in Hindi, no English-only screens, culturally appropriate
 
-TC_UAT_011:
+TC_UAT_010:
   name: "QA Review Dashboard workflow"
   persona: QA team member using QA Review Dashboard
-  flow: Open qa-review.html → Search partner → Review docs → Approve/Reject with reason
-  acceptance: Dashboard updates app in real-time, correct screen shown, reason passed
+  flow: Open qa-review.html → Search partner → Review docs → Approve/Reject
+  acceptance: Dashboard updates app in real-time, correct screen shown
 
-TC_UAT_012:
+TC_UAT_011:
   name: "Control Dashboard workflow"
   persona: Admin using Control Dashboard
-  flow: Open control.html → Navigate screens (18 tiles) → Trigger scenarios (18) → Manage training
-  acceptance: All 18 screens navigable, all scenarios triggerable
+  flow: Open control.html → Navigate screens (16 tiles) → Trigger scenarios (30+)
+  acceptance: All 16 screens navigable, all scenarios triggerable
+```
 
-TC_UAT_013:
-  name: "Training module customization via dashboard"
-  persona: Admin configuring training
-  flow: Open dashboard → Edit module → Add question → Save to app → Verify in app
-  acceptance: Custom training content appears in app after restart
+---
+
+## DASHBOARD_SYSTEM
+
+```yaml
+dashboard:
+  control_dashboard:
+    location: dashboard/control.html
+    purpose: Screen navigation, scenario triggering, language control
+    server_port: 8092
+    connection: ADB over USB/WiFi
+    protocol: HTTP POST with JSON body
+    status_check_interval_ms: 5000
+
+    controls:
+      - id: restart_app
+        action: { action: "restart" }
+        adb: "am force-stop com.wiom.csp && am start -n com.wiom.csp/.MainActivity"
+
+      - id: reset_to_screen_0
+        action: { action: "reset" }
+        intent: "com.wiom.csp.RESET"
+
+      - id: set_hindi
+        action: { action: "lang", lang: "hi" }
+        intent: "com.wiom.csp.LANG --es lang hi"
+
+      - id: set_english
+        action: { action: "lang", lang: "en" }
+        intent: "com.wiom.csp.LANG --es lang en"
+
+      - id: fill_all
+        action: { action: "fill", mode: "filled" }
+        intent: "com.wiom.csp.FILL --es mode filled"
+
+      - id: empty_all
+        action: { action: "fill", mode: "empty" }
+        intent: "com.wiom.csp.FILL --es mode empty"
+
+      - id: navigate_to_screen
+        action: { action: "navigate", screen: N }
+        intent: "com.wiom.csp.NAVIGATE --ei screen N"
+        tiles: 16  # Pitch + 0-14
+
+      - id: trigger_scenario
+        action: { action: "scenario", name: "SCENARIO_NAME" }
+        intent: "com.wiom.csp.SCENARIO --es name SCENARIO_NAME"
+        scenarios: 30+  # 9 categories, 30+ total scenarios
+
+      - id: clear_scenario
+        action: { action: "scenario", name: "NONE" }
+
+      - id: dump_state
+        action: { action: "data", mode: "DUMP_STATE" }
+        intent: "com.wiom.csp.DATA --es mode DUMP_STATE"
+        run_as: true
+
+    screenshot:
+      endpoint: "GET /screenshot"
+      adb: "adb exec-out screencap -p"
+      temp_file: "/tmp/csp_dash_screen.png"
+      format: PNG
+
+  qa_review_dashboard:
+    location: dashboard/qa-review.html
+    purpose: QA team reviews partner applications, approves/rejects
+    features:
+      - application_list: "List of all partner applications"
+      - detail_view: "Individual application detail with documents"
+      - approve_reject: "Approve or reject"
+      - search_filter: "Search and filter applications"
+
+    controls:
+      - id: qa_approve
+        action: { action: "qa", decision: "approved" }
+        intent: "com.wiom.csp.QA --es action approved"
+
+      - id: qa_reject
+        action: { action: "qa", decision: "rejected" }
+        intent: "com.wiom.csp.QA --es action rejected"
+
+  bridge_receiver: "com.wiom.csp/.DashboardReceiver"
+  intent_actions:
+    - "com.wiom.csp.SCENARIO"
+    - "com.wiom.csp.NAVIGATE"
+    - "com.wiom.csp.LANG"
+    - "com.wiom.csp.RESET"
+    - "com.wiom.csp.FILL"
+    - "com.wiom.csp.QA"
+    - "com.wiom.csp.DATA"
 ```
 
 ---
@@ -2408,7 +2230,6 @@ component_sizes:
   header_height: 48dp
   status_bar_height: 32dp
   otp_box: { width: 48dp, height: 56dp }
-  module_icon_box: 36dp
 ```
 
 ---
@@ -2419,14 +2240,14 @@ component_sizes:
 repo_root:
   - README.md
   - CLAUDE.md
+  - PRD_AI_AGENT.md
   - apk/
-    - csp_app.apk (1.7 MB)
-    - wiom-csp-onboarding-v1.apk (20 MB)
+    - csp_app.apk
   - prototype/
-    - index.html (18 screens + error scenarios + admin dashboard)
+    - index.html (16 screens + error scenarios + admin dashboard)
   - dashboard/
-    - control.html (screen navigation, scenario control, training manager)
-    - qa-review.html (application list, detail view, approve/reject with reasons)
+    - control.html (screen navigation, scenario control)
+    - qa-review.html (application list, detail view, approve/reject)
     - bridge.py (ADB bridge server on port 8092)
   - app/src/main/java/com/wiom/csp/
     - CspApplication.kt
@@ -2449,6 +2270,6 @@ repo_root:
         - PitchScreen.kt (Pitch screen)
         - Phase1Screens.kt (Screens 0-4)
         - Phase2Screens.kt (Screens 5-9)
-        - Phase3Screens.kt (Screens 10-16)
+        - Phase3Screens.kt (Screens 10-14)
     - DashboardReceiver.kt (BroadcastReceiver for dashboard commands)
 ```
