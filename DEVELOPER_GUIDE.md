@@ -89,7 +89,7 @@ The prototype has built-in shortcuts to skip waiting states. These exist because
 - The dev skip button bypasses the wait and moves directly to Screen 10 (Policy & SLA)
 - In production, this transition happens when the verification team approves via the admin panel
 
-### Screen 11 (Technical Assessment) — "Dev: Skip to Account Setup"
+### Screen 11 (Technical Assessment) — "Dev: Skip to Onboarding Fee"
 - This screen shows a "waiting for technical team" state
 - The dev skip button bypasses the wait and moves directly to Screen 12 (Onboarding Fee)
 - In production, this transition happens when the technical team approves via the admin panel
@@ -682,7 +682,7 @@ Reference: `PRD_HUMAN.md` Section 15 for the full comparison table.
 6. **Bank verification** — penny drop + dedup check APIs
 7. **Push notifications** — needed for branch point results
 8. **Analytics + Error reporting** — needed before launch
-10. **Security hardening** — certificate pinning, obfuscation, encryption
+9. **Security hardening** — certificate pinning, obfuscation, encryption
 
 ---
 

@@ -20,7 +20,7 @@ data class OtpUiState(
     val digits: List<String> = listOf("", "", "", ""),
     val otpError: String? = null,
     val isLoading: Boolean = false,
-    val timerSeconds: Int = 30,
+    val timerSeconds: Int = 28,
     val timerExpired: Boolean = false,
     val tncAccepted: Boolean = false,
     val tncError: String? = null,
@@ -42,9 +42,9 @@ class OtpViewModel @Inject constructor(
 
     fun startTimer() {
         timerJob?.cancel()
-        _uiState.update { it.copy(timerSeconds = 30, timerExpired = false) }
+        _uiState.update { it.copy(timerSeconds = 28, timerExpired = false) }
         timerJob = viewModelScope.launch {
-            for (i in 29 downTo 0) {
+            for (i in 27 downTo 0) {
                 delay(1000)
                 _uiState.update { it.copy(timerSeconds = i) }
             }

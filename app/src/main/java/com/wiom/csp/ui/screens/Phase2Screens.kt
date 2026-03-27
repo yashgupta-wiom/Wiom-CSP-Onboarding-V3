@@ -670,7 +670,15 @@ fun VerificationScreen(viewModel: VerificationViewModel, onNext: () -> Unit) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     InfoBox("⏳", t("समीक्षा में 3 कार्य दिवस", "Review may take 3 business days"), type = InfoBoxType.WARNING)
                     Spacer(Modifier.height(16.dp))
-                    // Prototype test buttons
+                    // ─── Prototype test buttons (hidden in production) ───
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        t("⚙️ प्रोटोटाइप कंट्रोल", "⚙️ Prototype Controls"),
+                        fontSize = 11.sp, color = WiomHint, fontWeight = FontWeight.Bold,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(4.dp))
                     WiomButton("✓ ${t("सत्यापन स्वीकृत", "Verification Approved")}", onClick = { viewModel.setApproved(); onNext() }, backgroundColor = WiomPositive)
                     Spacer(Modifier.height(8.dp))
                     WiomButton("✗ ${t("सत्यापन अस्वीकृत", "Verification Rejected")}", onClick = { viewModel.setRejected() }, isSecondary = true, textColor = WiomNegative, backgroundColor = WiomNegative100)

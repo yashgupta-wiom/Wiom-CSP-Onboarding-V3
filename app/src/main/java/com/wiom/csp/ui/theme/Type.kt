@@ -9,7 +9,8 @@ import androidx.compose.ui.unit.sp
 /**
  * Prototype uses: Noto Sans + Noto Sans Devanagari (via Google Fonts import).
  *
- * TODO for production: Add font files to res/font/ and replace FontFamily.Default:
+ * PRODUCTION TODO: Replace FontFamily.Default with Noto Sans font family.
+ * Steps:
  *   1. Download from https://fonts.google.com/noto/specimen/Noto+Sans
  *   2. Download from https://fonts.google.com/noto/specimen/Noto+Sans+Devanagari
  *   3. Place noto_sans_regular.ttf, noto_sans_semibold.ttf, noto_sans_bold.ttf in res/font/

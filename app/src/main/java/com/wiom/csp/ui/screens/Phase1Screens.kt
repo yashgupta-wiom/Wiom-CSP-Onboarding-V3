@@ -344,7 +344,7 @@ fun OtpTncScreen(viewModel: OtpViewModel, onNext: () -> Unit, onBack: () -> Unit
                 // Timer / Resend / Change Number
                 if (!timerExpired) {
                     Text(
-                        t("OTP दोबारा भेजें", "Resend OTP") + " ${timerSeconds}s",
+                        t("OTP दोबारा भेजें", "Resend OTP in") + " ${timerSeconds}s",
                         fontSize = 12.sp, color = WiomHint,
                     )
                 } else {
@@ -585,7 +585,7 @@ fun LocationScreen(viewModel: LocationViewModel, onNext: () -> Unit, onBack: () 
             WiomTextField(value = OnboardingState.city, onValueChange = { OnboardingState.city = it })
 
             FieldLabel(t("पिनकोड", "Pincode"))
-            WiomTextField(value = OnboardingState.pincode, onValueChange = { OnboardingState.pincode = it.filter { c -> c.isDigit() }.take(6) })
+            WiomTextField(value = OnboardingState.pincode, onValueChange = { OnboardingState.pincode = it.filter { c -> c.isDigit() }.take(6) }, keyboardType = KeyboardType.Number)
 
             FieldLabel(t("पूरा पता", "Full Address"))
             OutlinedTextField(
@@ -895,6 +895,7 @@ fun RegFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit, onBack: () -> 
         AppHeader(
             title = t("पंजीकरण", "Registration"),
             onBack = onBack,
+            rightText = t("स्टेप 3/3", "Step 3/3"),
         )
 
         when (scenario) {

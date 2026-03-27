@@ -46,10 +46,12 @@ enum class ReviewStatus {
 /** Bank verification outcome — more granular than a simple pass/fail. */
 @Serializable
 enum class BankVerificationStatus {
+    @SerialName("VERIFYING") VERIFYING,
     @SerialName("SUCCESS") SUCCESS,
     @SerialName("PENNY_DROP_FAIL") PENNY_DROP_FAIL,
     @SerialName("NAME_MISMATCH") NAME_MISMATCH,
-    @SerialName("DEDUP") DEDUP
+    @SerialName("DEDUP") DEDUP,
+    @SerialName("SUPPORT_DOC") SUPPORT_DOC
 }
 
 /** KYC document types accepted for upload. */

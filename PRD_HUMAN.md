@@ -30,7 +30,7 @@
 
 This Android app takes a new Channel Sales Partner (CSP) through the complete journey of becoming a Wiom partner — from a pitch screen to being successfully onboarded and ready to serve customers.
 
-The flow has **15 screens + Pitch** (Screens 0-14) across **3 phases**, with **28 documented error scenarios** across **9 simulator categories**, and **2 companion dashboards** (Control + QA Review).
+The flow has **15 screens + Pitch** (Screens 0-14) across **3 phases**, with **28 documented error scenarios** across **8 simulator categories**, and **2 companion dashboards** (Control + QA Review).
 
 **V3.1 Changes from V3.0:**
 - Total screens reduced from 18 to 15 + Pitch (removed Training Modules, Policy Quiz, Go Live)
@@ -572,7 +572,7 @@ Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Har
 
 ## 6. Error Scenarios & Scenario Simulator
 
-### Scenario Simulator Categories (9 categories, 28 scenarios)
+### Scenario Simulator Categories (8 categories, 28 scenarios)
 
 #### Category 1: Network/App Errors
 
@@ -709,7 +709,7 @@ Rs.20K payment failure scenarios are documented under Category 6 (Onboarding Fee
 **Sections:**
 1. **Control Buttons** — Restart App, Reset, Hindi/English toggle, Fill/Empty data, Screenshot
 2. **Screen Navigation** — Grid of 16 screen tiles (Pitch + 0-14), active screen highlighted
-3. **Scenario Simulator** — 28 error scenario buttons grouped by 9 categories, with "Clear Scenario"
+3. **Scenario Simulator** — 28 error scenario buttons grouped by 8 categories, with "Clear Scenario"
 
 ### Dashboard 2: QA Review Dashboard (`dashboard/qa-review.html`)
 
@@ -946,4 +946,4 @@ Rs.20K payment failure scenarios are documented under Category 6 (Onboarding Fee
 
 ---
 
-*This document covers the complete specification of the Wiom CSP Onboarding App V3.1 — 15 screens + Pitch, 28 error scenarios across 9 categories, 2 dashboards, business rules, validation, design tokens, QA cases, and UAT cases.*
+*This document covers the complete specification of the Wiom CSP Onboarding App V3.1 — 15 screens + Pitch, 28 error scenarios across 8 categories, 2 dashboards, business rules, validation, design tokens, QA cases, and UAT cases.*

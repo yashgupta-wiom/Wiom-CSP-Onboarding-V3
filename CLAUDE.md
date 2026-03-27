@@ -14,9 +14,10 @@ export ANDROID_HOME=~/Library/Android/sdk
 
 ## Architecture
 
-- **Single Activity** (`MainActivity`) → `OnboardingHost` composable → 15 screen composables
-- **No ViewModel/Repository pattern yet** — state is in `OnboardingState` singleton (intentional for prototype speed)
-- **No navigation library** — `OnboardingHost` uses `AnimatedContent` keyed on `currentScreen` integer
+- **Single Activity** (`MainActivity`) → Jetpack Navigation (`NavGraph.kt`) → 16 screen composables
+- **MVVM architecture** — ViewModels per screen, Repository pattern, Hilt DI
+- **Jetpack Navigation** — `NavGraph.kt` defines all routes, `Routes.kt` has route constants
+- **State** — `OnboardingState` singleton for shared UI state + ViewModels for per-screen logic
 - **Bilingual via `t(hi, en)` function** — NOT Android string resources. This is intentional for instant toggle without activity recreation.
 
 ## Wiom UX Rules (MUST follow)
@@ -54,7 +55,7 @@ Corner radii: 8dp (small), 12dp (input), 16dp (card/button), 888dp (pill).
 - `Phase2Screens.kt` — Screens 5-9 (KYC, Bank, ISP, ShopPhotos, Verification)
 - `Phase3Screens.kt` — Screens 10-14 (Policy, TechAssessment, OnboardFee, AccountSetup, SuccessfullyOnboarded)
 - `Common.kt` — All reusable composables
-- `OnboardingHost.kt` — Screen router, progress bar, language toggle
+- `OnboardingHost.kt` — Legacy (not used), see `navigation/NavGraph.kt` instead
 
 ## What NOT to change without checking
 

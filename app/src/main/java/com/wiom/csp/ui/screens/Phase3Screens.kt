@@ -27,6 +27,9 @@ import com.wiom.csp.ui.components.*
 import com.wiom.csp.ui.theme.*
 import com.wiom.csp.ui.viewmodel.*
 import com.wiom.csp.util.t
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.delay
 
 /**
@@ -116,6 +119,7 @@ fun PolicySlaScreen(onNext: () -> Unit, onBack: () -> Unit) {
 
 @Composable
 fun TechAssessmentScreen(viewModel: TechAssessmentViewModel, onNext: () -> Unit) {
+    val context = LocalContext.current
     val state by viewModel.uiState.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
@@ -164,7 +168,8 @@ fun TechAssessmentScreen(viewModel: TechAssessmentViewModel, onNext: () -> Unit)
             }
             BottomBar {
                 WiomButton(t("हमसे बात करें", "Talk to Us"), onClick = {
-                    // In production: open dialer with 7836811111
+                    val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:7836811111"))
+                    context.startActivity(intent)
                 })
             }
         } else {
@@ -193,17 +198,24 @@ fun TechAssessmentScreen(viewModel: TechAssessmentViewModel, onNext: () -> Unit)
                 }
                 Spacer(Modifier.height(16.dp))
                 // Checklist
-                ChecklistItem(t("इंफ्रास्ट्रक्चर", "Infrastructure Review"), isWaiting = true)
-                ChecklistItem(t("नेटवर्क", "Network Readiness"), isWaiting = true)
-                ChecklistItem(t("स्थान", "Location Feasibility"), isWaiting = true, isLast = true)
+                ChecklistItem(t("इंफ्रास्ट्रक्चर रिव्यू", "Infrastructure Review"), isWaiting = true)
+                ChecklistItem(t("नेटवर्क रेडीनेस", "Network Readiness"), isWaiting = true)
+                ChecklistItem(t("स्थान व्यवहार्यता", "Location Feasibility"), isWaiting = true, isLast = true)
 
                 Column(modifier = Modifier.padding(16.dp)) {
                     InfoBox("⏳", t("4-5 कार्य दिवस", "May take 4-5 business days"), type = InfoBoxType.WARNING)
                     Spacer(Modifier.height(8.dp))
                     InfoBox("📞", t("अगले चरणों के लिए हमारी नेटवर्क क्वालिटी टीम आपको कॉल भी करेगी", "You will also receive a call from our Network Quality team for next steps"))
 
-                    // Prototype buttons for testing
+                    // ─── Prototype test buttons (hidden in production) ───
                     Spacer(Modifier.height(16.dp))
+                    Text(
+                        t("⚙️ प्रोटोटाइप कंट्रोल", "⚙️ Prototype Controls"),
+                        fontSize = 11.sp, color = WiomHint, fontWeight = FontWeight.Bold,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(4.dp))
                     WiomButton(
                         "✓ ${t("मूल्यांकन पास", "Assessment Passed")}",
                         onClick = { viewModel.setApproved(); onNext() },
@@ -573,15 +585,15 @@ fun SuccessfullyOnboardedScreen() {
             ) {
                 Column(modifier = Modifier.padding(12.dp, 14.dp)) {
                     Text(
-                        "1. ${t("Wiom Partner Plus ऐप में लॉगिन करें", "Login to Wiom Partner Plus app")}",
+                        "2. ${t("Wiom Partner Plus ऐप में लॉगिन करें", "Login to Wiom Partner Plus app")}",
                         fontSize = 13.sp, color = WiomText, lineHeight = 22.sp,
                     )
                     Text(
-                        "2. ${t("सभी आवश्यक अनुमतियां दें", "Allow all required permissions")}",
+                        "3. ${t("सभी आवश्यक अनुमतियां दें", "Allow all required permissions")}",
                         fontSize = 13.sp, color = WiomText, lineHeight = 22.sp,
                     )
                     Text(
-                        "3. ${t("अनिवार्य Wiom प्रशिक्षण पूरा करें", "Complete Mandatory Wiom Training")}",
+                        "4. ${t("अनिवार्य Wiom प्रशिक्षण पूरा करें", "Complete Mandatory Wiom Training")}",
                         fontSize = 13.sp, color = WiomText, lineHeight = 22.sp,
                     )
                 }

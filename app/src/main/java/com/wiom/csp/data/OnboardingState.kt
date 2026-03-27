@@ -120,7 +120,7 @@ object OnboardingState {
     // Form data states (empty by default for empty state)
     var phoneNumber by mutableStateOf("")
     var otpDigits by mutableStateOf(listOf("", "", "", ""))
-    var otpTimerSeconds by mutableIntStateOf(30)
+    var otpTimerSeconds by mutableIntStateOf(28)
     var otpTimerExpired by mutableStateOf(false)
     var tncAccepted by mutableStateOf(false)
     var personalName by mutableStateOf("")
@@ -131,6 +131,8 @@ object OnboardingState {
     var city by mutableStateOf("")
     var pincode by mutableStateOf("")
     var address by mutableStateOf("")
+    var gpsLatitude by mutableStateOf("22.71")
+    var gpsLongitude by mutableStateOf("75.85")
 
     // KYC document states
     var kycSubStage by mutableIntStateOf(0) // 0=PAN, 1=Aadhaar, 2=GST
@@ -161,6 +163,10 @@ object OnboardingState {
     var shopPhotoUploaded by mutableStateOf(false)
     var equipmentPhotoUploaded by mutableStateOf(false)
     var equipmentPhotoCount by mutableIntStateOf(0) // multi-photo, up to 5
+
+    // Payment tracking
+    var regFeePaid by mutableStateOf(false)
+    var onboardFeePaid by mutableStateOf(false)
 
     // Mode: empty (prototype starts empty) vs filled (demo with prefilled data)
     var isFilledMode by mutableStateOf(false)
@@ -199,19 +205,23 @@ object OnboardingState {
         shopPhotoUploaded = true
         equipmentPhotoUploaded = true
         equipmentPhotoCount = 2
+        regFeePaid = true
+        onboardFeePaid = false
+        selectedState = "Madhya Pradesh"
     }
 
     fun emptyAllScreens() {
         isFilledMode = false
         phoneNumber = ""
         otpDigits = listOf("", "", "", "")
-        otpTimerSeconds = 30
+        otpTimerSeconds = 28
         otpTimerExpired = false
         tncAccepted = false
         personalName = ""
         personalEmail = ""
         entityType = ""
         tradeName = ""
+        selectedState = ""
         city = ""
         pincode = ""
         address = ""
@@ -237,6 +247,10 @@ object OnboardingState {
         shopPhotoUploaded = false
         equipmentPhotoUploaded = false
         equipmentPhotoCount = 0
+        regFeePaid = false
+        onboardFeePaid = false
+        gpsLatitude = "22.71"
+        gpsLongitude = "75.85"
         currentScreen = 0
     }
 

@@ -459,7 +459,7 @@ display_elements:
 cta:
   text_hi: "पंजीकरण शुल्क भरें"
   text_en: "Pay Registration Fee"
-  enabled_when: true  # all fields optional
+  enabled_when: selectedState != "" && city != "" && pincode.length == 6 && address != ""
   next_screen: 4
 
 error_scenarios: []

@@ -24,7 +24,7 @@ import javax.inject.Inject
  *   KYC Documents ✓, Bank Details ✓, ISP Agreement ✓, Shop & Equipment Photos ✓
  *   Verification Review ⋯ (Under review)
  *
- * TAT: 3 business days
+ * TAT: 3 business days (review); refund: 5-6 working days
  *
  * If REJECTED: Auto refund ₹2,000, no re-upload in Phase 1
  *   - "Verification Rejected" + refund card

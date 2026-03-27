@@ -27,6 +27,7 @@
             </intent-filter>
         </activity>
 
+        <!-- TODO: Production — restrict to debug builds only (android:exported="false") -->
         <receiver android:name=".DashboardReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="com.wiom.csp.SCENARIO"/>
