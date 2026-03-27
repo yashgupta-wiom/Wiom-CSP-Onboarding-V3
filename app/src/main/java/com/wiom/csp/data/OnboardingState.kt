@@ -11,33 +11,47 @@ enum class BankVerificationStatus {
 
 enum class Scenario {
     NONE,
+    // Global errors (any screen)
+    NO_INTERNET,
+    SERVER_ERROR,
+    // Registration & OTP
     PHONE_DUPLICATE,
     OTP_WRONG,
     OTP_EXPIRED,
+    // Registration Fee
     REGFEE_FAILED,
     REGFEE_TIMEOUT,
-    BANK_PENNYDROP_FAIL,
-    BANK_NAME_MISMATCH,
-    VERIFICATION_REJECTED,
-    TECH_ASSESSMENT_REJECTED,
-    ONBOARDFEE_FAILED,
-    KYC_PAN_DEDUP,
-    KYC_AADHAAR_DEDUP,
-    KYC_GST_DEDUP,
-    BANK_DEDUP,
+    // KYC reminders & dedup
     KYC_DAY1_REMINDER,
     KYC_DAY2_REMINDER,
     KYC_DAY3_REMINDER,
     KYC_DAY4_AUTOREJECT,
+    KYC_PAN_DEDUP,
+    KYC_AADHAAR_DEDUP,
+    KYC_GST_DEDUP,
+    // Bank
+    BANK_PENNYDROP_FAIL,
+    BANK_NAME_MISMATCH,
+    BANK_DEDUP,
+    // Refund tracking
     REFUND_SUCCESS,
     REFUND_IN_PROGRESS,
     REFUND_FAILED,
+    REFUND_IN_PROGRESS_VR,
+    // Verification & Documentation
+    VERIFICATION_PENDING,
+    VERIFICATION_REJECTED,
+    POLICY_SLA,
+    POLICY_QUIZ_FAIL,
+    // Tech Assessment
+    TECH_ASSESSMENT_REJECTED,
+    // Onboarding Fee
     ONBOARDFEE_SUCCESS,
+    ONBOARDFEE_FAILED,
     ONBOARDFEE_TIMEOUT,
+    // Account Setup
     ACCOUNT_SETUP_FAILED,
     ACCOUNT_SETUP_PENDING,
-    VERIFICATION_PENDING,
-    POLICY_SLA,
 }
 
 data class ScenarioMeta(

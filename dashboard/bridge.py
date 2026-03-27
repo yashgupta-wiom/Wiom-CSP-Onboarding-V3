@@ -7,7 +7,12 @@ import os
 import sys
 import time
 
-ADB = os.path.expanduser("~/Library/Android/sdk/platform-tools/adb")
+if sys.platform == "win32":
+    ADB = os.path.join(os.environ.get("LOCALAPPDATA", ""), "Android", "sdk", "platform-tools", "adb.exe")
+elif sys.platform == "darwin":
+    ADB = os.path.expanduser("~/Library/Android/sdk/platform-tools/adb")
+else:
+    ADB = os.path.expanduser("~/Android/Sdk/platform-tools/adb")
 
 class Handler(http.server.BaseHTTPRequestHandler):
     def _cors(self):
@@ -34,12 +39,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
         elif path == "/screenshot":
             subprocess.run([ADB, "exec-out", "screencap", "-p"],
-                         stdout=open("/tmp/csp_dash_screen.png", "wb"))
+                         stdout=open(os.path.join(os.environ.get("TEMP", "/tmp"), "csp_dash_screen.png"), "wb"))
             self.send_response(200)
             self._cors()
             self.send_header("Content-Type", "image/png")
             self.end_headers()
-            with open("/tmp/csp_dash_screen.png", "rb") as f:
+            with open(os.path.join(os.environ.get("TEMP", "/tmp"), "csp_dash_screen.png"), "rb") as f:
                 self.wfile.write(f.read())
 
         elif path == "/data":
@@ -116,7 +121,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
             decision = body.get("decision", "approved")
             cmd = [ADB, "shell", "am", "broadcast", "-a", "com.wiom.csp.TECHASSESSMENT",
                    "--es", "action", decision, "-n", "com.wiom.csp/.DashboardReceiver"]
-        elif action == "policyquiz_config":
+        elif action == "training_config":
+            # Training configuration — no ADB action needed, acknowledged by dashboard
+            self.send_response(200)
+            self._cors()
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"ok": True, "info": "Training config received"}).encode())
+            return
         elif action == "restart":
             subprocess.run([ADB, "shell", "am", "force-stop", "com.wiom.csp"])
             cmd = [ADB, "shell", "am", "start", "-n", "com.wiom.csp/.MainActivity"]

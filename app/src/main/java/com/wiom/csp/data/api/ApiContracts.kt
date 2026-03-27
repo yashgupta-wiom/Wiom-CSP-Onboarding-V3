@@ -106,7 +106,7 @@ data class SendOtpResponse(
 @Serializable
 data class VerifyOtpRequest(
     val phone: String,
-    val otp: String      // 6-digit OTP
+    val otp: String      // 4-digit OTP (per prototype)
 )
 
 @Serializable

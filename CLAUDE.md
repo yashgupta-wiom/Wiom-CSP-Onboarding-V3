@@ -45,7 +45,7 @@ Corner radii: 8dp (small), 12dp (input), 16dp (card/button), 888dp (pill).
 
 ## Screen Flow (V3 — 15 screens + Pitch: Screens 0-14)
 
-[Pitch] → 0:Phone → 1:OTP → 2:Personal(1/3) → 3:Location(2/3) → 4:RegFee(3/3) → 5:KYC(1/5, 3 sub-stages: PAN→Aadhaar→GST) → 6:Bank(2/5) → 7:ISP(3/5) → 8:ShopPhotos(4/5) → 9:Verification(5/5, branch: approved/rejected) → 10:Policy(1/5, "Important Terms") → 11:TechAssessment(2/5, branch: pass/fail) → 12:OnboardFee(3/5) → 13:AccountSetup(4/5, auto-progress) → 14:SuccessfullyOnboarded(5/5)
+[Pitch] → 0:Phone → 1:OTP → 2:Personal(1/3) → 3:Location(2/3) → 4:RegFee(3/3) → 5:KYC(1/5, 3 sub-stages: PAN→Aadhaar→GST) → 6:Bank(2/5) → 7:ISP(3/5) → 8:ShopPhotos(4/5) → 9:Verification(5/5, branch: approved/rejected) → 10:Policy(1/7, "Important Terms") → 11:TechAssessment(2/7, branch: pass/fail) → 12:OnboardFee(3/7) → 13:AccountSetup(4/5, auto-progress) → 14:SuccessfullyOnboarded(5/5)
 
 ## File Layout
 

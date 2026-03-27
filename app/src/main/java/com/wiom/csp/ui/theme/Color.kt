@@ -35,6 +35,8 @@ val WiomWarning200 = Color(0xFFFFE6CC)
 val WiomInfo = Color(0xFF6D17CE)
 val WiomInfo100 = Color(0xFFF1E5FF)
 val WiomInfo200 = Color(0xFFE4CCFF)
+val WiomCaution800 = Color(0xFF806000)
+val WiomCaution200 = Color(0xFFFFF2BF)
 
 // Layout
 val WiomHeader = Color(0xFF443152)

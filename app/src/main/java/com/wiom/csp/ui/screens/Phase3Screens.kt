@@ -33,9 +33,9 @@ import kotlinx.coroutines.delay
  * Phase 3 Screens — Activation (Screens 10-14)
  * Matches prototype exactly.
  *
- * Screen 10: Policy & SLA (Step 1/5, header "Important Terms")
- * Screen 11: Technical Assessment (Step 2/5, BEFORE onboarding fee)
- * Screen 12: Onboarding Fee ₹20,000 (Step 3/5, header "Activation")
+ * Screen 10: Policy & SLA (Step 1/7, header "Important Terms")
+ * Screen 11: Technical Assessment (Step 2/7, BEFORE onboarding fee)
+ * Screen 12: Onboarding Fee ₹20,000 (Step 3/7, header "Activation")
  * Screen 13: Account Setup (Step 4/5, auto-progress, no CTA)
  * Screen 14: Successfully Onboarded (Step 5/5)
  */
@@ -50,7 +50,7 @@ fun PolicySlaScreen(onNext: () -> Unit, onBack: () -> Unit) {
         AppHeader(
             title = t("महत्वपूर्ण शर्तें", "Important Terms"),
             onBack = onBack,
-            rightText = t("स्टेप 1/5", "Step 1/5"),
+            rightText = t("स्टेप 1/7", "Step 1/7"),
         )
         Column(
             modifier = Modifier
@@ -121,7 +121,7 @@ fun TechAssessmentScreen(viewModel: TechAssessmentViewModel, onNext: () -> Unit)
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
         AppHeader(
             title = t("तकनीकी मूल्यांकन", "Technical Assessment"),
-            rightText = t("स्टेप 2/5", "Step 2/5"),
+            rightText = t("स्टेप 2/7", "Step 2/7"),
         )
 
         if (state.status == TechAssessmentStatus.REJECTED) {
@@ -245,7 +245,7 @@ fun OnboardingFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit) {
         Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
             AppHeader(
                 title = t("एक्टिवेशन", "Activation"),
-                rightText = t("स्टेप 3/5", "Step 3/5"),
+                rightText = t("स्टेप 3/7", "Step 3/7"),
             )
 
             when {

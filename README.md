@@ -35,7 +35,7 @@ This repo includes **two browser-based dashboards** that connect to the Android 
 - Navigate all 15 screens (Pitch through Successfully Onboarded)
 - Fill/empty all form data with one click
 - Switch Hindi/English language
-- Simulate 30+ error scenarios across 9 categories
+- Simulate 28 error scenarios across 8 categories
 - Live app screenshot preview
 
 ### QA Review Dashboard (`dashboard/qa-review.html`)
@@ -114,7 +114,7 @@ Welcome screen with Wiom branding — "Wiom पार्टनर बनें".
 ## Project Structure
 
 ```
-Wiom-CSP-Dashboards/
+Wiom-CSP-Onboarding-V3/
 ├── apk/
 │   └── wiom-csp-onboarding-v3.apk    # Pre-built APK (16 MB)
 ├── app/                               # Android source code

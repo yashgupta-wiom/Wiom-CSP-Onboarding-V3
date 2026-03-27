@@ -51,7 +51,7 @@ object Validation {
     fun validateBankIfsc(ifsc: String): String? {
         if (ifsc.isBlank()) return t("IFSC कोड डालें", "Enter IFSC code")
         if (ifsc.length != 11) return t("11 अक्षरों का IFSC डालें", "Enter 11-character IFSC")
-        val ifscRegex = Regex("^[A-Za-z]{4}[A-Za-z0-9]{7}$")
+        val ifscRegex = Regex("^[A-Z]{4}0[A-Z0-9]{6}$")
         if (!ifscRegex.matches(ifsc)) return t("सही IFSC कोड डालें", "Enter valid IFSC code")
         return null
     }

@@ -2,11 +2,31 @@ package com.wiom.csp.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.wiom.csp.R
 
-val NotoSansFamily = FontFamily.Default
+/**
+ * Noto Sans + Noto Sans Devanagari — matches prototype's Google Fonts import.
+ * Font files required in res/font/:
+ *   noto_sans_regular.ttf, noto_sans_semibold.ttf, noto_sans_bold.ttf
+ * These fonts include Devanagari glyphs for Hindi rendering.
+ *
+ * For production: download from https://fonts.google.com/noto/specimen/Noto+Sans
+ * and https://fonts.google.com/noto/specimen/Noto+Sans+Devanagari
+ */
+val NotoSansFamily = try {
+    FontFamily(
+        Font(R.font.noto_sans_regular, FontWeight.Normal),
+        Font(R.font.noto_sans_semibold, FontWeight.SemiBold),
+        Font(R.font.noto_sans_bold, FontWeight.Bold),
+    )
+} catch (_: Exception) {
+    // Fallback until font files are added to res/font/
+    FontFamily.Default
+}
 
 val WiomTypography = Typography(
     headlineLarge = TextStyle(

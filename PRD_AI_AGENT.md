@@ -109,8 +109,8 @@ fields:
     prefix: "+91"
     max_length: 10
     keyboard: numeric
-    placeholder_hi: "नया नंबर डालें"
-    placeholder_en: "Enter your number"
+    placeholder_hi: "10 अंकों का नंबर"
+    placeholder_en: "10 digit number"
     validation:
       - rule: not_blank
         error_hi: "नंबर डालें"
@@ -128,8 +128,8 @@ fields:
   - id: termsAccepted
     type: checkbox
     default: true
-    text_hi: "मैं नियम व शर्तें स्वीकार करता/करती हूं"
-    text_en: "I accept the Terms & Conditions"
+    text_hi: "आगे बढ़कर, मैं नियम व शर्तें स्वीकार करता/करती हूँ"
+    text_en: "By Continuing, I accept the Terms and Conditions"
     link:
       text_hi: "नियम व शर्तें पढ़ें"
       text_en: "Read Terms & Conditions"
@@ -137,13 +137,13 @@ fields:
 
 display_elements:
   - emoji: "🤝"
-  - title_hi: "पार्टनर बनें"
-  - title_en: "Become a Partner"
+  - title_hi: "Wiom पार्टनर बनें"
+  - title_en: "Become a Wiom Partner"
   - subtitle_hi: "Wiom के साथ अपना बिज़नेस शुरू करें"
   - subtitle_en: "Start your business with Wiom"
   - character_count: "X/10 अंक" (shown when < 10 digits)
   - info_box:
-      icon: "ℹ️"
+      icon: "🔒"
       text_hi: "OTP आपके नंबर पर भेजा जाएगा"
       text_en: "OTP will be sent to your number"
       type: INFO
@@ -201,7 +201,7 @@ ctas:
 ```yaml
 id: SCREEN_1
 phase: PHASE_1
-title_hi: "OTP वेरीफाई"
+title_hi: "OTP सत्यापन"
 title_en: "Verify OTP"
 purpose: Verify phone ownership via 4-digit OTP
 
@@ -241,7 +241,7 @@ otp_box_states:
   expired: { border: gray, background: white, opacity: 0.5 }
 
 cta:
-  text_hi: "वेरीफाई करें"
+  text_hi: "सत्यापित करें"
   text_en: "Verify"
   enabled_when: all_4_digits_filled
   action: VERIFY_OTP
@@ -273,7 +273,7 @@ display:
     text_en: "Resend OTP"
 
 cta:
-  text_hi: "वेरीफाई करें"
+  text_hi: "सत्यापित करें"
   text_en: "Verify"
   action: RETRY_OTP
 
@@ -315,16 +315,16 @@ ctas:
 ```yaml
 id: SCREEN_2
 phase: PHASE_1
-title_hi: "व्यक्तिगत जानकारी"
-title_en: "Personal Information"
+title_hi: "व्यक्तिगत और व्यापार जानकारी"
+title_en: "Personal & Business Info"
 step_label: "स्टेप 1/3 | Step 1/3"
 purpose: Capture partner identity and business details
 
 fields:
   - id: personal_name
     type: text_input
-    label_hi: "नाम (आधार अनुसार)"
-    label_en: "Name (as per Aadhaar)"
+    label_hi: "पूरा नाम (आधार अनुसार)"
+    label_en: "Full Name (as per Aadhaar)"
     placeholder_hi: "उदाहरण: राजेश कुमार"
     placeholder_en: "Example: Rajesh Kumar"
     required: true
@@ -335,8 +335,8 @@ fields:
 
   - id: personal_email
     type: email_input
-    label_hi: "ईमेल"
-    label_en: "Email"
+    label_hi: "ईमेल आईडी"
+    label_en: "Email ID"
     placeholder_hi: "उदाहरण: rajesh@email.com"
     placeholder_en: "Example: rajesh@email.com"
     required: true
@@ -350,23 +350,23 @@ fields:
 
   - id: entity_type
     type: dropdown
-    label_hi: "व्यवसाय प्रकार"
-    label_en: "Entity Type"
-    options: ["Individual"]
+    label_hi: "व्यापार इकाई प्रकार"
+    label_en: "Business Entity Type"
+    options: ["प्रोप्राइटरशिप (Proprietorship)"]
     required: true
 
   - id: trade_name
     type: text_input
-    label_hi: "ट्रेड नाम"
-    label_en: "Trade Name"
+    label_hi: "व्यापार का नाम"
+    label_en: "Business Name"
     placeholder_hi: "उदाहरण: राजेश टेलीकॉम"
     placeholder_en: "Example: Rajesh Telecom"
     required: true
     lock_after: REGFEE_PAID
 
 cta:
-  text_hi: "अब लोकेशन बताइए"
-  text_en: "Next: Location"
+  text_hi: "व्यापार स्थान जोड़ें"
+  text_en: "Add Business Location"
   enabled_when: all_fields_filled
   next_screen: 3
 
@@ -378,8 +378,8 @@ error_scenarios: []
 ```yaml
 id: SCREEN_3
 phase: PHASE_1
-title_hi: "लोकेशन जानकारी"
-title_en: "Location Information"
+title_hi: "व्यापार स्थान"
+title_en: "Business Location"
 step_label: "स्टेप 2/3 | Step 2/3"
 purpose: Capture shop/office location for service area validation
 
@@ -417,13 +417,10 @@ fields:
       - "Uttar Pradesh"
       - "Uttarakhand"
       - "West Bengal"
-      - "Andaman & Nicobar"
-      - "Chandigarh"
-      - "Dadra & Nagar Haveli and Daman & Diu"
       - "Delhi"
       - "Jammu & Kashmir"
       - "Ladakh"
-      - "Lakshadweep"
+      - "Chandigarh"
       - "Puducherry"
     required: true
 
@@ -460,8 +457,8 @@ display_elements:
       coordinates: "22.71° N, 75.85° E"
 
 cta:
-  text_hi: "अब registration शुल्क भरें"
-  text_en: "Next: Registration Fee"
+  text_hi: "पंजीकरण शुल्क भरें"
+  text_en: "Pay Registration Fee"
   enabled_when: true  # all fields optional
   next_screen: 4
 
@@ -473,7 +470,7 @@ error_scenarios: []
 ```yaml
 id: SCREEN_4
 phase: PHASE_1
-title_hi: "रजिस्ट्रेशन फ़ीस"
+title_hi: "पंजीकरण शुल्क"
 title_en: "Registration Fee"
 step_label: "स्टेप 3/3 | Step 3/3"
 purpose: Collect ₹2,000 registration fee (refundable on rejection)
@@ -481,7 +478,7 @@ purpose: Collect ₹2,000 registration fee (refundable on rejection)
 display_elements:
   - amount_box:
       amount: "₹2,000"
-      label_hi: "रजिस्ट्रेशन फ़ीस"
+      label_hi: "पंजीकरण शुल्क"
       label_en: "Registration Fee"
   - info_card:
       icon: "ℹ️"
@@ -499,8 +496,8 @@ display_elements:
       text_en: "QA investigation will start after fee payment"
 
 cta:
-  text_hi: "₹2,000 भुगतान करें"
-  text_en: "Pay Now"
+  text_hi: "₹2,000 अभी भुगतान करें"
+  text_en: "Pay ₹2,000 Now"
   action: PROCESS_PAYMENT
   simulation_delay_ms: 2000
   on_success:
@@ -788,8 +785,8 @@ blocks_progression: true
 id: SCREEN_6
 phase: PHASE_2
 header: "Verification"
-title_hi: "Bank वेरिफिकेशन"
-title_en: "Bank Verification"
+title_hi: "बैंक विवरण"
+title_en: "Bank Details"
 step_label: "स्टेप 2/5 | Step 2/5"
 purpose: Verify bank account via penny drop and run dedup check
 
@@ -953,17 +950,24 @@ upload_methods:
     max_pages: 7  # multi-select, up to 7 images
 
 mandatory_details_checklist:
-  title_hi: "ISP अनुबंध में ये ज़रूरी हैं"
-  title_en: "ISP Agreement must include"
+  title_hi: "ISP अनुबंध में अनिवार्य विवरण:"
+  title_en: "Mandatory details required in ISP Agreement:"
   items:
-    - "DOT Compliance — अनिवार्य | DOT Compliance — Mandatory"
-    - "TRAI Guidelines — अनिवार्य | TRAI Guidelines — Mandatory"
+    - hi: "ISP कंपनी का नाम" | en: "ISP Company Name"
+    - hi: "LCO / पार्टनर का नाम" | en: "LCO / Partner Name"
+    - hi: "अनुबंध की तिथि" | en: "Agreement Date"
+    - hi: "अनुबंध वैध होना चाहिए (समाप्त नहीं)" | en: "Agreement should be Valid (Not Expired)"
+    - hi: "लाइसेंस नंबर" | en: "License Number"
+    - hi: "संपर्क / हस्ताक्षरकर्ता का नाम" | en: "Contact / Signatory Names"
+    - hi: "पार्टनर और ISP की मुहर और हस्ताक्षर" | en: "Partner and ISP stamp and signature"
 
 view_sample_doc: true
 
 cta:
-  text_hi: "अब दुकान की फ़ोटो दें"
-  text_en: "Next: Shop Photos"
+  text_hi: "आगे बढ़ें"
+  text_en: "Proceed"
+  disabled_text_hi: "ISP अनुबंध अपलोड करें"
+  disabled_text_en: "Upload ISP Agreement"
   enabled_when: isp_agreement_uploaded
   next_screen: 8
 
@@ -1027,19 +1031,15 @@ display_elements:
   - title_en: "All Documents Submitted"
 
 checklist:
-  - { text_hi: "फ़ोन वेरीफाइड", text_en: "Phone Verified", status: done }
-  - { text_hi: "व्यक्तिगत जानकारी", text_en: "Personal Information", status: done }
-  - { text_hi: "लोकेशन सबमिट", text_en: "Location Submitted", status: done }
-  - { text_hi: "₹2,000 रजिस्ट्रेशन फ़ीस", text_en: "₹2,000 Registration Fee", status: done }
-  - { text_hi: "KYC दस्तावेज़ अपलोड", text_en: "KYC Documents Uploaded", status: done }
-  - { text_hi: "बैंक वेरीफाइड", text_en: "Bank Verified", status: done }
+  - { text_hi: "KYC दस्तावेज़", text_en: "KYC Documents", status: done }
+  - { text_hi: "बैंक विवरण", text_en: "Bank Details", status: done }
   - { text_hi: "ISP अनुबंध", text_en: "ISP Agreement", status: done }
-  - { text_hi: "दुकान फ़ोटो", text_en: "Shop Photos", status: done }
-  - { text_hi: "सत्यापन", text_en: "Verification", status: waiting }
+  - { text_hi: "दुकान और उपकरण फ़ोटो", text_en: "Shop & Equipment Photos", status: done }
+  - { text_hi: "सत्यापन समीक्षा", text_en: "Verification Review", status: waiting, sub_text_hi: "समीक्षा जारी...", sub_text_en: "Under review..." }
 
 tat:
-  text_hi: "Review में 3 business days लग सकते हैं। Notification मिलेगा।"
-  text_en: "Review may take 3 business days. You will be notified."
+  text_hi: "समीक्षा में 3 कार्य दिवस"
+  text_en: "Review may take 3 business days"
 
 cta: null  # No CTA — waits for verification decision
 
@@ -1074,8 +1074,8 @@ display:
   emoji: "😔"
   title_hi: "सत्यापन सफल नहीं"
   title_en: "Verification not successful"
-  subtitle_hi: "चिंता न करें — आपकी रजिस्ट्रेशन फ़ीस वापस होगी"
-  subtitle_en: "Don't worry — your registration fee will be refunded"
+  subtitle_hi: "चिंता न करें — आपका पैसा सुरक्षित है"
+  subtitle_en: "Don't worry — your money is safe"
 
 refund:
   amount: "₹2,000"
@@ -1096,7 +1096,7 @@ header_hi: "महत्वपूर्ण शर्तें"
 header_en: "Important Terms"
 title_hi: "नीतियां और रेट कार्ड"
 title_en: "Policy & Rate Card"
-step_label: "स्टेप 1/5 | Step 1/5"
+step_label: "स्टेप 1/7 | Step 1/7"
 purpose: Partner reviews and acknowledges commission structure and SLA terms
 
 display_elements:
@@ -1140,7 +1140,7 @@ phase: PHASE_3
 header: "Activation"
 title_hi: "तकनीकी मूल्यांकन"
 title_en: "Technical Assessment"
-step_label: "स्टेप 2/5 | Step 2/5"
+step_label: "स्टेप 2/7 | Step 2/7"
 purpose: Network quality team verifies infrastructure readiness — BEFORE onboarding fee
 
 tat:
@@ -1209,7 +1209,7 @@ phase: PHASE_3
 header: "Activation"
 title_hi: "ऑनबोर्डिंग फ़ीस"
 title_en: "Onboarding Fee"
-step_label: "स्टेप 3/5 | Step 3/5"
+step_label: "स्टेप 3/7 | Step 3/7"
 purpose: Collect ₹20,000 onboarding fee after tech assessment passes
 
 display_elements:
@@ -1226,13 +1226,13 @@ display_elements:
       title_hi: "निवेश सारांश"
       title_en: "Investment Summary"
       rows:
-        - { label_hi: "रजिस्ट्रेशन फ़ीस (भुगतान हुआ)", label_en: "Registration Fee (paid)", value: "₹2,000" }
+        - { label_hi: "पंजीकरण शुल्क (भुगतान हुआ)", label_en: "Reg Fee (Paid)", value: "₹2,000 ✓" }
         - { label_hi: "ऑनबोर्डिंग फ़ीस", label_en: "Onboarding Fee", value: "₹20,000" }
         - { label_hi: "कुल Investment", label_en: "Total Investment", value: "₹22,000", bold: true }
 
 cta:
-  text_hi: "₹20,000 भुगतान करें"
-  text_en: "Pay Now"
+  text_hi: "₹20,000 अभी भुगतान करें"
+  text_en: "Pay ₹20,000 Now"
   simulation_delay_ms: 2000
   on_success:
     set: onboardFeePaid = true
@@ -1492,8 +1492,8 @@ scenario_categories:
         description: "Day 2 reminder to complete KYC"
       - id: kyc-day3-reminder
         description: "Day 3 reminder to complete KYC"
-      - id: kyc-day4-reminder
-        description: "Day 4 reminder to complete KYC"
+      - id: kyc-day4-autoreject
+        description: "Day 4 auto-rejection for incomplete KYC"
       - id: refund-success
         description: "Refund completed successfully"
       - id: refund-in-progress
@@ -1721,7 +1721,7 @@ phone: "9876543210"
 otp: ["4", "7", "2", "9"]
 name: "राजेश कुमार"
 email: "rajesh@email.com"
-entity_type: "Individual"
+entity_type: "प्रोप्राइटरशिप (Proprietorship)"
 trade_name: "Rajesh Telecom"
 city: "Indore"
 pincode: "452010"
@@ -2009,7 +2009,7 @@ TC_EDGE_016:
 TC_UAT_001:
   name: "New partner completes full onboarding"
   persona: "Rajesh Kumar, Indore, Individual, first-time partner"
-  flow: Pitch → Phone → OTP → Personal(1/3) → Location(2/3) → ₹2K(3/3) → KYC(1/5) → Bank(2/5) → ISP(3/5) → Photos(4/5) → Verification(5/5, approved) → Policy(1/5) → Tech Assessment(2/5, pass) → ₹20K(3/5) → Account Setup(4/5) → Onboarded(5/5)
+  flow: Pitch → Phone → OTP → Personal(1/3) → Location(2/3) → ₹2K(3/3) → KYC(1/5) → Bank(2/5) → ISP(3/5) → Photos(4/5) → Verification(5/5, approved) → Policy(1/7) → Tech Assessment(2/7, pass) → ₹20K(3/7) → Account Setup(4/5) → Onboarded(5/5)
   acceptance: All 16 screens visited (Pitch + 0-14), partner successfully onboarded
 
 TC_UAT_002:
@@ -2069,7 +2069,7 @@ TC_UAT_010:
 TC_UAT_011:
   name: "Control Dashboard workflow"
   persona: Admin using Control Dashboard
-  flow: Open control.html → Navigate screens (16 tiles) → Trigger scenarios (30+)
+  flow: Open control.html → Navigate screens (16 tiles) → Trigger scenarios (28)
   acceptance: All 16 screens navigable, all scenarios triggerable
 ```
 
@@ -2120,7 +2120,7 @@ dashboard:
       - id: trigger_scenario
         action: { action: "scenario", name: "SCENARIO_NAME" }
         intent: "com.wiom.csp.SCENARIO --es name SCENARIO_NAME"
-        scenarios: 30+  # 9 categories, 30+ total scenarios
+        scenarios: 28  # 9 categories (1 empty), 28 total scenarios
 
       - id: clear_scenario
         action: { action: "scenario", name: "NONE" }

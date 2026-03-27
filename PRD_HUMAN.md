@@ -30,7 +30,7 @@
 
 This Android app takes a new Channel Sales Partner (CSP) through the complete journey of becoming a Wiom partner — from a pitch screen to being successfully onboarded and ready to serve customers.
 
-The flow has **15 screens + Pitch** (Screens 0-14) across **3 phases**, with **30+ documented error scenarios** across **9 simulator categories**, and **2 companion dashboards** (Control + QA Review).
+The flow has **15 screens + Pitch** (Screens 0-14) across **3 phases**, with **28 documented error scenarios** across **9 simulator categories**, and **2 companion dashboards** (Control + QA Review).
 
 **V3.1 Changes from V3.0:**
 - Total screens reduced from 18 to 15 + Pitch (removed Training Modules, Policy Quiz, Go Live)
@@ -50,7 +50,7 @@ The flow has **15 screens + Pitch** (Screens 0-14) across **3 phases**, with **3
 - Final screen (14): "Successfully Onboarded" with app download + instructions (replaces Go Live with chips)
 - Removed PAN Name Mismatch, Aadhaar Expired, ISP Doc Invalid, Dedup Match Found scenarios
 - Added PAN/Aadhaar/GST dedup scenarios, Bank Account Dedup scenario
-- Activation phase steps changed from 1/7 to 1/5
+- Activation phase steps: Screens 10-12 use 1/7, 2/7, 3/7; Screens 13-14 use 4/5, 5/5
 
 **Key design philosophy:**
 - **Hindi-first** — All text defaults to Hindi with a runtime toggle to English
@@ -82,10 +82,10 @@ Welcome screen — Wiom Partner+ branding. CTA: "Get Started"
 | Screen | Name | Step | What Happens |
 |--------|------|------|-------------|
 | 0 | Phone Entry | — | Mobile number (+91, 10 digits), T&C checkbox. CTA: "Send OTP" (enabled only when 10 digits + T&C checked) |
-| 1 | OTP Verification | — | 4-digit OTP with 28-second countdown timer. CTA: "Verify" |
-| 2 | Personal & Business Info | Step 1/3 | Name, email, entity type (Individual only), trade name. CTA: "Next" |
-| 3 | Business Location | Step 2/3 | State (36 Indian states/UTs dropdown), city, pincode, address, GPS capture. CTA: "Next" |
-| 4 | Registration Fee | Step 3/3 | Pay Rs.2,000 (refundable). CTA: "Pay Rs.2,000 Now" |
+| 1 | OTP Verification | — | 4-digit OTP with 28-second countdown timer. CTA: "सत्यापित करें" / "Verify" |
+| 2 | Personal & Business Info | Step 1/3 | Name (as per Aadhaar), email ID, entity type (Proprietorship only), business name. CTA: "व्यापार स्थान जोड़ें" / "Add Business Location" |
+| 3 | Business Location | Step 2/3 | State (33 Indian states/UTs dropdown), city, pincode, address, GPS capture. CTA: "पंजीकरण शुल्क भरें" / "Pay Registration Fee" |
+| 4 | Registration Fee | Step 3/3 | Pay Rs.2,000 (refundable). CTA: "₹2,000 अभी भुगतान करें" / "Pay ₹2,000 Now" |
 
 ### Phase 2 — Verification (Screens 5-9)
 
@@ -101,9 +101,9 @@ Welcome screen — Wiom Partner+ branding. CTA: "Get Started"
 
 | Screen | Name | Step | Header | What Happens |
 |--------|------|------|--------|-------------|
-| 10 | Policy & SLA | Step 1/5 | Important Terms | Commission rates, payout schedule, service levels to maintain. CTA: "I Understand, Proceed" |
-| 11 | Technical Assessment | Step 2/5 | Activation | Infrastructure review, network readiness, location feasibility. TAT: 4-5 business days. Branch: Passed → next / Rejected → no refund + Talk to Us. |
-| 12 | Onboarding Fee Rs.20K | Step 3/5 | Activation | Investment summary with Rs.2K (Paid) + Rs.20K (Due) = Rs.22K total. CTA: "Pay Rs.20,000 Now" |
+| 10 | Policy & SLA | Step 1/7 | Important Terms | Commission rates, payout schedule, service levels to maintain. CTA: "समझ गया, आगे बढ़ें" / "Understood, proceed" |
+| 11 | Technical Assessment | Step 2/7 | Activation | Infrastructure review, network readiness, location feasibility. TAT: 4-5 business days. Branch: Passed → next / Rejected → no refund + Talk to Us. |
+| 12 | Onboarding Fee Rs.20K | Step 3/7 | Activation | Investment summary with Rs.2K (Paid) + Rs.20K (Due) = Rs.22K total. CTA: "₹20,000 अभी भुगतान करें" / "Pay ₹20,000 Now" |
 | 13 | Account Setup | Step 4/5 | Activation | Loading screen auto-progresses after 3 seconds. No CTA. |
 | 14 | Successfully Onboarded | Step 5/5 | Activation | Congratulations + Download Wiom Partner Plus App + Important Instructions. |
 
@@ -245,16 +245,16 @@ START
 **Step Label:** Step 1/3
 
 **Fields:**
-1. **Name (as per Aadhaar)** — Required
-2. **Email** — Required, must contain @ and .
-3. **Entity Type** — Dropdown with only "Individual" option
-4. **Trade Name** — Required; gets locked after registration fee is paid
+1. **पूरा नाम (आधार अनुसार) / Full Name (as per Aadhaar)** — Required
+2. **ईमेल आईडी / Email ID** — Required, must contain @ and .
+3. **व्यापार इकाई प्रकार / Business Entity Type** — Dropdown with only "प्रोप्राइटरशिप (Proprietorship)" option
+4. **व्यापार का नाम / Business Name** — Required; gets locked after registration fee is paid
 
-**CTA:** "Next"
+**CTA:** "व्यापार स्थान जोड़ें" / "Add Business Location"
 
 **Rules:**
 - CTA enabled only when all 4 fields are filled
-- Entity type dropdown shows only "Individual"
+- Entity type dropdown shows only "प्रोप्राइटरशिप (Proprietorship)"
 
 ---
 
@@ -265,7 +265,7 @@ START
 **Step Label:** Step 2/3
 
 **Fields:**
-1. **State** — Dropdown with all 36 Indian states and union territories
+1. **State** — Dropdown with 33 Indian states and union territories
 2. **City** — Editable text field
 3. **Pincode** — 6 digits only
 4. **Full Address** — Editable text field
@@ -273,10 +273,10 @@ START
 **Special Elements:**
 - GPS badge showing captured coordinates
 
-**CTA:** "Next"
+**CTA:** "पंजीकरण शुल्क भरें" / "Pay Registration Fee"
 
-**Indian States/UTs in dropdown (36):**
-Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Haryana, Himachal Pradesh, Jharkhand, Karnataka, Kerala, Madhya Pradesh, Maharashtra, Manipur, Meghalaya, Mizoram, Nagaland, Odisha, Punjab, Rajasthan, Sikkim, Tamil Nadu, Telangana, Tripura, Uttar Pradesh, Uttarakhand, West Bengal, Andaman & Nicobar, Chandigarh, Dadra & Nagar Haveli and Daman & Diu, Delhi, Jammu & Kashmir, Ladakh, Lakshadweep, Puducherry
+**Indian States/UTs in dropdown (33):**
+Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Haryana, Himachal Pradesh, Jharkhand, Karnataka, Kerala, Madhya Pradesh, Maharashtra, Manipur, Meghalaya, Mizoram, Nagaland, Odisha, Punjab, Rajasthan, Sikkim, Tamil Nadu, Telangana, Tripura, Uttar Pradesh, Uttarakhand, West Bengal, Delhi, Jammu & Kashmir, Ladakh, Chandigarh, Puducherry
 
 ---
 
@@ -291,7 +291,7 @@ Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Har
 - Info about the registration process
 - Trust badge: "Refundable"
 
-**CTA:** "Pay Rs.2,000 Now"
+**CTA:** "₹2,000 अभी भुगतान करें" / "Pay ₹2,000 Now"
 
 **On payment:**
 - 2-second simulated processing delay
@@ -445,7 +445,8 @@ Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Har
   - Bank Details ✓
   - ISP Agreement ✓
   - Shop & Equipment Photos ✓
-- Info: "Review may take 3 business days"
+  - Verification Review ⋯ (under review)
+- Info: "समीक्षा में 3 कार्य दिवस" / "Review may take 3 business days"
 
 **Branch Point:**
 
@@ -464,7 +465,7 @@ Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Har
 
 **Purpose:** Present Wiom's policies and service level agreement for partner acceptance.
 
-**Step Label:** Step 1/5 | **Header:** Important Terms
+**Step Label:** Step 1/7 | **Header:** Important Terms
 
 **Subheading:** "Wiom's Policy and Service Level Agreement"
 
@@ -477,7 +478,7 @@ Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Har
   - Equipment care
   - Brand compliance
 
-**CTA:** "I Understand, Proceed"
+**CTA:** "समझ गया, आगे बढ़ें" / "Understood, proceed"
 
 ---
 
@@ -485,7 +486,7 @@ Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Har
 
 **Purpose:** Wiom team assesses partner's infrastructure, network, and location feasibility.
 
-**Step Label:** Step 2/5 | **Header:** Activation
+**Step Label:** Step 2/7 | **Header:** Activation
 
 **What the partner sees:**
 - Assessment areas: Infrastructure Review, Network Readiness, Location Feasibility
@@ -505,7 +506,7 @@ Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Har
 
 **Purpose:** Second and final payment to activate the partnership.
 
-**Step Label:** Step 3/5 | **Header:** Activation
+**Step Label:** Step 3/7 | **Header:** Activation
 
 **What the partner sees:**
 - WiFi devices message
@@ -514,7 +515,7 @@ Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Har
   - Onboarding Fee: Rs.20,000 (Due)
   - Total: Rs.22,000
 
-**CTA:** "Pay Rs.20,000 Now"
+**CTA:** "₹20,000 अभी भुगतान करें" / "Pay ₹20,000 Now"
 
 **Payment outcomes:**
 
@@ -571,7 +572,7 @@ Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Har
 
 ## 6. Error Scenarios & Scenario Simulator
 
-### Scenario Simulator Categories (9 categories, 30+ scenarios)
+### Scenario Simulator Categories (9 categories, 28 scenarios)
 
 #### Category 1: Network/App Errors
 
@@ -708,7 +709,7 @@ Rs.20K payment failure scenarios are documented under Category 6 (Onboarding Fee
 **Sections:**
 1. **Control Buttons** — Restart App, Reset, Hindi/English toggle, Fill/Empty data, Screenshot
 2. **Screen Navigation** — Grid of 16 screen tiles (Pitch + 0-14), active screen highlighted
-3. **Scenario Simulator** — 30+ error scenario buttons grouped by 9 categories, with "Clear Scenario"
+3. **Scenario Simulator** — 28 error scenario buttons grouped by 9 categories, with "Clear Scenario"
 
 ### Dashboard 2: QA Review Dashboard (`dashboard/qa-review.html`)
 
@@ -915,7 +916,7 @@ Rs.20K payment failure scenarios are documented under Category 6 (Onboarding Fee
 | UAT-09 | Neha, Rs.20K failed | Payment declined | Retry + Talk to Us |
 | UAT-10 | Hindi speaker | Hindi-first UX | All text culturally appropriate |
 | UAT-11 | QA reviewer | Dashboard QA workflow | Review → Approve/Reject with reason |
-| UAT-12 | Admin | Control dashboard | Navigate all 16 screens, trigger 30+ scenarios |
+| UAT-12 | Admin | Control dashboard | Navigate all 16 screens, trigger 28 scenarios |
 
 ---
 
@@ -945,4 +946,4 @@ Rs.20K payment failure scenarios are documented under Category 6 (Onboarding Fee
 
 ---
 
-*This document covers the complete specification of the Wiom CSP Onboarding App V3.1 — 15 screens + Pitch, 30+ error scenarios across 9 categories, 2 dashboards, business rules, validation, design tokens, QA cases, and UAT cases.*
+*This document covers the complete specification of the Wiom CSP Onboarding App V3.1 — 15 screens + Pitch, 28 error scenarios across 9 categories, 2 dashboards, business rules, validation, design tokens, QA cases, and UAT cases.*

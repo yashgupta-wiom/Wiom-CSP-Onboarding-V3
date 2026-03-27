@@ -137,7 +137,7 @@ fun PhoneEntryScreen(viewModel: PhoneViewModel, onNext: () -> Unit) {
                         isError = isPhoneError,
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        placeholder = { Text(t("मोबाइल नंबर डालें", "Enter mobile number"), color = WiomHint) }
+                        placeholder = { Text(t("10 अंकों का नंबर", "10 digit number"), color = WiomHint) }
                     )
                 }
                 // Character count hint or error
@@ -242,7 +242,7 @@ fun OtpTncScreen(viewModel: OtpViewModel, onNext: () -> Unit, onBack: () -> Unit
     }
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
-        AppHeader(title = t("OTP वेरीफाई", "Verify OTP"), onBack = onBack)
+        AppHeader(title = t("OTP सत्यापन", "Verify OTP"), onBack = onBack)
 
         if (scenario == Scenario.OTP_WRONG) {
             // ─── OTP_WRONG error screen ───
@@ -280,7 +280,7 @@ fun OtpTncScreen(viewModel: OtpViewModel, onNext: () -> Unit, onBack: () -> Unit
                 )
             }
             BottomBar {
-                WiomButton(t("वेरीफाई करें", "Verify"), onClick = {})
+                WiomButton(t("सत्यापित करें", "Verify"), onClick = {})
             }
         } else if (scenario == Scenario.OTP_EXPIRED) {
             // ─── OTP_EXPIRED error screen ───
@@ -376,7 +376,7 @@ fun OtpTncScreen(viewModel: OtpViewModel, onNext: () -> Unit, onBack: () -> Unit
             BottomBar {
                 val allFilled = OnboardingState.otpDigits.all { it.isNotEmpty() }
                 WiomButton(
-                    t("वेरीफाई करें", "Verify"),
+                    t("सत्यापित करें", "Verify"),
                     onClick = onNext,
                     enabled = allFilled,
                 )
@@ -395,7 +395,7 @@ fun PersonalInfoScreen(viewModel: PersonalInfoViewModel, onNext: () -> Unit, onB
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
         AppHeader(
-            title = t("रजिस्ट्रेशन", "Registration"),
+            title = t("पंजीकरण", "Registration"),
             onBack = onBack,
             rightText = t("स्टेप 1/3", "Step 1/3")
         )
@@ -406,7 +406,7 @@ fun PersonalInfoScreen(viewModel: PersonalInfoViewModel, onNext: () -> Unit, onB
                 .padding(16.dp)
         ) {
             Text(
-                t("व्यक्तिगत जानकारी", "Personal Information"),
+                t("व्यक्तिगत और व्यापार जानकारी", "Personal & Business Info"),
                 fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomText,
             )
             Spacer(Modifier.height(4.dp))
@@ -423,7 +423,7 @@ fun PersonalInfoScreen(viewModel: PersonalInfoViewModel, onNext: () -> Unit, onB
                 placeholder = t("उदाहरण: राजेश कुमार", "Example: Rajesh Kumar"),
             )
 
-            FieldLabel(t("ईमेल", "Email"))
+            FieldLabel(t("ईमेल आईडी", "Email ID"))
             WiomTextField(
                 value = OnboardingState.personalEmail,
                 onValueChange = { OnboardingState.personalEmail = it },
@@ -483,7 +483,7 @@ fun PersonalInfoScreen(viewModel: PersonalInfoViewModel, onNext: () -> Unit, onB
                     OnboardingState.entityType.isNotBlank() &&
                     OnboardingState.tradeName.isNotBlank()
             WiomButton(
-                t("अब लोकेशन बताइए", "Next: Location"),
+                t("व्यापार स्थान जोड़ें", "Add Business Location"),
                 onClick = onNext,
                 enabled = allFilled,
             )
@@ -498,7 +498,7 @@ fun LocationScreen(viewModel: LocationViewModel, onNext: () -> Unit, onBack: () 
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
         AppHeader(
-            title = t("रजिस्ट्रेशन", "Registration"),
+            title = t("पंजीकरण", "Registration"),
             onBack = onBack,
             rightText = t("स्टेप 2/3", "Step 2/3")
         )
@@ -509,7 +509,7 @@ fun LocationScreen(viewModel: LocationViewModel, onNext: () -> Unit, onBack: () 
                 .padding(16.dp)
         ) {
             Text(
-                t("लोकेशन जानकारी", "Location Information"),
+                t("व्यापार स्थान", "Business Location"),
                 fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomText,
             )
             Spacer(Modifier.height(4.dp))
@@ -590,7 +590,7 @@ fun LocationScreen(viewModel: LocationViewModel, onNext: () -> Unit, onBack: () 
 
         }
         BottomBar {
-            WiomButton(t("अब registration शुल्क भरें", "Next: Registration Fee"), onClick = onNext)
+            WiomButton(t("पंजीकरण शुल्क भरें", "Pay Registration Fee"), onClick = onNext)
         }
     }
 }
@@ -860,7 +860,7 @@ fun RegFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit, onBack: () -> 
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
         AppHeader(
-            title = t("रजिस्ट्रेशन फ़ीस", "Registration Fee"),
+            title = t("पंजीकरण शुल्क", "Registration Fee"),
             onBack = onBack,
         )
 
@@ -979,11 +979,11 @@ fun RegFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit, onBack: () -> 
                         .padding(16.dp)
                 ) {
                     Text(
-                        t("रजिस्ट्रेशन फ़ीस", "Registration Fee"),
+                        t("पंजीकरण शुल्क", "Registration Fee"),
                         fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomText,
                     )
                     Spacer(Modifier.height(12.dp))
-                    AmountBox("\u20B92,000", t("रजिस्ट्रेशन फ़ीस", "Registration Fee"))
+                    AmountBox("\u20B92,000", t("पंजीकरण शुल्क", "Registration Fee"))
                     Spacer(Modifier.height(12.dp))
                     WiomCard {
                         Text(
