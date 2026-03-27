@@ -29,6 +29,9 @@ import com.wiom.csp.ui.theme.*
 import com.wiom.csp.ui.viewmodel.*
 import com.wiom.csp.util.t
 import kotlinx.coroutines.delay
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 
 /**
  * Phase 2 Screens — Verification (Screens 6-9)
@@ -107,7 +110,7 @@ fun BankDetailsScreen(viewModel: BankViewModel, onNext: () -> Unit, onBack: () -
                     // Supporting document upload UI (shown after penny-drop fail or name mismatch)
                     if (state.supportDocType != null) {
                         Text(
-                            "\uD83D\uDCC4 ${t("बैंक सहायक दस्तावेज़ अपलोड करें", "Upload Bank Supporting Document")}",
+                            "\uD83D\uDCC4 ${t("बैंक विवरण दस्तावेज़", "Bank Details Document")}",
                             fontSize = 18.sp, fontWeight = FontWeight.Bold, color = WiomText,
                         )
                         Spacer(Modifier.height(4.dp))
@@ -125,22 +128,12 @@ fun BankDetailsScreen(viewModel: BankViewModel, onNext: () -> Unit, onBack: () -
                             isUploaded = state.supportDocUploaded,
                             onUpload = { viewModel.onSupportDocUploaded() },
                         )
-                        Spacer(Modifier.height(12.dp))
-                        if (state.supportDocUploaded) {
-                            InfoBox(
-                                "✓",
-                                t("दस्तावेज़ अपलोड हो गया। आप आगे बढ़ सकते हैं।", "Document uploaded. You can proceed."),
-                                type = InfoBoxType.SUCCESS,
-                            )
-                        } else {
-                            InfoBox(
-                                "ℹ️",
-                                t(
-                                    "दस्तावेज़ में बैंक खाता संख्या और नाम दिखना चाहिए",
-                                    "Document should show bank account number and name"
-                                ),
-                            )
-                        }
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            "\uD83D\uDCCB ${t("सैंपल दस्तावेज़ देखें", "View sample document")}",
+                            fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary,
+                            modifier = Modifier.clickable { /* show sample doc */ },
+                        )
                     } else {
 
                     Text("\uD83C\uDFE6 ${t("बैंक विवरण", "Bank Details")}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = WiomText)
@@ -199,7 +192,7 @@ fun BankDetailsScreen(viewModel: BankViewModel, onNext: () -> Unit, onBack: () -
                     if (state.supportDocType != null) {
                         // Support doc flow: proceed when uploaded
                         WiomButton(
-                            t("आगे बढ़ें", "Proceed"),
+                            if (state.supportDocUploaded) t("ISP अनुबंध जोड़ें", "Add ISP Agreement") else t("दस्तावेज़ अपलोड करें", "Upload document"),
                             onClick = onNext,
                             enabled = state.supportDocUploaded,
                         )
@@ -392,7 +385,7 @@ fun IspAgreementScreen(viewModel: IspAgreementViewModel, onNext: () -> Unit, onB
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
-                            t("अपलोड का तरीका चुनें", "Choose upload method"),
+                            t("ISP अनुबंध अपलोड करें", "Upload ISP Agreement"),
                             fontSize = 13.sp, fontWeight = FontWeight.Bold, color = WiomText,
                         )
                         Spacer(Modifier.height(8.dp))
@@ -403,11 +396,11 @@ fun IspAgreementScreen(viewModel: IspAgreementViewModel, onNext: () -> Unit, onB
                             modifier = Modifier.fillMaxWidth().clickable { viewModel.uploadPdf(); showUploadOptions = false },
                         ) {
                             Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text("\uD83D\uDCC4", fontSize = 20.sp)
+                                Text("📎", fontSize = 20.sp)
                                 Spacer(Modifier.width(12.dp))
                                 Column {
-                                    Text(t("PDF अपलोड", "PDF Upload"), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomText)
-                                    Text(t("PDF फ़ाइल चुनें", "Select PDF file"), fontSize = 12.sp, color = WiomTextSec)
+                                    Text(t("PDF अपलोड करें", "Upload PDF"), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomText)
+                                    Text(t("PDF फ़ाइल चुनें", "Choose a PDF file"), fontSize = 12.sp, color = WiomTextSec)
                                 }
                             }
                         }
@@ -419,11 +412,11 @@ fun IspAgreementScreen(viewModel: IspAgreementViewModel, onNext: () -> Unit, onB
                             modifier = Modifier.fillMaxWidth().clickable { viewModel.uploadPdf(); showUploadOptions = false },
                         ) {
                             Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text("\uD83D\uDCF7", fontSize = 20.sp)
+                                Text("📸", fontSize = 20.sp)
                                 Spacer(Modifier.width(12.dp))
                                 Column {
-                                    Text(t("कैमरा", "Camera"), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomText)
-                                    Text(t("7 पेज तक फ़ोटो लें", "Take photos up to 7 pages"), fontSize = 12.sp, color = WiomTextSec)
+                                    Text(t("कैमरा से फ़ोटो लें", "Take Photo from Camera"), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomText)
+                                    Text(t("अधिकतम 7 पेज", "Up to 7 pages"), fontSize = 12.sp, color = WiomTextSec)
                                 }
                             }
                         }
@@ -438,11 +431,18 @@ fun IspAgreementScreen(viewModel: IspAgreementViewModel, onNext: () -> Unit, onB
                                 Text("\uD83D\uDDBC\uFE0F", fontSize = 20.sp)
                                 Spacer(Modifier.width(12.dp))
                                 Column {
-                                    Text(t("गैलरी", "Gallery"), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomText)
-                                    Text(t("7 पेज तक चुनें", "Select up to 7 pages"), fontSize = 12.sp, color = WiomTextSec)
+                                    Text(t("गैलरी से अपलोड करें", "Upload from Gallery"), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomText)
+                                    Text(t("अधिकतम 7 पेज", "Up to 7 pages"), fontSize = 12.sp, color = WiomTextSec)
                                 }
                             }
                         }
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            t("रद्द करें", "Cancel"),
+                            fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomHint,
+                            modifier = Modifier.fillMaxWidth().clickable { showUploadOptions = false }.padding(vertical = 8.dp),
+                            textAlign = TextAlign.Center,
+                        )
                     }
                 }
             } else {
@@ -619,34 +619,120 @@ fun VerificationScreen(viewModel: VerificationViewModel, onNext: () -> Unit) {
     val rejected = OnboardingState.verificationRejected
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
-        AppHeader(
-            title = t("सत्यापन", "Verification"),
-            rightText = t("स्टेप 5/5", "Step 5/5"),
-        )
-
         if (rejected || state.status == VerificationState.REJECTED) {
-            // ─── Rejected: auto refund, no re-upload ───
-            Column(
-                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Spacer(Modifier.height(16.dp))
-                Text("\uD83D\uDE14", fontSize = 40.sp)
-                Spacer(Modifier.height(16.dp))
-                Text(t("सत्यापन अस्वीकृत", "Verification Rejected"), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomNegative, textAlign = TextAlign.Center)
-                Spacer(Modifier.height(8.dp))
-                Text(t("चिंता न करें — आपका पैसा सुरक्षित है", "Don't worry — your money is safe"), fontSize = 14.sp, color = WiomTextSec, textAlign = TextAlign.Center)
-                Spacer(Modifier.height(20.dp))
-                WiomCard(borderColor = WiomPositive, backgroundColor = WiomPositive100) {
-                    Text("\uD83D\uDD12 ${t("रिफंड शुरू हो गया", "Refund initiated")}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = WiomPositive)
-                    Spacer(Modifier.height(4.dp))
-                    Text(t("₹2,000 पूरा रिफंड 5-6 कार्य दिवसों में आपके खाते में आ जाएगा", "₹2,000 full refund will be credited to your account in 5-6 working days"), fontSize = 14.sp, color = WiomText, lineHeight = 20.sp)
+            val context = LocalContext.current
+            AppHeader(
+                title = t("सत्यापन", "Verification"),
+            )
+
+            when (state.refundState) {
+                RefundState.IN_PROGRESS -> {
+                    // ─── Refund In Progress ───
+                    Column(
+                        modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Spacer(Modifier.height(16.dp))
+                        Text("⏳", fontSize = 40.sp)
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            t("रिफंड प्रक्रिया में है", "Refund In Progress"),
+                            fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomText, textAlign = TextAlign.Center,
+                        )
+                        Spacer(Modifier.height(20.dp))
+                        WiomCard {
+                            FeeDetailRow(t("रिफंड राशि", "Refund Amount"), "₹2,000", valueColor = WiomPositive)
+                            HorizontalDivider(color = WiomBorder)
+                            FeeDetailRow(t("अनुमानित समय", "Estimated Time"), t("5-7 कार्य दिवस", "5-7 working days"))
+                        }
+                        Spacer(Modifier.height(12.dp))
+                        InfoBox("\uD83D\uDD12", t("चिंता न करें — आपका पैसा सुरक्षित है", "Don't worry — your money is safe"))
+                    }
+                    BottomBar {
+                        WiomButton(t("ठीक है", "OK"), onClick = { viewModel.backToRejected() })
+                    }
+                }
+
+                RefundState.SUCCESS -> {
+                    // ─── Refund Successful ───
+                    Column(
+                        modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Spacer(Modifier.height(16.dp))
+                        Text("✅", fontSize = 40.sp)
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            t("रिफंड सफल!", "Refund Successful!"),
+                            fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomPositive, textAlign = TextAlign.Center,
+                        )
+                        Spacer(Modifier.height(20.dp))
+                        WiomCard(borderColor = WiomPositive, backgroundColor = WiomPositive100) {
+                            FeeDetailRow(t("रिफंड राशि", "Refund Amount"), "₹2,000", valueColor = WiomPositive)
+                            HorizontalDivider(color = WiomPositive200)
+                            FeeDetailRow("UTR", "UTR928374610")
+                            HorizontalDivider(color = WiomPositive200)
+                            FeeDetailRow(t("तारीख", "Date"), "27 Mar 2026")
+                        }
+                    }
+                    BottomBar {
+                        WiomButton(t("ठीक है", "OK"), onClick = { viewModel.backToRejected() })
+                    }
+                }
+
+                RefundState.FAILED -> {
+                    // ─── Refund Failed ───
+                    Column(
+                        modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Spacer(Modifier.height(16.dp))
+                        Text("\uD83D\uDE1F", fontSize = 40.sp)
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            t("रिफंड विफल", "Refund Failed"),
+                            fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomNegative, textAlign = TextAlign.Center,
+                        )
+                        Spacer(Modifier.height(20.dp))
+                        InfoBox("📞", t("कृपया हमारी हेल्पलाइन पर कॉल करें: 7836811111", "Please call our helpline: 7836811111"))
+                    }
+                    BottomBar {
+                        WiomButton(t("हमसे बात करें", "Talk to Us"), onClick = {
+                            val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:7836811111"))
+                            context.startActivity(intent)
+                        })
+                    }
+                }
+
+                else -> {
+                    // ─── Rejected: default view with refund initiated ───
+                    Column(
+                        modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Spacer(Modifier.height(16.dp))
+                        Text("\uD83D\uDE14", fontSize = 40.sp)
+                        Spacer(Modifier.height(16.dp))
+                        Text(t("प्रोफ़ाइल अभी स्वीकृत नहीं हुई", "Profile not accepted yet"), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomNegative, textAlign = TextAlign.Center)
+                        Spacer(Modifier.height(8.dp))
+                        Text(t("चिंता न करें — आपका पैसा सुरक्षित है", "Don't worry — your money is safe"), fontSize = 14.sp, color = WiomTextSec, textAlign = TextAlign.Center)
+                        Spacer(Modifier.height(20.dp))
+                        WiomCard(borderColor = WiomPositive, backgroundColor = WiomPositive100) {
+                            Text("\uD83D\uDD12 ${t("रिफंड शुरू हो गया", "Refund initiated")}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = WiomPositive)
+                            Spacer(Modifier.height(4.dp))
+                            Text(t("₹2,000 पूरा रिफंड 5-7 कार्य दिवसों में आपके खाते में आ जाएगा", "₹2,000 full refund will be credited to your account in 5-7 working days"), fontSize = 14.sp, color = WiomText, lineHeight = 20.sp)
+                        }
+                    }
+                    BottomBar {
+                        WiomButton(t("रिफंड स्टेटस देखें", "Check Refund Status"), onClick = { viewModel.checkRefundStatus() })
+                    }
                 }
             }
-            BottomBar {
-                WiomButton(t("रिफंड स्टेटस देखें", "Check Refund Status"), onClick = { viewModel.checkRefundStatus() })
-            }
         } else {
+            AppHeader(
+                title = t("सत्यापन", "Verification"),
+                rightText = t("स्टेप 5/5", "Step 5/5"),
+            )
             // ─── Pending / All documents submitted ───
             Column(
                 modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),

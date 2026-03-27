@@ -141,20 +141,13 @@ fun PhoneEntryScreen(viewModel: PhoneViewModel, onNext: () -> Unit) {
                         placeholder = { Text(t("10 अंकों का नंबर", "10 digit number"), color = WiomHint) }
                     )
                 }
-                // Character count hint or error
+                // Error hint for exceeding 10 digits
                 if (OnboardingState.phoneNumber.length > 10) {
                     Text(
                         t("⚠️ नंबर 10 अंक से ज़्यादा नहीं होना चाहिए", "⚠️ Number must not exceed 10 digits"),
                         fontSize = 12.sp,
                         color = WiomNegative,
                         fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(start = 4.dp, bottom = 8.dp),
-                    )
-                } else if (OnboardingState.phoneNumber.isNotEmpty() && OnboardingState.phoneNumber.length < 10) {
-                    Text(
-                        t("${OnboardingState.phoneNumber.length}/10 अंक", "${OnboardingState.phoneNumber.length}/10 digits"),
-                        fontSize = 12.sp,
-                        color = WiomHint,
                         modifier = Modifier.padding(start = 4.dp, bottom = 8.dp),
                     )
                 } else {
@@ -582,10 +575,19 @@ fun LocationScreen(viewModel: LocationViewModel, onNext: () -> Unit, onBack: () 
             }
 
             FieldLabel(t("शहर", "City"))
-            WiomTextField(value = OnboardingState.city, onValueChange = { OnboardingState.city = it })
+            WiomTextField(
+                value = OnboardingState.city,
+                onValueChange = { OnboardingState.city = it.filter { c -> !c.isDigit() } },
+                placeholder = t("उदा: बरेली", "For ex: Bareilly"),
+            )
 
             FieldLabel(t("पिनकोड", "Pincode"))
-            WiomTextField(value = OnboardingState.pincode, onValueChange = { OnboardingState.pincode = it.filter { c -> c.isDigit() }.take(6) }, keyboardType = KeyboardType.Number)
+            WiomTextField(
+                value = OnboardingState.pincode,
+                onValueChange = { OnboardingState.pincode = it.filter { c -> c.isDigit() }.take(6) },
+                placeholder = t("उदा: 243001", "For ex: 243001"),
+                keyboardType = KeyboardType.Number,
+            )
 
             FieldLabel(t("पूरा पता", "Full Address"))
             OutlinedTextField(
@@ -893,9 +895,8 @@ fun RegFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit, onBack: () -> 
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
         AppHeader(
-            title = t("पंजीकरण", "Registration"),
+            title = t("पंजीकरण शुल्क", "Registration Fee"),
             onBack = onBack,
-            rightText = t("स्टेप 3/3", "Step 3/3"),
         )
 
         when (scenario) {
@@ -1043,29 +1044,7 @@ fun RegFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit, onBack: () -> 
 
                     // Payment success overlay
                     if (showPaymentSuccess) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Black.copy(alpha = 0.6f)),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("✅", fontSize = 48.sp)
-                                Spacer(Modifier.height(16.dp))
-                                Text(
-                                    t("भुगतान सफल!", "Payment Successful!"),
-                                    fontSize = 22.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White,
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                Text(
-                                    "₹2,000",
-                                    fontSize = 16.sp,
-                                    color = Color.White.copy(alpha = 0.8f),
-                                )
-                            }
-                        }
+                        PaymentSuccessOverlay("₹2,000", "पंजीकरण शुल्क", "Registration Fee")
                     }
                 }
             }

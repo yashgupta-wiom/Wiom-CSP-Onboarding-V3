@@ -428,13 +428,13 @@ fields:
     type: text_input
     placeholder_hi: "शहर"
     placeholder_en: "City"
-    required: false
+    required: true
 
   - id: pincode
     type: text_input
     max_length: 6
     keyboard: numeric
-    required: false
+    required: true
     validation:
       - rule: not_blank
         error_hi: "पिनकोड डालें"
@@ -447,7 +447,7 @@ fields:
     type: text_input
     placeholder_hi: "पूरा पता"
     placeholder_en: "Full Address"
-    required: false
+    required: true
 
 display_elements:
   - gps_badge:

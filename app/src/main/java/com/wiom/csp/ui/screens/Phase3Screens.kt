@@ -123,12 +123,10 @@ fun TechAssessmentScreen(viewModel: TechAssessmentViewModel, onNext: () -> Unit)
     val state by viewModel.uiState.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
-        AppHeader(
-            title = t("तकनीकी मूल्यांकन", "Technical Assessment"),
-            rightText = t("स्टेप 2/7", "Step 2/7"),
-        )
-
         if (state.status == TechAssessmentStatus.REJECTED) {
+            AppHeader(
+                title = t("तकनीकी मूल्यांकन", "Technical Assessment"),
+            )
             // ─── Rejected state ───
             Column(
                 modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp),
@@ -173,6 +171,10 @@ fun TechAssessmentScreen(viewModel: TechAssessmentViewModel, onNext: () -> Unit)
                 })
             }
         } else {
+            AppHeader(
+                title = t("तकनीकी मूल्यांकन", "Technical Assessment"),
+                rightText = t("स्टेप 2/7", "Step 2/7"),
+            )
             // ─── Pending/In progress state ───
             Column(
                 modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
@@ -382,7 +384,7 @@ fun OnboardingFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit) {
 
         // Payment success overlay (shown on top of the normal content)
         if (showSuccess) {
-            PaymentSuccessOverlay("₹20,000")
+            PaymentSuccessOverlay("₹20,000", "ऑनबोर्डिंग शुल्क", "Onboarding Fee")
         }
     }
 }
@@ -585,15 +587,15 @@ fun SuccessfullyOnboardedScreen() {
             ) {
                 Column(modifier = Modifier.padding(12.dp, 14.dp)) {
                     Text(
-                        "2. ${t("Wiom Partner Plus ऐप में लॉगिन करें", "Login to Wiom Partner Plus app")}",
+                        "1. ${t("Wiom Partner Plus ऐप में लॉगिन करें", "Login to Wiom Partner Plus app")}",
                         fontSize = 13.sp, color = WiomText, lineHeight = 22.sp,
                     )
                     Text(
-                        "3. ${t("सभी आवश्यक अनुमतियां दें", "Allow all required permissions")}",
+                        "2. ${t("सभी आवश्यक अनुमतियां दें", "Allow all required permissions")}",
                         fontSize = 13.sp, color = WiomText, lineHeight = 22.sp,
                     )
                     Text(
-                        "4. ${t("अनिवार्य Wiom प्रशिक्षण पूरा करें", "Complete Mandatory Wiom Training")}",
+                        "3. ${t("अनिवार्य Wiom प्रशिक्षण पूरा करें", "Complete Mandatory Wiom Training")}",
                         fontSize = 13.sp, color = WiomText, lineHeight = 22.sp,
                     )
                 }

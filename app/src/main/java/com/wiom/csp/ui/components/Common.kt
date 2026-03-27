@@ -1128,7 +1128,7 @@ fun WiomToast(
 
 // ─── Payment Success Overlay ────────────────────────────────────
 @Composable
-fun PaymentSuccessOverlay(amountText: String) {
+fun PaymentSuccessOverlay(amountText: String, feeTypeHi: String = "भुगतान", feeTypeEn: String = "Payment") {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -1136,21 +1136,35 @@ fun PaymentSuccessOverlay(amountText: String) {
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("✅", fontSize = 48.sp)
+            Text("\uD83C\uDF89", fontSize = 64.sp)
             Spacer(Modifier.height(16.dp))
             Text(
                 t("भुगतान सफल!", "Payment Successful!"),
-                fontSize = 22.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = WiomPositive,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(8.dp))
             Text(
                 amountText,
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = WiomPositive,
+                color = Color.White,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                t("$feeTypeHi प्राप्त हुआ", "$feeTypeEn received"),
+                fontSize = 14.sp,
+                color = Color.White.copy(alpha = 0.8f),
+            )
+            Spacer(Modifier.height(16.dp))
+            CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+            Spacer(Modifier.height(8.dp))
+            Text(
+                t("अगले चरण पर ले जा रहे हैं...", "Moving to next step..."),
+                fontSize = 13.sp,
+                color = Color.White.copy(alpha = 0.6f),
             )
         }
     }
