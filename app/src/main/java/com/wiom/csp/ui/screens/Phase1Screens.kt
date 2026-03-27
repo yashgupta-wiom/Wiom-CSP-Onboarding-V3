@@ -30,10 +30,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
+import com.wiom.csp.ui.viewmodel.*
 
 // Screen 0: Phone Entry
 @Composable
-fun PhoneEntryScreen(onNext: () -> Unit) {
+fun PhoneEntryScreen(viewModel: PhoneViewModel, onNext: () -> Unit) {
     val scenario = OnboardingState.activeScenario
     var tncAccepted by remember { mutableStateOf(true) }
     val context = LocalContext.current
@@ -214,7 +215,7 @@ fun PhoneEntryScreen(onNext: () -> Unit) {
 
 // Screen 1: OTP Verification
 @Composable
-fun OtpScreen(onNext: () -> Unit, onBack: () -> Unit) {
+fun OtpTncScreen(viewModel: OtpViewModel, onNext: () -> Unit, onBack: () -> Unit) {
     val scenario = OnboardingState.activeScenario
 
     // Timer state
@@ -387,7 +388,7 @@ fun OtpScreen(onNext: () -> Unit, onBack: () -> Unit) {
 // Screen 2: Personal & Business Info
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PersonalInfoScreen(onNext: () -> Unit, onBack: () -> Unit) {
+fun PersonalInfoScreen(viewModel: PersonalInfoViewModel, onNext: () -> Unit, onBack: () -> Unit) {
     // Entity type dropdown state
     var dropdownExpanded by remember { mutableStateOf(false) }
     val entityOptions = listOf("Individual")
@@ -492,7 +493,7 @@ fun PersonalInfoScreen(onNext: () -> Unit, onBack: () -> Unit) {
 
 // Screen 3: Location
 @Composable
-fun LocationScreen(onNext: () -> Unit, onBack: () -> Unit) {
+fun LocationScreen(viewModel: LocationViewModel, onNext: () -> Unit, onBack: () -> Unit) {
     val scenario = OnboardingState.activeScenario
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
@@ -617,7 +618,7 @@ fun LocationScreen(onNext: () -> Unit, onBack: () -> Unit) {
 // Screen 4: KYC Documents
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun KycScreen(onNext: () -> Unit, onBack: () -> Unit) {
+fun KycScreen(viewModel: KycViewModel, onNext: () -> Unit, onBack: () -> Unit) {
     val scenario = OnboardingState.activeScenario
 
     // Bottom sheet state: null, "choose_pan"/"choose_aadhaar_front"/etc, "preview_pan"/etc, "uploading_pan"/etc
@@ -1131,7 +1132,7 @@ private fun KycUploadCard(
 
 // Screen 5: Registration Fee ₹2,000
 @Composable
-fun RegFeeScreen(onNext: () -> Unit, onBack: () -> Unit) {
+fun RegFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit, onBack: () -> Unit) {
     val scenario = OnboardingState.activeScenario
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
