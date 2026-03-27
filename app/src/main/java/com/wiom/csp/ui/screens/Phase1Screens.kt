@@ -183,7 +183,7 @@ fun PhoneEntryScreen(viewModel: PhoneViewModel, onNext: () -> Unit) {
                     Spacer(Modifier.width(4.dp))
                     Column {
                         Text(
-                            t("मैं सभी नियम व शर्तें स्वीकार करता/करती हूँ", "I accept all Terms & Conditions"),
+                            t("आगे बढ़कर, मैं नियम व शर्तें स्वीकार करता/करती हूँ", "By Continuing, I accept the Terms and Conditions"),
                             fontSize = 14.sp,
                             color = WiomText,
                         )
@@ -219,7 +219,7 @@ fun OtpTncScreen(viewModel: OtpViewModel, onNext: () -> Unit, onBack: () -> Unit
     val scenario = OnboardingState.activeScenario
 
     // Timer state
-    var timerSeconds by remember { mutableIntStateOf(30) }
+    var timerSeconds by remember { mutableIntStateOf(28) }
     var timerExpired by remember { mutableStateOf(false) }
 
     // Countdown timer
@@ -358,7 +358,7 @@ fun OtpTncScreen(viewModel: OtpViewModel, onNext: () -> Unit, onBack: () -> Unit
                             color = WiomPrimary,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.clickable {
-                                timerSeconds = 30
+                                timerSeconds = 28
                                 timerExpired = false
                             },
                         )
@@ -391,7 +391,7 @@ fun OtpTncScreen(viewModel: OtpViewModel, onNext: () -> Unit, onBack: () -> Unit
 fun PersonalInfoScreen(viewModel: PersonalInfoViewModel, onNext: () -> Unit, onBack: () -> Unit) {
     // Entity type dropdown state
     var dropdownExpanded by remember { mutableStateOf(false) }
-    val entityOptions = listOf("Individual")
+    val entityOptions = listOf(t("प्रोप्राइटरशिप (Proprietorship)", "Proprietorship"))
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
         AppHeader(
@@ -411,7 +411,7 @@ fun PersonalInfoScreen(viewModel: PersonalInfoViewModel, onNext: () -> Unit, onB
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                t("आपकी पहचान और बिज़नेस की जानकारी", "Your identity and business information"),
+                t("आपका Wiom अकाउंट बनाने के लिए हमें इन विवरणों की आवश्यकता है", "We require these details for creating your Wiom Account"),
                 fontSize = 14.sp, color = WiomTextSec,
             )
             Spacer(Modifier.height(16.dp))
@@ -430,7 +430,7 @@ fun PersonalInfoScreen(viewModel: PersonalInfoViewModel, onNext: () -> Unit, onB
                 placeholder = t("उदाहरण: rajesh@email.com", "Example: rajesh@email.com"),
             )
 
-            FieldLabel(t("बिज़नेस प्रकार", "Entity Type"))
+            FieldLabel(t("व्यापार इकाई प्रकार", "Business Entity Type"))
             ExposedDropdownMenuBox(
                 expanded = dropdownExpanded,
                 onExpandedChange = { dropdownExpanded = it },
@@ -444,7 +444,7 @@ fun PersonalInfoScreen(viewModel: PersonalInfoViewModel, onNext: () -> Unit, onB
                         .menuAnchor()
                         .padding(bottom = 12.dp),
                     shape = RoundedCornerShape(12.dp),
-                    placeholder = { Text(t("बिज़नेस टाइप चुनें", "Select business type"), color = WiomHint) },
+                    placeholder = { Text(t("व्यापार इकाई प्रकार चुनें", "Select entity type"), color = WiomHint) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpanded) },
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedBorderColor = WiomBorderInput,
@@ -470,7 +470,7 @@ fun PersonalInfoScreen(viewModel: PersonalInfoViewModel, onNext: () -> Unit, onB
                 }
             }
 
-            FieldLabel(t("व्यापार नाम", "Trade Name"))
+            FieldLabel(t("व्यापार का नाम", "Business Name"))
             WiomTextField(
                 value = OnboardingState.tradeName,
                 onValueChange = { OnboardingState.tradeName = it },
@@ -514,7 +514,7 @@ fun LocationScreen(viewModel: LocationViewModel, onNext: () -> Unit, onBack: () 
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                t("आपकी दुकान/ऑफिस की लोकेशन", "Your shop/office location"),
+                t("आपकी पूरी पता जानकारी चाहिए ताकि हम आपकी लोकैलिटी जान सकें और Wiom इंटरनेट ग्राहक दे सकें", "We need your complete address details to know your locality and provide Wiom Internet customers"),
                 fontSize = 14.sp, color = WiomTextSec,
             )
             Spacer(Modifier.height(16.dp))
@@ -529,8 +529,7 @@ fun LocationScreen(viewModel: LocationViewModel, onNext: () -> Unit, onBack: () 
                 "Mizoram", "Nagaland", "Odisha", "Punjab",
                 "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana",
                 "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
-                "Andaman & Nicobar Islands", "Chandigarh", "Dadra & Nagar Haveli and Daman & Diu",
-                "Delhi", "Jammu & Kashmir", "Ladakh", "Lakshadweep", "Puducherry",
+                "Delhi", "Jammu & Kashmir", "Ladakh", "Chandigarh", "Puducherry",
             )
             Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
@@ -1002,10 +1001,12 @@ fun RegFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit, onBack: () -> 
                         TrustBadge("\uD83D\uDD12", t("Reject होने पर full refund मिलेगा", "Full refund if rejected"))
                     }
                     Spacer(Modifier.height(8.dp))
-                    InfoBox("✓", t("भुगतान के बाद सत्यापन प्रक्रिया शुरू होगी", "Verification process will begin after payment"))
+                    InfoBox("1.", t("पंजीकरण शुल्क भुगतान के बाद दस्तावेज़ सत्यापन प्रक्रिया शुरू होगी।", "Document Verification process will start after Registration fee payment."))
+                    Spacer(Modifier.height(4.dp))
+                    InfoBox("2.", t("कृपया भुगतान के 3 दिनों के भीतर सभी आवश्यक दस्तावेज़ जमा करें ताकि आपका आवेदन सक्रिय रहे।", "Please submit your documents within 3 days to keep your application active."))
                 }
                 BottomBar {
-                    WiomButton("₹2,000 ${t("भुगतान करें", "Pay Now")}", onClick = onNext)
+                    WiomButton(t("₹2,000 अभी भुगतान करें", "Pay ₹2,000 Now"), onClick = onNext)
                 }
             }
         }
