@@ -117,15 +117,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
             cmd = [ADB, "shell", "am", "broadcast", "-a", "com.wiom.csp.TECHASSESSMENT",
                    "--es", "action", decision, "-n", "com.wiom.csp/.DashboardReceiver"]
         elif action == "policyquiz_config":
-            questions = body.get("questions", [])
-            config_json = json.dumps(questions)
-            cmd = [ADB, "shell", "am", "broadcast", "-a", "com.wiom.csp.POLICYQUIZ",
-                   "--es", "config", config_json, "-n", "com.wiom.csp/.DashboardReceiver"]
-        elif action == "training_config":
-            modules = body.get("modules", [])
-            config_json = json.dumps(modules)
-            cmd = [ADB, "shell", "am", "broadcast", "-a", "com.wiom.csp.TRAINING",
-                   "--es", "config", config_json, "-n", "com.wiom.csp/.DashboardReceiver"]
         elif action == "restart":
             subprocess.run([ADB, "shell", "am", "force-stop", "com.wiom.csp"])
             cmd = [ADB, "shell", "am", "start", "-n", "com.wiom.csp/.MainActivity"]

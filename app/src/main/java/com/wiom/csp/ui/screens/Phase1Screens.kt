@@ -588,549 +588,272 @@ fun LocationScreen(viewModel: LocationViewModel, onNext: () -> Unit, onBack: () 
                 Text("22.71° N, 75.85° E", fontSize = 12.sp, color = WiomHint)
             }
 
-            if (scenario == Scenario.AREA_NOT_SERVICEABLE) {
-                // ─── AREA_NOT_SERVICEABLE error ───
-                Spacer(Modifier.height(16.dp))
-                ErrorCard(
-                    icon = "📍",
-                    titleHi = "यह एरिया अभी सर्विसेबल नहीं है",
-                    titleEn = "This area is not serviceable yet",
-                    messageHi = "हम जल्द ही इस एरिया में आ रहे हैं। Waitlist में जुड़ें और पहले मौका पाएं!",
-                    messageEn = "We're coming to this area soon. Join the waitlist and get first opportunity!",
-                    type = "warning",
-                )
-                Spacer(Modifier.height(8.dp))
-                InfoBox("\uD83D\uDCCB", t("Waitlist में 47 लोग पहले से हैं", "47 people already on waitlist"))
-                Spacer(Modifier.height(12.dp))
-                WiomButton(t("Waitlist में जुड़ें", "Join Waitlist"), onClick = {})
-                Spacer(Modifier.height(8.dp))
-                WiomButton(t("दूसरा पिनकोड डालें", "Enter different pincode"), onClick = {}, isSecondary = true)
-            }
         }
-        if (scenario != Scenario.AREA_NOT_SERVICEABLE) {
-            BottomBar {
-                WiomButton(t("अब registration शुल्क भरें", "Next: Registration Fee"), onClick = onNext)
-            }
+        BottomBar {
+            WiomButton(t("अब registration शुल्क भरें", "Next: Registration Fee"), onClick = onNext)
         }
     }
 }
 
-// Screen 4: KYC Documents
-@OptIn(ExperimentalMaterial3Api::class)
+// Screen 5: KYC Documents — 3 sub-stages (PAN → Aadhaar → GST) with progress bar
 @Composable
 fun KycScreen(viewModel: KycViewModel, onNext: () -> Unit, onBack: () -> Unit) {
-    val scenario = OnboardingState.activeScenario
+    val state by viewModel.uiState.collectAsState()
 
-    // Bottom sheet state: null, "choose_pan"/"choose_aadhaar_front"/etc, "preview_pan"/etc, "uploading_pan"/etc
-    var sheetTarget by remember { mutableStateOf<String?>(null) }
-    var sheetStep by remember { mutableStateOf("choose") } // "choose", "preview", "uploading", "done"
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val scope = rememberCoroutineScope()
-
-    // Determine doc label for bottom sheet title
-    val sheetDocLabel = when {
-        sheetTarget?.contains("pan") == true -> t("PAN Card", "PAN Card")
-        sheetTarget?.contains("aadhaar_front") == true -> t("आधार कार्ड — सामने", "Aadhaar Card — Front")
-        sheetTarget?.contains("aadhaar_back") == true -> t("आधार कार्ड — पीछे", "Aadhaar Card — Back")
-        sheetTarget?.contains("gst") == true -> t("GST प्रमाणपत्र", "GST Certificate")
-        else -> ""
+    // Dedup screens
+    if (state.panDedup) {
+        KycDedupScreen(
+            docType = t("पैन", "PAN"),
+            phone = state.dedupPhone,
+            onEnterDifferent = { viewModel.clearPanDedup() }
+        )
+        return
     }
-
-    // Upload simulation
-    fun simulateUpload() {
-        sheetStep = "uploading"
+    if (state.aadhaarDedup) {
+        KycDedupScreen(
+            docType = t("आधार", "Aadhaar"),
+            phone = state.dedupPhone,
+            onEnterDifferent = { viewModel.clearAadhaarDedup() }
+        )
+        return
     }
-
-    fun markUploaded() {
-        when (sheetTarget) {
-            "pan" -> OnboardingState.panUploaded = true
-            "aadhaar_front" -> OnboardingState.aadhaarFrontUploaded = true
-            "aadhaar_back" -> OnboardingState.aadhaarBackUploaded = true
-            "gst" -> OnboardingState.gstUploaded = true
-        }
-        sheetTarget = null
-        sheetStep = "choose"
-    }
-
-    // Bottom Sheet
-    if (sheetTarget != null) {
-        ModalBottomSheet(
-            onDismissRequest = { sheetTarget = null; sheetStep = "choose" },
-            sheetState = sheetState,
-            containerColor = Color.White,
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .padding(bottom = 32.dp),
-            ) {
-                when (sheetStep) {
-                    "choose" -> {
-                        // ─── Step 1: Choose source ───
-                        Text(
-                            t("$sheetDocLabel अपलोड करें", "Upload $sheetDocLabel"),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = WiomText,
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            t("फ़ोटो कैसे लेना चाहेंगे?", "How would you like to capture?"),
-                            fontSize = 14.sp,
-                            color = WiomTextSec,
-                        )
-                        Spacer(Modifier.height(16.dp))
-
-                        // Camera option
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(WiomBgSec)
-                                .clickable { sheetStep = "preview" }
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(WiomPrimaryLight),
-                                contentAlignment = Alignment.Center,
-                            ) { Text("\uD83D\uDCF7", fontSize = 24.sp) }
-                            Column {
-                                Text(t("कैमरा से फ़ोटो लें", "Take Photo"), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = WiomText)
-                                Text(t("सीधे कैमरा खोलें और फ़ोटो क्लिक करें", "Open camera and click photo"), fontSize = 13.sp, color = WiomTextSec)
-                            }
-                        }
-                        Spacer(Modifier.height(10.dp))
-
-                        // Gallery option
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(WiomBgSec)
-                                .clickable { sheetStep = "preview" }
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(WiomInfo100),
-                                contentAlignment = Alignment.Center,
-                            ) { Text("\uD83D\uDDBC\uFE0F", fontSize = 24.sp) }
-                            Column {
-                                Text(t("गैलरी से चुनें", "Choose from Gallery"), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = WiomText)
-                                Text(t("फ़ोन में सेव फ़ोटो में से चुनें", "Pick from saved photos"), fontSize = 13.sp, color = WiomTextSec)
-                            }
-                        }
-                        Spacer(Modifier.height(16.dp))
-
-                        // Tips
-                        InfoBox(
-                            "\uD83D\uDCA1",
-                            t("साफ़ फ़ोटो लें — सारे अक्षर दिखने चाहिए", "Take a clear photo — all text must be visible"),
-                            type = InfoBoxType.INFO,
-                        )
-                    }
-
-                    "preview" -> {
-                        // ─── Step 2: Preview photo ───
-                        Text(
-                            t("फ़ोटो रिव्यू करें", "Review Photo"),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = WiomText,
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Text(sheetDocLabel, fontSize = 14.sp, color = WiomTextSec)
-                        Spacer(Modifier.height(16.dp))
-
-                        // Simulated photo preview
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(WiomBgSec)
-                                .border(2.dp, WiomBorder, RoundedCornerShape(16.dp)),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    when {
-                                        sheetTarget?.contains("pan") == true -> "\uD83E\uDEAA"
-                                        sheetTarget?.contains("gst") == true -> "\uD83D\uDCCB"
-                                        else -> "\uD83D\uDCC4"
-                                    },
-                                    fontSize = 48.sp,
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                Text(
-                                    sheetDocLabel,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = WiomTextSec,
-                                )
-                                Text(
-                                    t("फ़ोटो कैप्चर हुई", "Photo captured"),
-                                    fontSize = 12.sp,
-                                    color = WiomPositive,
-                                )
-                            }
-                        }
-                        Spacer(Modifier.height(12.dp))
-
-                        // Quality check badges
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            TrustBadge("✓", t("साफ़ दिख रहा है", "Clear"))
-                            TrustBadge("✓", t("पूरा दिख रहा है", "Complete"))
-                        }
-                        Spacer(Modifier.height(16.dp))
-
-                        // Action buttons
-                        WiomButton(
-                            t("यह फ़ोटो सेव करें", "Save this photo"),
-                            onClick = { simulateUpload() },
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        WiomButton(
-                            t("दोबारा फ़ोटो लें", "Retake photo"),
-                            onClick = { sheetStep = "choose" },
-                            isSecondary = true,
-                        )
-                    }
-
-                    "uploading" -> {
-                        // ─── Step 3: Uploading ───
-                        var uploadProgress by remember { mutableStateOf(0f) }
-                        LaunchedEffect(Unit) {
-                            // Simulate upload progress
-                            while (uploadProgress < 1f) {
-                                delay(80)
-                                uploadProgress = (uploadProgress + 0.05f).coerceAtMost(1f)
-                            }
-                            delay(300)
-                            markUploaded()
-                        }
-
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Spacer(Modifier.height(16.dp))
-                            if (uploadProgress < 1f) {
-                                CircularProgressIndicator(
-                                    progress = { uploadProgress },
-                                    color = WiomPrimary,
-                                    strokeWidth = 4.dp,
-                                    modifier = Modifier.size(56.dp),
-                                )
-                            } else {
-                                Box(
-                                    modifier = Modifier
-                                        .size(56.dp)
-                                        .clip(CircleShape)
-                                        .background(WiomPositive100),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Text("✓", fontSize = 28.sp, color = WiomPositive, fontWeight = FontWeight.Bold)
-                                }
-                            }
-                            Spacer(Modifier.height(16.dp))
-                            Text(
-                                if (uploadProgress < 1f) t("अपलोड हो रहा है...", "Uploading...")
-                                else t("अपलोड हो गया!", "Upload complete!"),
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (uploadProgress < 1f) WiomText else WiomPositive,
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                sheetDocLabel,
-                                fontSize = 14.sp,
-                                color = WiomTextSec,
-                            )
-                            Spacer(Modifier.height(12.dp))
-                            if (uploadProgress < 1f) {
-                                LinearProgressIndicator(
-                                    progress = { uploadProgress },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(6.dp)
-                                        .clip(RoundedCornerShape(3.dp)),
-                                    color = WiomPrimary,
-                                    trackColor = WiomBgSec,
-                                )
-                                Spacer(Modifier.height(4.dp))
-                                Text(
-                                    "${(uploadProgress * 100).toInt()}%",
-                                    fontSize = 12.sp,
-                                    color = WiomTextSec,
-                                )
-                            }
-                            Spacer(Modifier.height(16.dp))
-                        }
-                    }
-                }
-            }
-        }
+    if (state.gstDedup) {
+        KycDedupScreen(
+            docType = t("जीएसटी", "GST"),
+            phone = state.dedupPhone,
+            onEnterDifferent = { viewModel.clearGstDedup() }
+        )
+        return
     }
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
         AppHeader(
-            title = t("KYC दस्तावेज़", "KYC Documents"),
-            onBack = onBack,
-            rightText = t("स्टेप 1/5", "Step 1/5")
+            title = t("सत्यापन", "Verification"),
+            onBack = when (state.subStage) {
+                0 -> onBack
+                1 -> {{ viewModel.moveBackFromAadhaar() }}
+                else -> {{ viewModel.moveBackFromGst() }}
+            },
+            rightText = t("स्टेप 1/5", "Step 1/5"),
         )
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+
+        // Progress bar: PAN → Aadhaar → GST
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.Top,
         ) {
+            listOf(
+                Triple(t("पैन", "PAN"), "🪪", 0),
+                Triple(t("आधार", "Aadhaar"), "📄", 1),
+                Triple("GST", "📋", 2),
+            ).forEachIndexed { idx, (label, icon, stage) ->
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(
+                                when {
+                                    stage < state.subStage -> WiomPositive
+                                    stage == state.subStage -> WiomPrimary
+                                    else -> WiomBgSec
+                                }
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            if (stage < state.subStage) "✓" else icon,
+                            fontSize = 13.sp, fontWeight = FontWeight.Bold,
+                            color = if (stage <= state.subStage) Color.White else WiomHint,
+                        )
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Text(label, fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
+                        color = when {
+                            stage < state.subStage -> WiomPositive
+                            stage == state.subStage -> WiomPrimary
+                            else -> WiomHint
+                        }
+                    )
+                }
+                if (idx < 2) {
+                    Box(
+                        modifier = Modifier.weight(0.5f).height(2.dp).padding(top = 15.dp)
+                            .background(if (idx < state.subStage) WiomPositive else WiomBorder)
+                    )
+                }
+            }
+        }
+
+        when (state.subStage) {
+            0 -> KycPanSubStage(state, viewModel, onMoveToAadhaar = { viewModel.moveToAadhaar() })
+            1 -> KycAadhaarSubStage(state, viewModel, onMoveToGst = { viewModel.moveToGst() })
+            2 -> KycGstSubStage(state, viewModel, onComplete = onNext)
+        }
+    }
+}
+
+@Composable
+private fun KycPanSubStage(state: KycUiState, viewModel: KycViewModel, onMoveToAadhaar: () -> Unit) {
+    val canProceed = state.isPanStageComplete
+    Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp)) {
+        Text("🪪 ${t("पैन विवरण", "PAN Details")}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = WiomText)
+        Spacer(Modifier.height(4.dp))
+        Text(t("पैन नंबर दर्ज करें और पैन कार्ड अपलोड करें", "Enter PAN number and upload PAN card"), fontSize = 13.sp, color = WiomTextSec, lineHeight = 18.sp)
+        Spacer(Modifier.height(14.dp))
+        FieldLabel(t("पैन नंबर", "PAN Number"))
+        WiomTextField(
+            value = state.panNumber,
+            onValueChange = { viewModel.onPanNumberChanged(it) },
+            placeholder = t("उदा. CEVPG6375L", "e.g. CEVPG6375L"),
+            isVerified = state.isPanValid,
+            isError = state.panBlurred && state.panError != null,
+            errorMessage = state.panError,
+            onFocusChanged = { if (!it) viewModel.onPanBlurred() },
+        )
+        FieldLabel(t("पैन कार्ड अपलोड", "Upload PAN Card"))
+        KycUploadRow("🪪", t("पैन कार्ड", "PAN Card"), state.panUploaded,
+            onUpload = { viewModel.onPanUploaded() }, onReset = { viewModel.resetPanUpload() })
+        Spacer(Modifier.height(8.dp))
+        Text("📋 ${t("सैंपल दस्तावेज़ देखें", "View sample document")}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary, modifier = Modifier.clickable { })
+    }
+    BottomBar {
+        WiomButton(
+            if (canProceed) t("आधार जोड़ें", "Add Aadhaar") else t("पैन विवरण भरें", "Complete PAN details"),
+            onClick = onMoveToAadhaar, enabled = canProceed,
+        )
+    }
+}
+
+@Composable
+private fun KycAadhaarSubStage(state: KycUiState, viewModel: KycViewModel, onMoveToGst: () -> Unit) {
+    val canProceed = state.isAadhaarStageComplete
+    Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp)) {
+        Text("📄 ${t("आधार विवरण", "Aadhaar Details")}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = WiomText)
+        Spacer(Modifier.height(4.dp))
+        Text(t("आधार नंबर दर्ज करें और आधार कार्ड अपलोड करें", "Enter Aadhaar number and upload Aadhaar card"), fontSize = 13.sp, color = WiomTextSec, lineHeight = 18.sp)
+        Spacer(Modifier.height(14.dp))
+        FieldLabel(t("आधार नंबर", "Aadhaar Number"))
+        WiomTextField(
+            value = state.aadhaarFormatted,
+            onValueChange = { viewModel.onAadhaarNumberChanged(it) },
+            placeholder = t("उदा. 3696 8916 4553", "e.g. 3696 8916 4553"),
+            isVerified = state.isAadhaarValid,
+            isError = state.aadhaarBlurred && state.aadhaarError != null,
+            errorMessage = state.aadhaarError,
+            onFocusChanged = { if (!it) viewModel.onAadhaarBlurred() },
+        )
+        FieldLabel(t("आधार कार्ड अपलोड", "Upload Aadhaar Card"))
+        KycUploadRow("📄", t("आधार — सामने", "Aadhaar — Front"), state.aadhaarFrontUploaded,
+            onUpload = { viewModel.onAadhaarFrontUploaded() }, onReset = { viewModel.resetAadhaarFrontUpload() })
+        KycUploadRow("📄", t("आधार — पीछे", "Aadhaar — Back"), state.aadhaarBackUploaded,
+            onUpload = { viewModel.onAadhaarBackUploaded() }, onReset = { viewModel.resetAadhaarBackUpload() })
+        Spacer(Modifier.height(8.dp))
+        Text("📋 ${t("सैंपल दस्तावेज़ देखें", "View sample document")}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary, modifier = Modifier.clickable { })
+    }
+    BottomBar {
+        WiomButton(
+            if (canProceed) t("जीएसटी जोड़ें", "Add GST") else t("आधार विवरण भरें", "Complete Aadhaar details"),
+            onClick = onMoveToGst, enabled = canProceed,
+        )
+    }
+}
+
+@Composable
+private fun KycGstSubStage(state: KycUiState, viewModel: KycViewModel, onComplete: () -> Unit) {
+    val canProceed = state.isGstStageComplete
+    Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp)) {
+        Text("📋 ${t("जीएसटी विवरण", "GST Details")}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = WiomText)
+        Spacer(Modifier.height(4.dp))
+        Text(t("जीएसटी नंबर दर्ज करें और जीएसटी प्रमाणपत्र अपलोड करें", "Enter GST number and upload GST certificate"), fontSize = 13.sp, color = WiomTextSec, lineHeight = 18.sp)
+        Spacer(Modifier.height(14.dp))
+        FieldLabel(t("जीएसटी नंबर", "GST Number"))
+        WiomTextField(
+            value = state.gstNumber,
+            onValueChange = { viewModel.onGstNumberChanged(it) },
+            placeholder = t("उदा. 09${state.gstPlaceholder.drop(2)}", "e.g. ${state.gstPlaceholder}"),
+            isVerified = state.isGstValid,
+            isError = state.gstBlurred && state.gstError != null,
+            errorMessage = state.gstError,
+            onFocusChanged = { if (!it) viewModel.onGstBlurred() },
+        )
+        FieldLabel(t("जीएसटी प्रमाणपत्र अपलोड", "Upload GST Certificate"))
+        KycUploadRow("📋", t("जीएसटी प्रमाणपत्र", "GST Certificate"), state.gstUploaded,
+            onUpload = { viewModel.onGstUploaded() }, onReset = { viewModel.resetGstUpload() })
+        Spacer(Modifier.height(8.dp))
+        Text("📋 ${t("सैंपल दस्तावेज़ देखें", "View sample document")}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary, modifier = Modifier.clickable { })
+    }
+    BottomBar {
+        WiomButton(
+            if (canProceed) t("बैंक विवरण जोड़ें", "Add Bank Details") else t("जीएसटी विवरण भरें", "Complete GST details"),
+            onClick = onComplete, enabled = canProceed,
+        )
+    }
+}
+
+@Composable
+private fun KycDedupScreen(docType: String, phone: String, onEnterDifferent: () -> Unit) {
+    Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
+        AppHeader(title = t("सत्यापन", "Verification"), onBack = onEnterDifferent)
+        Column(
+            modifier = Modifier.weight(1f).padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(Modifier.height(20.dp))
+            Text("🔍", fontSize = 48.sp)
+            Spacer(Modifier.height(12.dp))
+            Text("$docType ${t("पहले से जुड़ा हुआ है", "already linked")}", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomNegative, textAlign = TextAlign.Center)
+            Spacer(Modifier.height(8.dp))
             Text(
-                t("KYC दस्तावेज़", "KYC Documents"),
-                fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomText,
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                t("अपलोड करें — सिस्टम तुरंत वेरीफाई करेगा", "Upload — system will verify instantly"),
-                fontSize = 14.sp, color = WiomTextSec,
+                "${t("यह", "This")} $docType ${t("एक और Wiom अकाउंट से जुड़ा है जिसका मोबाइल नंबर ****$phone है", "is linked with another Wiom account number ending with $phone")}",
+                fontSize = 14.sp, color = WiomTextSec, textAlign = TextAlign.Center, lineHeight = 20.sp,
             )
             Spacer(Modifier.height(16.dp))
-
-            when (scenario) {
-                Scenario.KYC_PAN_MISMATCH -> {
-                    // ─── KYC_PAN_MISMATCH ───
-                    UploadRowError("\uD83E\uDEAA", t("PAN Card", "PAN Card"), t("Name Mismatch ✗", "Name Mismatch ✗"), isError = true)
-                    Spacer(Modifier.height(8.dp))
-                    UploadRow("\uD83D\uDCC4", t("आधार कार्ड", "Aadhaar Card"), t("वेरीफाइड ✓", "Verified ✓"), isVerified = true)
-                    Spacer(Modifier.height(8.dp))
-                    UploadRow("\uD83D\uDCCB", t("GST प्रमाणपत्र", "GST Certificate"), t("वेरीफाइड ✓", "Verified ✓"), isVerified = true)
-                    Spacer(Modifier.height(12.dp))
-                    ErrorCard(
-                        icon = "\uD83E\uDEAA",
-                        titleHi = "PAN नाम मेल नहीं खाता",
-                        titleEn = "PAN Name Mismatch",
-                        messageHi = "PAN पर नाम: Rajesh K Sharma\nआपने डाला: राजेश कुमार\n\nकृपया सही नाम डालें या PAN अपडेट कराएं",
-                        messageEn = "Name on PAN: Rajesh K Sharma\nYou entered: Rajesh Kumar\n\nPlease enter correct name or update PAN",
-                        type = "error",
-                    )
-                }
-                Scenario.KYC_AADHAAR_EXPIRED -> {
-                    // ─── KYC_AADHAAR_EXPIRED ───
-                    UploadRow("\uD83D\uDCC4", t("PAN Card", "PAN Card"), t("वेरीफाइड ✓", "Verified ✓"), isVerified = true)
-                    Spacer(Modifier.height(8.dp))
-                    UploadRowError("\uD83D\uDCC4", t("आधार कार्ड", "Aadhaar Card"), t("Address Update Required", "Address Update Required"), isWarning = true)
-                    Spacer(Modifier.height(8.dp))
-                    UploadRow("\uD83D\uDCCB", t("GST प्रमाणपत्र", "GST Certificate"), t("वेरीफाइड ✓", "Verified ✓"), isVerified = true)
-                    Spacer(Modifier.height(12.dp))
-                    ErrorCard(
-                        icon = "\u26A0\uFE0F",
-                        titleHi = "Aadhaar पता पुराना है",
-                        titleEn = "Aadhaar Address Outdated",
-                        messageHi = "आपके Aadhaar पर पता पुराना है। कृपया UIDAI पोर्टल पर अपडेट करें।",
-                        messageEn = "Address on Aadhaar is outdated. Please update on UIDAI portal.",
-                        type = "warning",
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    InfoBox("\uD83C\uDF10", t("uidai.gov.in पर अपडेट करें", "Update at uidai.gov.in"))
-                }
-                Scenario.KYC_PAN_AADHAAR_UNLINKED -> {
-                    // ─── KYC_PAN_AADHAAR_UNLINKED ───
-                    UploadRow("\uD83D\uDCC4", t("PAN Card", "PAN Card"), t("वेरीफाइड ✓", "Verified ✓"), isVerified = true)
-                    Spacer(Modifier.height(8.dp))
-                    UploadRow("\uD83D\uDCC4", t("आधार कार्ड", "Aadhaar Card"), t("वेरीफाइड ✓", "Verified ✓"), isVerified = true)
-                    Spacer(Modifier.height(8.dp))
-                    UploadRow("\uD83D\uDCCB", t("GST प्रमाणपत्र", "GST Certificate"), t("वेरीफाइड ✓", "Verified ✓"), isVerified = true)
-                    Spacer(Modifier.height(12.dp))
-                    ErrorCard(
-                        icon = "\uD83D\uDD17",
-                        titleHi = "PAN-Aadhaar लिंक नहीं है",
-                        titleEn = "PAN-Aadhaar Not Linked",
-                        messageHi = "आगे बढ़ने के लिए PAN और Aadhaar लिंक होना ज़रूरी है।",
-                        messageEn = "PAN and Aadhaar must be linked to proceed.",
-                        type = "error",
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    InfoBox("\uD83C\uDF10", t("incometax.gov.in पर लिंक करें", "Link at incometax.gov.in"))
-                }
-                else -> {
-                    // ─── Normal happy path: interactive upload cards ───
-
-                    // PAN Card
-                    KycUploadCard(
-                        emoji = "\uD83E\uDEAA",
-                        labelHi = "PAN Card अपलोड करें",
-                        labelEn = "Upload PAN Card",
-                        nameHi = "PAN Card",
-                        nameEn = "PAN Card",
-                        isUploaded = OnboardingState.panUploaded,
-                        onUploadClick = { sheetTarget = "pan" },
-                        onRemoveClick = { OnboardingState.panUploaded = false },
-                    )
-                    Spacer(Modifier.height(8.dp))
-
-                    // Aadhaar Front
-                    KycUploadCard(
-                        emoji = "\uD83D\uDCC4",
-                        labelHi = "आधार कार्ड — सामने अपलोड करें",
-                        labelEn = "Upload Aadhaar Card — Front",
-                        nameHi = "आधार कार्ड — सामने",
-                        nameEn = "Aadhaar Card — Front",
-                        isUploaded = OnboardingState.aadhaarFrontUploaded,
-                        onUploadClick = { sheetTarget = "aadhaar_front" },
-                        onRemoveClick = { OnboardingState.aadhaarFrontUploaded = false },
-                    )
-                    Spacer(Modifier.height(8.dp))
-
-                    // Aadhaar Back
-                    KycUploadCard(
-                        emoji = "\uD83D\uDCC4",
-                        labelHi = "आधार कार्ड — पीछे अपलोड करें",
-                        labelEn = "Upload Aadhaar Card — Back",
-                        nameHi = "आधार कार्ड — पीछे",
-                        nameEn = "Aadhaar Card — Back",
-                        isUploaded = OnboardingState.aadhaarBackUploaded,
-                        onUploadClick = { sheetTarget = "aadhaar_back" },
-                        onRemoveClick = { OnboardingState.aadhaarBackUploaded = false },
-                    )
-                    Spacer(Modifier.height(8.dp))
-
-                    // GST Certificate
-                    KycUploadCard(
-                        emoji = "\uD83D\uDCCB",
-                        labelHi = "GST प्रमाणपत्र अपलोड करें",
-                        labelEn = "Upload GST Certificate",
-                        nameHi = "GST प्रमाणपत्र",
-                        nameEn = "GST Certificate",
-                        isUploaded = OnboardingState.gstUploaded,
-                        onUploadClick = { sheetTarget = "gst" },
-                        onRemoveClick = { OnboardingState.gstUploaded = false },
-                    )
-                }
+            WiomCard(borderColor = WiomInfo, backgroundColor = WiomInfo100) {
+                Text("💡 ${t("क्या करें?", "What to do?")}", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = WiomInfo)
+                Spacer(Modifier.height(6.dp))
+                Text(t("अगर यह आपका नंबर है, तो कृपया Wiom Partner Plus ऐप में लॉगिन करें।", "If this is your number, please login in Wiom Partner Plus app."), fontSize = 13.sp, color = WiomText, lineHeight = 20.sp)
+                Spacer(Modifier.height(6.dp))
+                Text(t("अगर आप Wiom से नया जुड़ना चाहते हैं, तो कृपया अलग KYC दस्तावेज़ का उपयोग करें।", "If you wish to get onboarded with Wiom, use different KYC details."), fontSize = 13.sp, color = WiomText, lineHeight = 20.sp)
             }
         }
         BottomBar {
-            val isScenarioDisabled = scenario == Scenario.KYC_PAN_MISMATCH ||
-                    scenario == Scenario.KYC_AADHAAR_EXPIRED ||
-                    scenario == Scenario.KYC_PAN_AADHAAR_UNLINKED
-            val allUploaded = OnboardingState.panUploaded &&
-                    OnboardingState.aadhaarFrontUploaded &&
-                    OnboardingState.aadhaarBackUploaded &&
-                    OnboardingState.gstUploaded
-            WiomButton(
-                t("अब बैंक का विवरण दें", "Next: Bank Details"),
-                onClick = onNext,
-                enabled = !isScenarioDisabled && (scenario != Scenario.NONE || allUploaded),
-            )
+            WiomButton("${t("अलग", "Enter Different")} $docType ${t("डालें", "")}", onClick = onEnterDifferent)
         }
     }
 }
 
-// ─── KYC Upload Card (reusable composable) ──────────────────────
 @Composable
-private fun KycUploadCard(
-    emoji: String,
-    labelHi: String,
-    labelEn: String,
-    nameHi: String,
-    nameEn: String,
-    isUploaded: Boolean,
-    onUploadClick: () -> Unit,
-    onRemoveClick: () -> Unit,
-) {
-    if (isUploaded) {
-        // Uploaded state
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(WiomPositive100)
-                .border(1.dp, WiomPositive300, RoundedCornerShape(12.dp))
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                // Preview placeholder
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(WiomBgSec),
-                    contentAlignment = Alignment.Center,
-                ) { Text(emoji, fontSize = 16.sp) }
-                Column {
-                    Text(
-                        "$emoji ${t(nameHi, nameEn)}",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 14.sp,
-                        color = WiomText,
-                    )
-                    Text(
-                        t("अपलोड \u2713", "Uploaded \u2713"),
-                        fontSize = 12.sp,
-                        color = WiomPositive,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                }
+private fun KycUploadRow(icon: String, label: String, isUploaded: Boolean, onUpload: () -> Unit, onReset: () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = if (isUploaded) onReset else onUpload),
+        shape = RoundedCornerShape(12.dp),
+        color = if (isUploaded) WiomPositive100 else Color.White,
+        border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp),
+    ) {
+        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("$icon $label", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomText)
+                Text(
+                    if (isUploaded) "${t("अपलोड हो गया", "Uploaded")} ✓" else t("टैप करें", "Tap to Upload"),
+                    fontSize = 12.sp, color = if (isUploaded) WiomPositive else WiomHint,
+                )
             }
-            // Remove button
-            Text(
-                t("हटाएं", "Remove"),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                color = WiomNegative,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(WiomNegative100)
-                    .clickable { onRemoveClick() }
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
-            )
-        }
-    } else {
-        // Not uploaded state
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .border(1.dp, WiomBorderInput, RoundedCornerShape(12.dp))
-                .clickable { onUploadClick() }
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text("\uD83D\uDCE4", fontSize = 24.sp)
-            Spacer(Modifier.height(4.dp))
-            Text(
-                "$emoji ${t(labelHi, labelEn)}",
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp,
-            )
-            Text(
-                t("टैप करें", "Tap to upload"),
-                fontSize = 12.sp,
-                color = WiomHint,
-            )
+            OutlinedButton(
+                onClick = if (isUploaded) onReset else onUpload,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+            ) {
+                Text(if (isUploaded) t("बदलें", "Update") else t("अपलोड", "Upload"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
         }
     }
+    Spacer(Modifier.height(8.dp))
 }
 
-// Screen 5: Registration Fee ₹2,000
+// Screen 4: Registration Fee ₹2,000
 @Composable
 fun RegFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit, onBack: () -> Unit) {
     val scenario = OnboardingState.activeScenario
