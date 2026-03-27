@@ -90,6 +90,10 @@ val scenarioMeta = mapOf(
     Scenario.ONBOARDFEE_TIMEOUT to ScenarioMeta(12, "₹20K भुगतान Timeout", "₹20K Payment Timeout", "\u23F3", "payment"),
     Scenario.ACCOUNT_SETUP_FAILED to ScenarioMeta(13, "खाता सेटअप फेल", "Account Setup Failed", "\u274C", "activation"),
     Scenario.ACCOUNT_SETUP_PENDING to ScenarioMeta(13, "खाता सेटअप लंबित", "Account Setup Pending", "\u23F3", "activation"),
+    Scenario.NO_INTERNET to ScenarioMeta(-1, "इंटरनेट नहीं", "No Internet", "\uD83D\uDCF5", "global"),
+    Scenario.SERVER_ERROR to ScenarioMeta(-1, "सर्वर एरर", "Server Error", "\u26A0\uFE0F", "global"),
+    Scenario.REFUND_IN_PROGRESS_VR to ScenarioMeta(9, "रिफंड प्रक्रिया (VR)", "Refund In Progress (VR)", "\u23F3", "verification"),
+    Scenario.POLICY_QUIZ_FAIL to ScenarioMeta(10, "पॉलिसी क्विज़ फेल", "Policy Quiz Fail", "\uD83D\uDCDD", "policy"),
 )
 
 object OnboardingState {
@@ -123,6 +127,7 @@ object OnboardingState {
     var personalEmail by mutableStateOf("")
     var entityType by mutableStateOf("")
     var tradeName by mutableStateOf("")
+    var selectedState by mutableStateOf("")
     var city by mutableStateOf("")
     var pincode by mutableStateOf("")
     var address by mutableStateOf("")

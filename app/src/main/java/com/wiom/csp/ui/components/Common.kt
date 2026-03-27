@@ -23,7 +23,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -195,6 +197,8 @@ fun WiomTextField(
     readOnly: Boolean = false,
     isError: Boolean = false,
     errorMessage: String? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    onFocusChanged: ((Boolean) -> Unit)? = null,
 ) {
     Column {
         OutlinedTextField(
@@ -202,8 +206,10 @@ fun WiomTextField(
             onValueChange = onValueChange,
             modifier = modifier
                 .fillMaxWidth()
-                .padding(bottom = if (errorMessage != null) 4.dp else 12.dp),
+                .padding(bottom = if (errorMessage != null) 4.dp else 12.dp)
+                .then(if (onFocusChanged != null) Modifier.onFocusChanged { onFocusChanged(it.isFocused) } else Modifier),
             readOnly = readOnly,
+            visualTransformation = visualTransformation,
             placeholder = { Text(placeholder, color = WiomHint) },
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -272,7 +278,24 @@ fun InfoBox(
 
 enum class InfoBoxType { INFO, SUCCESS, WARNING }
 
-// Upload row
+// Upload row — overload matching screen call sites: (icon, label, isUploaded, onUpload)
+@Composable
+fun UploadRow(
+    icon: String,
+    label: String,
+    isUploaded: Boolean,
+    onUpload: () -> Unit,
+) {
+    UploadRow(
+        icon = icon,
+        name = label,
+        statusText = if (isUploaded) "${t("अपलोड हो गया", "Uploaded")} ✓" else t("टैप करें", "Tap to Upload"),
+        isVerified = isUploaded,
+        onClick = onUpload,
+    )
+}
+
+// Upload row — base implementation
 @Composable
 fun UploadRow(
     icon: String,
@@ -343,6 +366,7 @@ fun ChecklistItem(
     subtitle: String? = null,
     isDone: Boolean = true,
     isWaiting: Boolean = false,
+    isLast: Boolean = false,
 ) {
     Row(
         modifier = Modifier
