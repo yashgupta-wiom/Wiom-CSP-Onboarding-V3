@@ -1492,7 +1492,10 @@ const screens = [
   {phase:'Stage 3',title:'CSP खाता सेटअप',
    solves:['Financial backend setup'],
    types:[{label:'System Auto',cls:'sys-gen',icon:'🤖'}],
-   render:()=>`
+   render:()=>{
+    if(window._accountSetupTimer) clearTimeout(window._accountSetupTimer);
+    window._accountSetupTimer=setTimeout(()=>{if(currentScreen===13){next();}},3000);
+    return `
     <div class="sbar"><span>9:41</span><span>100%</span></div>
     <div class="hdr"><span class="htitle">${t('एक्टिवेशन','Activation')}</span><span class="hright">${t('स्टेप 4/5','Step 4/5')}</span></div>
     <div class="scontent"><div class="pad" style="text-align:center;padding-top:80px;">
@@ -1501,8 +1504,7 @@ const screens = [
       <div style="font-size:14px;color:var(--text-sec);line-height:20px;">${t('कुमार इलेक्ट्रॉनिक्स','Kumar Electronics')} ${t('के लिए खाता तैयार किया जा रहा है','')}</div>
       <div class="spinner" style="margin:24px auto;border-top-color:var(--pri);"></div>
     </div></div>
-    <div class="bbar"><button class="cta" onclick="next()">${t('आगे बढ़ें','Proceed')}</button></div>
-    </div>`},
+    </div>`;}},
 
   // 14: Successfully Onboarded (was 16: Go Live!)
   {phase:'Stage 3',title:'लाइव हो जाएं!',
