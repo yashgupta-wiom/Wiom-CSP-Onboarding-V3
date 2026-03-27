@@ -145,6 +145,7 @@ let currentScreen = 0;
 let activeScenario = null;
 
 const screens = [
+  { num: -1, hi: 'पिच', en: 'Pitch' },
   { num: 0, hi: 'मोबाइल नंबर', en: 'Phone' },
   { num: 1, hi: 'OTP सत्यापन', en: 'OTP' },
   { num: 2, hi: 'व्यक्तिगत जानकारी', en: 'Personal' },
@@ -163,11 +164,23 @@ const screens = [
 ];
 
 const scenarios = [
+  // Global
+  { name: 'NO_INTERNET', icon: '📡', label: 'No Internet', category: 'global', screen: 0 },
+  { name: 'SERVER_ERROR', icon: '🖥️', label: 'Server Error', category: 'global', screen: 0 },
+  // Registration & OTP
   { name: 'PHONE_DUPLICATE', icon: '📱', label: 'Phone Already Registered', category: 'registration', screen: 0 },
   { name: 'OTP_WRONG', icon: '❌', label: 'Wrong OTP', category: 'registration', screen: 1 },
   { name: 'OTP_EXPIRED', icon: '⏰', label: 'OTP Expired', category: 'registration', screen: 1 },
   { name: 'REGFEE_FAILED', icon: '💳', label: '₹2K Payment Failed', category: 'regfee', screen: 4 },
   { name: 'REGFEE_TIMEOUT', icon: '⏳', label: '₹2K Payment Timeout', category: 'regfee', screen: 4 },
+  { name: 'KYC_DAY1_REMINDER', icon: '🔔', label: 'Day 1 — 2 days left', category: 'regfee', screen: 5 },
+  { name: 'KYC_DAY2_REMINDER', icon: '⚠️', label: 'Day 2 — 1 day left', category: 'regfee', screen: 5 },
+  { name: 'KYC_DAY3_REMINDER', icon: '🚨', label: 'Day 3 — Last day', category: 'regfee', screen: 5 },
+  { name: 'KYC_DAY4_AUTOREJECT', icon: '❌', label: 'Day 4 — Auto Reject', category: 'regfee', screen: 5 },
+  { name: 'REFUND_SUCCESS', icon: '✅', label: 'Refund Success', category: 'regfee', screen: 5 },
+  { name: 'REFUND_IN_PROGRESS', icon: '⏳', label: 'Refund In Progress', category: 'regfee', screen: 5 },
+  { name: 'REFUND_FAILED', icon: '❌', label: 'Refund Failed', category: 'regfee', screen: 5 },
+  // KYC
   { name: 'KYC_PAN_DEDUP', icon: '🔍', label: 'PAN Dedup', category: 'kyc', screen: 5 },
   { name: 'KYC_AADHAAR_DEDUP', icon: '🔍', label: 'Aadhaar Dedup', category: 'kyc', screen: 5 },
   { name: 'KYC_GST_DEDUP', icon: '🔍', label: 'GST Dedup', category: 'kyc', screen: 5 },
@@ -176,6 +189,8 @@ const scenarios = [
   { name: 'BANK_DEDUP', icon: '🔍', label: 'Bank Account Dedup', category: 'bank', screen: 6 },
   { name: 'VERIFICATION_PENDING', icon: '⏳', label: 'Verification Pending', category: 'verification', screen: 9 },
   { name: 'VERIFICATION_REJECTED', icon: '❌', label: 'Verification Rejected', category: 'verification', screen: 9 },
+  { name: 'REFUND_IN_PROGRESS_VR', icon: '💸', label: 'Refund In Progress (VR)', category: 'verification', screen: 9 },
+  { name: 'POLICY_SLA', icon: '📋', label: 'Policy & SLA', category: 'verification', screen: 10 },
   { name: 'TECH_ASSESSMENT_REJECTED', icon: '🔧', label: 'Tech Assessment Rejected', category: 'verification', screen: 11 },
   { name: 'ONBOARDFEE_SUCCESS', icon: '✅', label: '₹20K Payment Success', category: 'onboardfee', screen: 12 },
   { name: 'ONBOARDFEE_FAILED', icon: '💸', label: '₹20K Payment Failed', category: 'onboardfee', screen: 12 },
@@ -185,6 +200,7 @@ const scenarios = [
 ];
 
 const categoryNames = {
+  global: 'Global',
   registration: 'Registration & OTP',
   regfee: 'Reg Fee',
   kyc: 'KYC',

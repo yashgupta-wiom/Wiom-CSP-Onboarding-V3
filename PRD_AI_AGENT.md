@@ -1,6 +1,6 @@
 # Wiom CSP Onboarding App — Product Requirements Document (AI-Agent Format)
 
-> **Version:** 4.0
+> **Version:** 3.1
 > **Date:** 2026-03-26
 > **Status:** Prototype (hardcoded data, no backend)
 > **Package:** `com.wiom.csp`

@@ -249,35 +249,6 @@ fun OnboardingFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit) {
             )
 
             when {
-                showSuccess -> {
-                    // ─── Payment Success ───
-                    Column(
-                        modifier = Modifier.weight(1f).padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Text("\uD83C\uDF89", fontSize = 64.sp)
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            t("भुगतान सफल!", "Payment Successful!"),
-                            fontSize = 24.sp, fontWeight = FontWeight.Bold, color = WiomPositive,
-                        )
-                        Text("₹20,000", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = WiomText)
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            t("ऑनबोर्डिंग शुल्क प्राप्त हुआ", "Onboarding Fee received"),
-                            fontSize = 14.sp, color = WiomTextSec,
-                        )
-                        Spacer(Modifier.height(32.dp))
-                        Text(
-                            t("अगले चरण पर ले जा रहे हैं...", "Moving to next step..."),
-                            fontSize = 13.sp, color = WiomTextSec,
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        CircularProgressIndicator(color = WiomPositive, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-                    }
-                }
-
                 scenario == Scenario.ONBOARDFEE_FAILED -> {
                     // ─── Payment Failed ───
                     Column(
@@ -396,6 +367,11 @@ fun OnboardingFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit) {
                 }
             }
         }
+
+        // Payment success overlay (shown on top of the normal content)
+        if (showSuccess) {
+            PaymentSuccessOverlay("₹20,000")
+        }
     }
 }
 
@@ -434,7 +410,7 @@ fun AccountSetupScreen(viewModel: AccountSetupViewModel, onNext: () -> Unit) {
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "${state.businessName} ${t("के लिए खाता तैयार किया जा रहा है", "")}",
+                        "${t("${state.businessName} के लिए खाता तैयार किया जा रहा है", "Setting up account for ${state.businessName}")}",
                         fontSize = 14.sp, color = WiomTextSec,
                     )
                     Spacer(Modifier.height(24.dp))

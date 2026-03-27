@@ -615,7 +615,15 @@ fun LocationScreen(viewModel: LocationViewModel, onNext: () -> Unit, onBack: () 
 
         }
         BottomBar {
-            WiomButton(t("पंजीकरण शुल्क भरें", "Pay Registration Fee"), onClick = onNext)
+            val locationValid = OnboardingState.selectedState.isNotBlank() &&
+                    OnboardingState.city.isNotBlank() &&
+                    OnboardingState.pincode.length == 6 &&
+                    OnboardingState.address.isNotBlank()
+            WiomButton(
+                t("पंजीकरण शुल्क भरें", "Pay Registration Fee"),
+                onClick = onNext,
+                enabled = locationValid,
+            )
         }
     }
 }

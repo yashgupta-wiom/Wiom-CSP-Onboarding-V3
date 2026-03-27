@@ -152,6 +152,9 @@ const screens = [
 ];
 
 const scenarios = [
+  // Global
+  { name: 'NO_INTERNET', icon: '📡', label: 'No Internet', category: 'global', screen: 0 },
+  { name: 'SERVER_ERROR', icon: '🖥️', label: 'Server Error', category: 'global', screen: 0 },
   // Registration & OTP
   { name: 'PHONE_DUPLICATE', icon: '📱', label: 'Phone Already Registered', category: 'registration', screen: 0 },
   { name: 'OTP_WRONG', icon: '❌', label: 'Wrong OTP', category: 'registration', screen: 1 },
@@ -177,6 +180,7 @@ const scenarios = [
   // Verification
   { name: 'VERIFICATION_PENDING', icon: '⏳', label: 'Verification Pending', category: 'verification', screen: 9 },
   { name: 'VERIFICATION_REJECTED', icon: '❌', label: 'Verification Rejected', category: 'verification', screen: 9 },
+  { name: 'REFUND_IN_PROGRESS_VR', icon: '💸', label: 'Refund In Progress (VR)', category: 'verification', screen: 9 },
   { name: 'POLICY_SLA', icon: '📋', label: 'Policy & SLA', category: 'verification', screen: 10 },
   { name: 'TECH_ASSESSMENT_REJECTED', icon: '🔧', label: 'Tech Assessment Rejected', category: 'verification', screen: 11 },
   // Onboarding Fee
@@ -188,7 +192,7 @@ const scenarios = [
   { name: 'ACCOUNT_SETUP_PENDING', icon: '⏳', label: 'Account Setup Pending', category: 'accountsetup', screen: 13 },
 ];
 
-const categoryNames = { registration: 'Registration & OTP', regfee: 'Reg Fee', kyc: 'KYC', bank: 'Bank & Dedup', verification: 'Agreement & Tech', onboardfee: 'Onboarding Fee', accountsetup: 'Account Setup' };
+const categoryNames = { global: 'Global', registration: 'Registration & OTP', regfee: 'Reg Fee', kyc: 'KYC', bank: 'Bank & Dedup', verification: 'Agreement & Tech', onboardfee: 'Onboarding Fee', accountsetup: 'Account Setup' };
 
 function buildScreenGrid() {
   const grid = document.getElementById('screenGrid');

@@ -35,10 +35,11 @@ class LocationViewModel @Inject constructor(
     val uiState: StateFlow<LocationUiState> = _uiState.asStateFlow()
 
     fun onCityChanged(value: String) {
+        val filtered = value.filter { !it.isDigit() }
         _uiState.update {
             it.copy(
-                city = value,
-                cityError = if (value.isBlank()) t("शहर डालें", "Enter city") else null
+                city = filtered,
+                cityError = if (filtered.isBlank()) t("शहर डालें", "Enter city") else null
             ).withFormValidity()
         }
     }

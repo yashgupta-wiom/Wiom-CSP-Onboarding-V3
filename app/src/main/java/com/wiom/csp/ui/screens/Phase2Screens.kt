@@ -100,10 +100,49 @@ fun BankDetailsScreen(viewModel: BankViewModel, onNext: () -> Unit, onBack: () -
             }
 
             else -> {
-                // Default entry form
+                // Default entry form (also handles supporting doc upload when supportDocType is set)
                 Column(
                     modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp)
                 ) {
+                    // Supporting document upload UI (shown after penny-drop fail or name mismatch)
+                    if (state.supportDocType != null) {
+                        Text(
+                            "\uD83D\uDCC4 ${t("बैंक सहायक दस्तावेज़ अपलोड करें", "Upload Bank Supporting Document")}",
+                            fontSize = 18.sp, fontWeight = FontWeight.Bold, color = WiomText,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            t(
+                                "कृपया बैंक पासबुक, चेक बुक, या बैंक स्टेटमेंट अपलोड करें",
+                                "Please upload bank passbook, cheque book, or bank statement"
+                            ),
+                            fontSize = 13.sp, color = WiomTextSec, lineHeight = 18.sp,
+                        )
+                        Spacer(Modifier.height(14.dp))
+                        UploadRow(
+                            icon = "\uD83C\uDFE6",
+                            label = t("बैंक दस्तावेज़", "Bank Document"),
+                            isUploaded = state.supportDocUploaded,
+                            onUpload = { viewModel.onSupportDocUploaded() },
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        if (state.supportDocUploaded) {
+                            InfoBox(
+                                "✓",
+                                t("दस्तावेज़ अपलोड हो गया। आप आगे बढ़ सकते हैं।", "Document uploaded. You can proceed."),
+                                type = InfoBoxType.SUCCESS,
+                            )
+                        } else {
+                            InfoBox(
+                                "ℹ️",
+                                t(
+                                    "दस्तावेज़ में बैंक खाता संख्या और नाम दिखना चाहिए",
+                                    "Document should show bank account number and name"
+                                ),
+                            )
+                        }
+                    } else {
+
                     Text("\uD83C\uDFE6 ${t("बैंक विवरण", "Bank Details")}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = WiomText)
                     Spacer(Modifier.height(4.dp))
                     Text(t("अपने बैंक खाते की जानकारी दर्ज करें", "Enter your bank account details"), fontSize = 13.sp, color = WiomTextSec, lineHeight = 18.sp)
@@ -154,13 +193,23 @@ fun BankDetailsScreen(viewModel: BankViewModel, onNext: () -> Unit, onBack: () -
                         errorMessage = state.ifscError,
                         onFocusChanged = { if (!it) viewModel.onIfscBlurred() },
                     )
+                    } // end else (normal form vs support doc upload)
                 }
                 BottomBar {
-                    WiomButton(
-                        t("बैंक विवरण सत्यापित करें", "Verify Bank Details"),
-                        onClick = { viewModel.verifyBankDetails(onNext) },
-                        enabled = state.isFormValid,
-                    )
+                    if (state.supportDocType != null) {
+                        // Support doc flow: proceed when uploaded
+                        WiomButton(
+                            t("आगे बढ़ें", "Proceed"),
+                            onClick = onNext,
+                            enabled = state.supportDocUploaded,
+                        )
+                    } else {
+                        WiomButton(
+                            t("बैंक विवरण सत्यापित करें", "Verify Bank Details"),
+                            onClick = { viewModel.verifyBankDetails(onNext) },
+                            enabled = state.isFormValid,
+                        )
+                    }
                 }
             }
         }

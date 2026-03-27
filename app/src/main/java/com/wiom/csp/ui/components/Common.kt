@@ -25,6 +25,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -34,6 +36,9 @@ import kotlinx.coroutines.delay
 import com.wiom.csp.data.OnboardingState
 import com.wiom.csp.data.Scenario
 import com.wiom.csp.data.scenarioMeta
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 import com.wiom.csp.ui.theme.*
 import com.wiom.csp.util.t
 
@@ -61,6 +66,7 @@ fun AppHeader(
     onBack: (() -> Unit)? = null,
     rightText: String? = null
 ) {
+    val context = LocalContext.current
     Column(modifier = Modifier.fillMaxWidth().background(WiomHeader)) {
         Spacer(Modifier.windowInsetsPadding(WindowInsets.statusBars))
     }
@@ -93,6 +99,19 @@ fun AppHeader(
         if (rightText != null) {
             Text(rightText, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = WiomSurface.copy(alpha = 0.5f))
         }
+        // Help button
+        Spacer(Modifier.width(4.dp))
+        Text(
+            "📞",
+            fontSize = 14.sp,
+            modifier = Modifier
+                .clip(RoundedCornerShape(888.dp))
+                .clickable {
+                    val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:7836811111"))
+                    context.startActivity(intent)
+                }
+                .padding(horizontal = 6.dp, vertical = 4.dp),
+        )
         // Language toggle button
         Spacer(Modifier.width(8.dp))
         Text(
@@ -200,6 +219,7 @@ fun WiomTextField(
     errorMessage: String? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onFocusChanged: ((Boolean) -> Unit)? = null,
+    keyboardType: KeyboardType = KeyboardType.Text,
 ) {
     Column {
         OutlinedTextField(
@@ -238,6 +258,7 @@ fun WiomTextField(
             trailingIcon = if (isVerified) {
                 { Icon(Icons.Default.Check, "Verified", tint = WiomPositive) }
             } else null,
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             singleLine = true,
         )
         if (errorMessage != null) {
@@ -297,6 +318,8 @@ fun UploadRow(
 }
 
 // Upload row — base implementation
+// Note: In production, onUpload should trigger a bottom sheet with Camera/Gallery options.
+// For prototype, a single tap simulates the upload action.
 @Composable
 fun UploadRow(
     icon: String,

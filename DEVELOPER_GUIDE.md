@@ -223,21 +223,21 @@ Reference: `PRD_HUMAN.md` Section 6 for full details including exact Hindi/Engli
 
 | State | Description |
 |-------|-------------|
-| **Empty** | Phone field empty. CTA disabled. Character counter shows "0/10 digits." |
-| **Happy Path** | User enters 10 digits. CTA enables. Tap sends OTP, navigates to Screen 1. |
+| **Empty** | Phone field empty. T&C checkbox present and pre-checked. CTA disabled. Character counter shows "0/10 digits." |
+| **Happy Path** | User enters 10 digits. T&C remains checked. CTA enables. Tap sends OTP, navigates to Screen 1. |
 | **Error: PHONE_DUPLICATE** | Error card appears: "This number is already registered." Two CTAs: new number or login. |
 | **Validation** | Not blank, exactly 10 digits, digits only. Non-digit characters are stripped. |
 
-### Screen 1: OTP + T&C Acceptance
+### Screen 1: OTP Verification
 
 | State | Description |
 |-------|-------------|
-| **Empty** | T&C unchecked. 4 OTP boxes empty. CTA disabled. Timer counting down from 30s. |
-| **Happy Path** | T&C checked + all 4 OTP digits filled. CTA enables. Tap verifies, navigates to Screen 2. |
+| **Empty** | 4 OTP boxes empty. CTA disabled. Timer counting down from 28s. |
+| **Happy Path** | All 4 OTP digits filled. CTA enables. Tap verifies, navigates to Screen 2. |
 | **Error: OTP_WRONG** | OTP boxes turn red. "Wrong OTP — X attempts remaining." Retryable up to 3 attempts. |
 | **Error: OTP_EXPIRED** | OTP boxes fade to 50% opacity. "OTP has expired." Options: Resend OTP or Change Number. |
-| **Loading** | Timer countdown (30s). After resend, timer restarts. |
-| **Validation** | T&C must be checked. All 4 OTP digits must be filled. Both required for CTA. |
+| **Loading** | Timer countdown (28s). After resend, timer restarts. |
+| **Validation** | All 4 OTP digits must be filled for CTA to enable. |
 
 ### Screen 2: Personal & Business Info
 
@@ -252,9 +252,9 @@ Reference: `PRD_HUMAN.md` Section 6 for full details including exact Hindi/Engli
 
 | State | Description |
 |-------|-------------|
-| **Empty** | State pre-filled (Madhya Pradesh). City, Pincode, Address empty. CTA still enabled (fields optional). |
+| **Empty** | State pre-filled (Madhya Pradesh). City, Pincode, Address empty. CTA disabled until all fields filled (state, city, pincode, address required). |
 | **Happy Path** | Fields filled. GPS badge shows coordinates. CTA navigates to Screen 4. |
-| **Error: AREA_NOT_SERVICEABLE** | Orange warning card: "This area is not serviceable yet." Waitlist CTA. Blocked. |
+| **Error** | None — this screen has no error scenarios in current version. |
 | **Validation** | Pincode: if entered, must be exactly 6 digits. |
 
 ### Screen 4: Registration Fee (Rs 2,000)
@@ -295,7 +295,7 @@ Reference: `PRD_HUMAN.md` Section 6 for full details including exact Hindi/Engli
 |-------|-------------|
 | **Empty** | Upload placeholder shown. CTA disabled. |
 | **Happy Path** | Document uploaded (green border, "DOT Ready" badge). CTA enables. Navigates to Screen 8. |
-| **Error: ISP_DOC_INVALID** | Document card turns red with "Document Invalid" badge. Retryable. |
+| **Error** | None — this screen has no error scenarios in current version. |
 | **Loading** | Upload progress bar (same pattern as KYC). |
 | **Validation** | ISP Agreement document must be uploaded. |
 
