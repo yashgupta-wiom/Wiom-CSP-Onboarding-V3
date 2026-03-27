@@ -430,6 +430,7 @@ const scenarios = {
   'refund-in-progress-vr': {screen:9, label:'Refund In Progress (VR)', icon:'⏳', cat:'documentation'},
   'policy-sla': {screen:10, label:'Policy & SLA', icon:'📋', cat:'documentation'},
   // Onboarding & Training
+  'onboardfee-success': {screen:12, label:'₹20K Payment Success', icon:'✅', cat:'onboardfee'},
   'onboardfee-failed': {screen:12, label:'₹20K Payment Failed', icon:'💸', cat:'onboardfee'},
   'onboardfee-timeout': {screen:12, label:'₹20K Payment Timeout', icon:'⏳', cat:'onboardfee'},
   'training-quiz-fail': {screen:14, label:'Quiz Failed', icon:'📝', cat:'training'},
@@ -876,6 +877,18 @@ const errorScreens = {
       <button class="cta" onclick="clearScenario()">${t('मॉड्यूल दोबारा देखें','Review Modules')}</button>
       <button class="cta sec" style="margin-top:8px;" onclick="clearScenario()">${t('फिर से प्रश्नोत्तरी दें','Retake Quiz')}</button>
     </div>
+    </div>`,
+
+  'onboardfee-success': ()=>`
+    <div class="sbar"><span>9:41</span><span>100%</span></div>
+    <div class="hdr"><span class="htitle">${t('भुगतान स्टेटस','Payment Status')}</span></div>
+    <div class="scontent"><div class="pad" style="text-align:center;">
+      <div style="font-size:64px;margin:40px 0 16px;">🎉</div>
+      <div style="font-size:24px;font-weight:700;color:var(--positive);line-height:32px;">${t('भुगतान सफल!','Payment Successful!')}</div>
+      <div style="font-size:16px;color:var(--text);margin:8px 0 4px;font-weight:600;">₹20,000</div>
+      <div style="font-size:14px;color:var(--text-sec);margin-bottom:32px;line-height:20px;">${t('ऑनबोर्डिंग शुल्क प्राप्त हुआ','Onboarding Fee received')}</div>
+    </div>
+    <div class="bbar"><button class="cta" onclick="clearScenario();next();">${t('आगे बढ़ें','Proceed')}</button></div>
     </div>`,
 
   'onboardfee-failed': ()=>`
