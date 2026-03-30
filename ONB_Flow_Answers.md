@@ -3,7 +3,7 @@
 **Version:** V0 (Phase 1)
 **Date:** 2026-03-30
 **Author:** Yash Gupta
-**Source PRD:** Wiom CSP Onboarding App — Complete PRD V3.1
+**Source PRD:** Wiom CSP Onboarding App — Complete PRD V3.2
 
 ---
 
@@ -35,9 +35,7 @@
 │  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐            │
 │  │ PAN          │──►│ Aadhaar      │──►│ GST          │            │
 │  │ Number+Photo │   │ Number+Front │   │ Number+Photo │            │
-│  │ ▲ DEDUP      │   │ +Back        │   │ ▲ PAN MATCH  │            │
-│  │  [automated] │   │ ▲ DEDUP      │   │ ▲ DEDUP      │            │
-│  └──────────────┘   │  [automated] │   │  [automated] │            │
+│  └──────────────┘   │ +Back        │   │ ▲ PAN MATCH  │            │
 │                     └──────────────┘   └──────┬───────┘            │
 │                                               │                     │
 │                               │                                     │
@@ -45,10 +43,9 @@
 │  Screen 6                Screen 7               Screen 8            │
 │  Bank Details ─────────► ISP Agreement ────────► Shop & Equipment   │
 │  (Acct, IFSC)            (PDF/7 photos)          Photos (1 shop +  │
-│  ▲ PENNY DROP            No checks               up to 5 equipment)│
-│  ▲ NAME MATCH                                    No checks          │
-│  ▲ BANK DEDUP                                                       │
-│    [all automated]                                                  │
+│  + mandatory bank doc    No checks               up to 5 equipment)│
+│  ▲ BANK DEDUP                                    No checks          │
+│    [automated]                                                      │
 │                                                                     │
 │  Screen 9: Verification Status                                      │
 │  ┌──────────────────────────────────────────────────────┐           │
@@ -67,18 +64,18 @@
 ┌─────────────────────────────────────────────────────────────────────┐
 │                     PHASE 3: ACTIVATION                             │
 │                                                                     │
-│  Screen 10                Screen 11                                 │
-│  Policy & SLA ──────────► Tech Assessment                           │
-│  (Commission: Rs.300,     ┌──────────────────────────────────┐      │
-│   Payout: Mon 10AM,       │  ★ MANUAL GATE 2: TECH REVIEW ★ │      │
-│   SLA: 4hr/95%+)          │  Network Quality team            │      │
-│  Self-serve acceptance     │  TAT: 4–5 business days          │      │
-│                            │                                  │      │
-│                            │  PASSED ──► proceed              │      │
-│                            │  REJECTED ──► no refund,         │      │
-│                            │    "Talk to Us" (7836811111)     │      │
-│                            │    Flow ends.                    │      │
-│                            └───────────────┬──────────────────┘      │
+│  Screen 10                 Screen 11                                │
+│  Tech Assessment ────────► Policy & SLA                              │
+│  ┌──────────────────────────────────┐   (Commission: Rs.300,        │
+│  │  ★ MANUAL GATE 2: TECH REVIEW ★ │    Payout: Mon 10AM,          │
+│  │  Network Quality team            │    SLA: 4hr/95%+)             │
+│  │  TAT: 4–5 business days          │   Self-serve acceptance       │
+│  │                                  │                                │
+│  │  PASSED ──► proceed to Policy    │                                │
+│  │  REJECTED ──► no refund,         │                                │
+│  │    "Talk to Us" (7836811111)     │                                │
+│  │    Flow ends.                    │                                │
+│  └───────────────┬──────────────────┘                                │
 │                                            │                        │
 │  Screen 12                  Screen 13            Screen 14          │
 │  Onboarding Fee ──────────► Account Setup ──────► Success!          │
@@ -116,18 +113,18 @@
 |---|-------|---------|-------------|
 | 1 | **Registration** | 0–4 | Phone verification, personal/business info, location, registration fee (Rs.2,000) |
 | 2 | **Verification** | 5–9 | KYC document submission (PAN → Aadhaar → GST), bank details, ISP agreement, shop/equipment photos, QA review |
-| 3 | **Activation** | 10–14 | Policy & SLA acceptance, technical assessment, onboarding fee (Rs.20,000), account setup, success screen |
+| 3 | **Activation** | 10–14 | Technical assessment, Policy & SLA acceptance, onboarding fee (Rs.20,000), account setup, success screen |
 | 4 | **Post-Onboarding** | Partner Plus App | Download app → login → complete training → complete quiz → CSP_ONBOARDED |
 
 **State machine progression:**
 
 ```
 PHONE_ENTERED → OTP_VERIFIED → PROFILE_SUBMITTED → LOCATION_SUBMITTED
-→ REG_FEE_PAID → KYC_SUBMITTED → BANK_VERIFIED → ISP_AGREEMENT_UPLOADED
+→ REG_FEE_PAID → KYC_SUBMITTED → BANK_DOC_UPLOADED → ISP_AGREEMENT_UPLOADED
 → PHOTOS_UPLOADED → VERIFICATION_UNDER_REVIEW
 → VERIFICATION_APPROVED / VERIFICATION_REJECTED
-→ POLICY_ACCEPTED → TECH_ASSESSMENT_PENDING
-→ TECH_ASSESSMENT_PASSED / TECH_ASSESSMENT_REJECTED
+→ TECH_ASSESSMENT_PENDING → TECH_ASSESSMENT_PASSED / TECH_ASSESSMENT_REJECTED
+→ POLICY_ACCEPTED
 → ONBOARDING_FEE_PAID → ACCOUNT_SETUP_COMPLETE → APP_DOWNLOADED
 → TRAINING_COMPLETE → QUIZ_COMPLETE → CSP_ONBOARDED
 ```
@@ -141,23 +138,18 @@ PHONE_ENTERED → OTP_VERIFIED → PROFILE_SUBMITTED → LOCATION_SUBMITTED
 | Screen 0: Phone Entry | Phone Duplicate Check | Guard — blocks if number already exists |
 | Screen 1: OTP | OTP Verification (4-digit, max 3 attempts) | Guard — blocks on 3 failures |
 | Screen 5: KYC — PAN | PAN Format Validation (regex on blur) | Guard — blocks on invalid format |
-| Screen 5: KYC — PAN | PAN Dedup Check (on blur) | Guard — blocks if PAN already exists |
 | Screen 5: KYC — Aadhaar | Aadhaar Format Validation (12 digits, on blur) | Guard — blocks on invalid format |
-| Screen 5: KYC — Aadhaar | Aadhaar Dedup Check (on blur) | Guard — blocks if Aadhaar already exists |
 | Screen 5: KYC — GST | GST Format Validation + PAN Match (chars 3–12, on blur) | Guard — blocks on invalid/mismatch |
-| Screen 5: KYC — GST | GST Dedup Check (on blur) | Guard — blocks if GST already exists |
-| Screen 6: Bank Details | Penny Drop Verification (Rs.1 credit) | Guard — 4 outcomes (success / fail / name mismatch / dedup) |
-| Screen 6: Bank Details | Bank Name Match | Guard — compares registered name vs bank name |
-| Screen 6: Bank Details | Bank Account Dedup | Guard — blocks if account linked to another CSP |
+| Screen 6: Bank Details | Bank Account Dedup (on 'Add Bank Document' tap) | Guard — blocks if account linked to another CSP |
 | Screen 4: Reg Fee | Payment Processing (Rs.2,000) | Guard — blocks on failure/timeout |
 | Screen 9: Verification | QA Manual Review (via QA Dashboard) | Gate — approve or reject |
-| Screen 11: Tech Assessment | On-ground/phone assessment by Network Quality team | Gate — pass or reject |
+| Screen 10: Tech Assessment | On-ground/phone assessment by Network Quality team | Gate — pass or reject |
 | Screen 12: Onboarding Fee | Payment Processing (Rs.20,000) | Guard — blocks on failure/timeout |
 | Screen 13: Account Setup | RazorpayX + Zoho + Ledger account creation | Guard — blocks on setup failure |
 | Partner Plus App | Training Module Completion | Gate — must complete all modules |
 | Partner Plus App | Quiz Module Completion | Gate — must pass quiz |
 
-**Screens with NO checks (data collection / display only):** Screen 2 (Personal Info), Screen 3 (Location), Screen 7 (ISP Agreement upload), Screen 8 (Photos upload), Screen 10 (Policy & SLA), Screen 14 (Success).
+**Screens with NO checks (data collection / display only):** Screen 2 (Personal Info), Screen 3 (Location), Screen 7 (ISP Agreement upload), Screen 8 (Photos upload), Screen 11 (Policy & SLA), Screen 14 (Success).
 
 ---
 
@@ -168,10 +160,7 @@ PHONE_ENTERED → OTP_VERIFIED → PROFILE_SUBMITTED → LOCATION_SUBMITTED
 | Phone Duplicate | Automated (system event) | Instant backend lookup |
 | OTP Verification | Automated (system event) | SMS/WhatsApp delivery + match |
 | PAN/Aadhaar/GST Format Validation | Automated (client-side) | Regex validation on blur |
-| PAN/Aadhaar/GST Dedup | Automated (system event) | Backend lookup on blur |
-| Penny Drop | Automated (system event) | Rs.1 bank credit via API |
-| Bank Name Match | Automated (system event) | Name comparison; CSP can override via document upload |
-| Bank Account Dedup | Automated (system event) | Backend lookup |
+| Bank Account Dedup | Automated (system event) | Backend lookup on 'Add Bank Document' tap |
 | Registration Fee Payment | Automated (system event) | Razorpay gateway |
 | Onboarding Fee Payment | Automated (system event) | Razorpay gateway |
 | Account Setup | Automated (system event) | RazorpayX + Zoho + Ledger APIs |
@@ -181,7 +170,7 @@ PHONE_ENTERED → OTP_VERIFIED → PROFILE_SUBMITTED → LOCATION_SUBMITTED
 | **Training Completion** | **Manual** (CSP self-serve) | CSP completes modules in Partner Plus App |
 | **Quiz Completion** | **Manual** (CSP self-serve) | CSP completes quiz in Partner Plus App |
 
-**Summary: 11 automated checks, 2 ops-manual gates (QA Review + Tech Assessment), 2 CSP-manual steps (Training + Quiz).**
+**Summary: 8 automated checks, 2 ops-manual gates (QA Review + Tech Assessment), 2 CSP-manual steps (Training + Quiz).**
 
 ---
 
@@ -189,15 +178,15 @@ PHONE_ENTERED → OTP_VERIFIED → PROFILE_SUBMITTED → LOCATION_SUBMITTED
 
 | # | Document | Stage | Required | Format | Notes |
 |---|----------|-------|----------|--------|-------|
-| 1 | **PAN Card** | Screen 5, Sub-stage 1 | Mandatory | Number entry + 1 photo (camera/gallery) | Dedup check on blur |
-| 2 | **Aadhaar Card** | Screen 5, Sub-stage 2 | Mandatory | Number entry + front photo + back photo | 12 digits, formatted 4-4-4, dedup on blur |
-| 3 | **GST Certificate** | Screen 5, Sub-stage 3 | Mandatory | Number entry + 1 photo | Chars 3–12 must match PAN, dedup on blur |
-| 4 | **Bank Proof** | Screen 6 (only if penny drop fails or name mismatch) | Conditional | Bank Statement OR Cancelled Cheque OR Bank Passbook | Not required if penny drop succeeds |
+| 1 | **PAN Card** | Screen 5, Sub-stage 1 | Mandatory | Number entry + 1 photo (camera/gallery) | Format validation on blur |
+| 2 | **Aadhaar Card** | Screen 5, Sub-stage 2 | Mandatory | Number entry + front photo + back photo | 12 digits, formatted 4-4-4, format validation on blur |
+| 3 | **GST Certificate** | Screen 5, Sub-stage 3 | Mandatory | Number entry + 1 photo | Chars 3–12 must match PAN, format validation on blur |
+| 4 | **Bank Proof** | Screen 6 | Mandatory | Bank Statement OR Cancelled Cheque OR Bank Passbook | Required for all CSPs |
 | 5 | **ISP Agreement** | Screen 7 | Mandatory | PDF or up to 7 photos (camera/gallery) | Must show: ISP name, partner name, date, validity, license #, signatories, stamp & signature |
 | 6 | **Shop Front Photo** | Screen 8 | Mandatory | 1 image | — |
 | 7 | **Equipment Photos** | Screen 8 | Mandatory | Up to 5 images | Must include: Power Backup, OLT, ISP Switch |
 
-**Total: 6 mandatory document types + 1 conditional (bank proof).**
+**Total: 7 mandatory document types.**
 
 ---
 
@@ -211,7 +200,7 @@ AUTOMATED ZONE (Registration)
   All system-driven. No human approval needed.
          │
 AUTOMATED ZONE (Document Collection)
-  KYC dedup checks → Penny drop → Bank dedup
+  Bank dedup check
   All system-driven. CSP is blocked or proceeds automatically.
          │
   ★ MANUAL GATE 1: QA REVIEW (Screen 9) ★
@@ -223,16 +212,16 @@ AUTOMATED ZONE (Document Collection)
   │  Rejection requires mandatory reason selection
   │  TAT: Up to 3 business days
          │
-SELF-SERVE (Policy Acceptance)
-  CSP reads and accepts Policy & SLA. No approval needed.
-         │
-  ★ MANUAL GATE 2: TECH ASSESSMENT (Screen 11) ★
+  ★ MANUAL GATE 2: TECH ASSESSMENT (Screen 10) ★
   │  Who: Network Quality team
   │  Action: Assess infrastructure, network readiness, location feasibility
   │  Outcomes:
-  │    PASSED → CSP proceeds to Onboarding Fee
+  │    PASSED → CSP proceeds to Policy & SLA
   │    REJECTED → No refund, "Talk to Us" only, flow ends
   │  TAT: 4–5 business days
+         │
+SELF-SERVE (Policy Acceptance — Screen 11)
+  CSP reads and accepts Policy & SLA. No approval needed.
          │
 AUTOMATED ZONE (Activation)
   Onboarding fee payment → Account setup → Success screen
@@ -255,7 +244,7 @@ CSP SELF-SERVE (Post-Onboarding)
 | Rejection Point | Refund | Can CSP Retry? | What CSP Sees |
 |----------------|--------|---------------|---------------|
 | **QA Review Rejection** (Screen 9) | Yes — Rs.2,000 auto-refund | **No.** No re-upload in V0. Flow ends. | "Verification Rejected" → Refund status shown (In Progress → Success/Failed) |
-| **Tech Assessment Rejection** (Screen 11) | **No refund** | **No.** Flow ends. | "Profile not accepted yet" + "No refund will be done at this moment" + "Talk to Us" (7836811111) |
+| **Tech Assessment Rejection** (Screen 10) | **No refund** | **No.** Flow ends. | "Profile not accepted yet" + "No refund will be done at this moment" + "Talk to Us" (7836811111) |
 
 ### Refund states after QA Rejection:
 ```
@@ -324,8 +313,8 @@ CSP completes all Quiz modules
 
 ### Pre-conditions (all must be true before CSP_ONBOARDED):
 1. Registration fee (Rs.2,000) — paid
-2. KYC documents (PAN, Aadhaar, GST) — submitted + dedup cleared
-3. Bank details — verified (penny drop or document)
+2. KYC documents (PAN, Aadhaar, GST) — submitted
+3. Bank details — submitted + bank document uploaded
 4. ISP Agreement — uploaded
 5. Shop & Equipment photos — uploaded
 6. QA Review — approved

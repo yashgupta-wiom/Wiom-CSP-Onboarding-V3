@@ -1,7 +1,7 @@
 # Wiom CSP Onboarding App — Product Requirements Document (AI-Agent Format)
 
-> **Version:** 3.1
-> **Date:** 2026-03-26
+> **Version:** 3.2
+> **Date:** 2026-03-30
 > **Status:** Prototype (hardcoded data, no backend)
 > **Package:** `com.wiom.csp`
 > **Repos:**
@@ -42,7 +42,7 @@ actors:
 
   - id: SYSTEM
     description: Automated backend processes
-    actions: OTP generation, KYC auto-verify, penny drop, dedup check, account setup
+    actions: OTP generation, KYC auto-verify, bank dedup check, account setup
 
   - id: ADMIN
     description: Dashboard operator
@@ -70,7 +70,7 @@ phases:
   - id: PHASE_3
     name: Activation
     screens: [10, 11, 12, 13, 14]
-    description: Policy & SLA, technical assessment, onboarding fee, account setup, successfully onboarded
+    description: Technical assessment, Policy & SLA, onboarding fee, account setup, successfully onboarded
 ```
 
 ---
@@ -592,7 +592,7 @@ header: "Verification"
 title_hi: "KYC दस्तावेज़"
 title_en: "KYC Documents"
 step_label: "स्टेप 1/5 | Step 1/5"
-purpose: Capture and verify identity documents (PAN, Aadhaar, GST) with inline validation and dedup checks
+purpose: Capture and verify identity documents (PAN, Aadhaar, GST) with inline validation
 
 sub_stages:
   progress_bar: true  # visual progress bar across 3 sub-stages
@@ -616,7 +616,7 @@ sub_stages:
         label_en: "Upload PAN Card"
         required: true
     view_sample_doc: true
-    dedup_check: true  # deferred — triggers kyc-pan-dedup scenario
+    dedup_check: false  # deferred to next version
 
   - id: aadhaar
     label_hi: "आधार कार्ड"
@@ -642,7 +642,7 @@ sub_stages:
         label_en: "Upload Aadhaar Card — Back"
         required: true
     view_sample_doc: true
-    dedup_check: true  # deferred — triggers kyc-aadhaar-dedup scenario
+    dedup_check: false  # deferred to next version
 
   - id: gst
     label_hi: "GST प्रमाणपत्र"
@@ -665,7 +665,7 @@ sub_stages:
         label_en: "Upload GST Certificate"
         required: true
     view_sample_doc: true
-    dedup_check: true  # deferred — triggers kyc-gst-dedup scenario
+    dedup_check: false  # deferred to next version
 
 errors_shown_on: blur  # all validation errors appear only when field loses focus
 
@@ -713,70 +713,7 @@ cta:
   enabled_when: all_documents_uploaded_and_numbers_valid
   next_screen: 6
 
-error_scenarios:
-  - KYC_PAN_DEDUP
-  - KYC_AADHAAR_DEDUP
-  - KYC_GST_DEDUP
-```
-
-### SCREEN_5_ERROR: KYC_PAN_DEDUP
-
-```yaml
-id: KYC_PAN_DEDUP
-trigger: PAN number already registered with another partner (deferred dedup check)
-screen: 5
-
-display:
-  error_card:
-    type: error
-    icon: "🪪"
-    title_hi: "PAN पहले से रजिस्टर्ड है"
-    title_en: "PAN Already Registered"
-    message_hi: "इस PAN नंबर से पहले से एक पार्टनर रजिस्टर्ड है।"
-    message_en: "A partner is already registered with this PAN number."
-
-deferred: true  # check happens asynchronously, result shown later
-blocks_progression: true
-```
-
-### SCREEN_5_ERROR: KYC_AADHAAR_DEDUP
-
-```yaml
-id: KYC_AADHAAR_DEDUP
-trigger: Aadhaar number already registered with another partner (deferred dedup check)
-screen: 5
-
-display:
-  error_card:
-    type: error
-    icon: "📄"
-    title_hi: "आधार पहले से रजिस्टर्ड है"
-    title_en: "Aadhaar Already Registered"
-    message_hi: "इस आधार नंबर से पहले से एक पार्टनर रजिस्टर्ड है।"
-    message_en: "A partner is already registered with this Aadhaar number."
-
-deferred: true
-blocks_progression: true
-```
-
-### SCREEN_5_ERROR: KYC_GST_DEDUP
-
-```yaml
-id: KYC_GST_DEDUP
-trigger: GST number already registered with another partner (deferred dedup check)
-screen: 5
-
-display:
-  error_card:
-    type: error
-    icon: "📋"
-    title_hi: "GST पहले से रजिस्टर्ड है"
-    title_en: "GST Already Registered"
-    message_hi: "इस GST नंबर से पहले से एक पार्टनर रजिस्टर्ड है।"
-    message_en: "A partner is already registered with this GST number."
-
-deferred: true
-blocks_progression: true
+error_scenarios: []  # KYC dedup deferred to next version
 ```
 
 ### SCREEN_6: Bank Details
@@ -788,7 +725,7 @@ header: "Verification"
 title_hi: "बैंक विवरण"
 title_en: "Bank Details"
 step_label: "स्टेप 2/5 | Step 2/5"
-purpose: Verify bank account via penny drop and run dedup check
+purpose: Collect bank account details, run dedup check, and collect mandatory bank document
 
 fields:
   - id: bank_account_number
@@ -840,65 +777,15 @@ hint:
 
 verification_flow:
   cta:
-    text_hi: "Verify Bank Details"
-    text_en: "Verify Bank Details"
+    text_hi: "Add Bank Document"
+    text_en: "Add Bank Document"
     enabled_when: all_fields_filled_and_valid
+
+  on_cta_tap:
+    step_1: system runs bank dedup check
     simulation_delay_ms: 2000  # 2s spinner
 
   outcomes:
-    success:
-      display:
-        type: success_delight
-        title_hi: "बैंक वेरीफाइड!"
-        title_en: "Bank Verified!"
-      cta:
-        text_hi: "अब ISP अनुबंध अपलोड करें"
-        text_en: "Add ISP Agreement"
-        next_screen: 7
-
-    penny_drop_fail:
-      display:
-        type: bottom_sheet
-        title_hi: "₹1 credit नहीं हो पाया"
-        title_en: "Penny drop failed"
-        message_hi: "अकाउंट नंबर गलत हो सकता है या बैंक सर्वर डाउन है।"
-        message_en: "Account number may be wrong or bank server is down."
-      ctas:
-        - text_hi: "Bank Details बदलें"
-          text_en: "Change Bank Details"
-          type: primary
-          action: EDIT_BANK_FIELDS
-        - text_hi: "Bank Document अपलोड करें"
-          text_en: "Upload Bank Document"
-          type: secondary
-          action: UPLOAD_BANK_DOC
-      supporting_docs:
-        - "Bank Statement"
-        - "Cancelled Cheque"
-        - "Bank Passbook"
-
-    name_mismatch:
-      display:
-        type: bottom_sheet
-        title_hi: "Penny Drop — नाम मेल नहीं खाता"
-        title_en: "Penny Drop — Name Mismatch"
-        name_comparison:
-          bank_name: "Rajesh Kumar Sharma"
-          entered_name: "Rajesh Kumar"
-      ctas:
-        - text_hi: "Bank Details बदलें"
-          text_en: "Change Bank Details"
-          type: primary
-          action: EDIT_BANK_FIELDS
-        - text_hi: "Bank Document अपलोड करें"
-          text_en: "Upload Bank Document"
-          type: secondary
-          action: UPLOAD_BANK_DOC
-      supporting_docs:
-        - "Bank Statement"
-        - "Cancelled Cheque"
-        - "Bank Passbook"
-
     bank_dedup:
       display:
         type: bottom_sheet
@@ -911,12 +798,25 @@ verification_flow:
           text_en: "Change Bank Details"
           type: primary
           action: EDIT_BANK_FIELDS
-      # NOTE: No "Upload Bank Document" option for dedup — only change details
+      # NOTE: Only "Change Bank Details" option for dedup
+
+    dedup_clear:
+      action: navigate to Bank Document Upload Screen (mandatory)
+
+  bank_document_upload:
+    title_hi: "Bank Document अपलोड करें"
+    title_en: "Upload Bank Document"
+    required: true  # mandatory upload
+    accepted_documents:
+      - "Bank Statement"
+      - "Cancelled Cheque"
+      - "Bank Passbook"
+    view_sample_doc: true
+    on_upload_complete:
+      next_screen: 7
 
 error_scenarios:
-  - BANK_PENNYDROP_FAIL
-  - BANK_NAME_MISMATCH
-  - BANK_DEDUP
+  - BANK_DEDUP  # penny drop and name mismatch deferred to next version
 ```
 
 ### SCREEN_7: ISP Agreement
@@ -1087,16 +987,85 @@ re_upload: false  # no re-upload option in Phase 1
 blocks_progression: true
 ```
 
-### SCREEN_10: Policy & SLA
+### SCREEN_10: Technical Assessment
 
 ```yaml
 id: SCREEN_10
+phase: PHASE_3
+header: "Activation"
+title_hi: "तकनीकी मूल्यांकन"
+title_en: "Technical Assessment"
+step_label: "स्टेप 1/7 | Step 1/7"
+purpose: Network quality team verifies infrastructure readiness — BEFORE onboarding fee
+
+tat:
+  text_hi: "4-5 business days में Network Quality team कॉल करेगी"
+  text_en: "Network Quality team will call within 4-5 business days"
+
+decision_point:
+  decision_maker: NETWORK_QUALITY_TEAM
+  method: phone_call
+  outcomes:
+    - PASSED → SCREEN_11 (Policy & SLA)
+    - REJECTED → tech_assessment_rejected
+
+rejected_state:
+  display:
+    emoji: "❌"
+    title_hi: "तकनीकी मूल्यांकन पास नहीं हुआ"
+    title_en: "Technical Assessment Not Passed"
+  refund: false  # no refund on tech assessment rejection
+  contact:
+    text_hi: "हमसे बात करें"
+    text_en: "Talk to Us"
+    phone: "7836811111"
+
+cta: null  # waits for tech assessment decision
+
+error_scenarios:
+  - TECH_ASSESSMENT_REJECTED
+```
+
+### SCREEN_10_ERROR: TECH_ASSESSMENT_REJECTED
+
+```yaml
+id: TECH_ASSESSMENT_REJECTED
+trigger: Technical assessment failed due to infrastructure issues
+screen: 10
+
+display:
+  emoji: "❌"
+  title_hi: "तकनीकी मूल्यांकन पास नहीं हुआ"
+  title_en: "Technical Assessment Not Passed"
+  error_card:
+    type: error
+    icon: "🔧"
+    title_hi: "तकनीकी आवश्यकताएं पूरी नहीं"
+    title_en: "Technical Requirements Not Met"
+    message_hi: "कृपया तकनीकी आवश्यकताएं पूरी करें।"
+    message_en: "Please meet the technical requirements."
+
+refund: false  # no refund
+
+cta:
+  text_hi: "हमसे बात करें"
+  text_en: "Talk to Us"
+  action: CALL_SUPPORT
+  phone: "7836811111"
+
+blocks_progression: true
+```
+
+### SCREEN_11: Policy & SLA
+
+```yaml
+id: SCREEN_11
 phase: PHASE_3
 header_hi: "महत्वपूर्ण शर्तें"
 header_en: "Important Terms"
 title_hi: "नीतियां और रेट कार्ड"
 title_en: "Policy & Rate Card"
-step_label: "स्टेप 1/7 | Step 1/7"
+step_label: "स्टेप 2/7 | Step 2/7"
 purpose: Partner reviews and acknowledges commission structure and SLA terms
 
 display_elements:
@@ -1127,78 +1096,9 @@ display_elements:
 cta:
   text_hi: "समझ गया, आगे बढ़ें"
   text_en: "Understood, proceed"
-  next_screen: 11
+  next_screen: 12
 
 error_scenarios: []
-```
-
-### SCREEN_11: Technical Assessment
-
-```yaml
-id: SCREEN_11
-phase: PHASE_3
-header: "Activation"
-title_hi: "तकनीकी मूल्यांकन"
-title_en: "Technical Assessment"
-step_label: "स्टेप 2/7 | Step 2/7"
-purpose: Network quality team verifies infrastructure readiness — BEFORE onboarding fee
-
-tat:
-  text_hi: "4-5 business days में Network Quality team कॉल करेगी"
-  text_en: "Network Quality team will call within 4-5 business days"
-
-decision_point:
-  decision_maker: NETWORK_QUALITY_TEAM
-  method: phone_call
-  outcomes:
-    - PASSED → SCREEN_12 (Onboarding Fee)
-    - REJECTED → tech_assessment_rejected
-
-rejected_state:
-  display:
-    emoji: "❌"
-    title_hi: "तकनीकी मूल्यांकन पास नहीं हुआ"
-    title_en: "Technical Assessment Not Passed"
-  refund: false  # no refund on tech assessment rejection
-  contact:
-    text_hi: "हमसे बात करें"
-    text_en: "Talk to Us"
-    phone: "7836811111"
-
-cta: null  # waits for tech assessment decision
-
-error_scenarios:
-  - TECH_ASSESSMENT_REJECTED
-```
-
-### SCREEN_11_ERROR: TECH_ASSESSMENT_REJECTED
-
-```yaml
-id: TECH_ASSESSMENT_REJECTED
-trigger: Technical assessment failed due to infrastructure issues
-screen: 11
-
-display:
-  emoji: "❌"
-  title_hi: "तकनीकी मूल्यांकन पास नहीं हुआ"
-  title_en: "Technical Assessment Not Passed"
-  error_card:
-    type: error
-    icon: "🔧"
-    title_hi: "तकनीकी आवश्यकताएं पूरी नहीं"
-    title_en: "Technical Requirements Not Met"
-    message_hi: "कृपया तकनीकी आवश्यकताएं पूरी करें।"
-    message_en: "Please meet the technical requirements."
-
-refund: false  # no refund
-
-cta:
-  text_hi: "हमसे बात करें"
-  text_en: "Talk to Us"
-  action: CALL_SUPPORT
-  phone: "7836811111"
-
-blocks_progression: true
 ```
 
 ### SCREEN_12: Onboarding Fee
@@ -1503,35 +1403,14 @@ scenario_categories:
 
   - id: KYC
     name: "KYC Dedup"
-    scenarios:
-      - id: kyc-pan-dedup
-        screen: 5
-        description: "PAN already registered (deferred check)"
-        deferred: true
-      - id: kyc-aadhaar-dedup
-        screen: 5
-        description: "Aadhaar already registered (deferred check)"
-        deferred: true
-      - id: kyc-gst-dedup
-        screen: 5
-        description: "GST already registered (deferred check)"
-        deferred: true
+    scenarios: []  # KYC dedup scenarios deferred to next version (kyc-pan-dedup, kyc-aadhaar-dedup, kyc-gst-dedup)
 
   - id: BANK
     name: "Bank Verification"
     scenarios:
-      - id: bank-pennydrop-fail
-        screen: 6
-        description: "Penny drop verification failed"
-        deferred: true
-      - id: bank-name-mismatch
-        screen: 6
-        description: "Bank account holder name differs from KYC name"
-        deferred: true
       - id: bank-dedup
         screen: 6
         description: "Bank account already registered with another partner"
-        deferred: true
 
   - id: ONBOARD_FEE
     name: "Onboarding Fee"
@@ -1569,10 +1448,10 @@ scenario_categories:
         screen: 9
         description: "Refund in progress after verification rejection"
       - id: policy-sla
-        screen: 10
+        screen: 11
         description: "Policy & SLA acknowledgement"
       - id: tech-assessment-rejected
-        screen: 11
+        screen: 10
         description: "Technical assessment failed"
 
   - id: PAYMENT_FAILURES
@@ -1630,12 +1509,12 @@ states:
   - REGISTERED → SCREEN_2-4 (Personal → RegFee)
   - DOCUMENTED → SCREEN_5-8 (KYC → Shop Photos)
   - VERIFICATION → SCREEN_9 (Verification Status) [BRANCH POINT]
-    - → APPROVED → SCREEN_10 (Policy & SLA)
+    - → APPROVED → SCREEN_10 (Technical Assessment)
     - → REJECTED → auto refund, no re-upload (Phase 1)
-  - POLICY_DONE → SCREEN_10 (Policy & SLA)
-  - TECH_ASSESS → SCREEN_11 (Technical Assessment) [BRANCH POINT]
-    - → PASSED → SCREEN_12 (Onboarding Fee)
+  - TECH_ASSESS → SCREEN_10 (Technical Assessment) [BRANCH POINT]
+    - → PASSED → SCREEN_11 (Policy & SLA)
     - → FAILED → no refund, Talk to Us (7836811111)
+  - POLICY_DONE → SCREEN_11 (Policy & SLA)
   - PAYMENT_2 → SCREEN_12 (Onboarding Fee)
   - SETUP → SCREEN_13 (Account Setup, auto 3s)
   - ONBOARDED → SCREEN_14 (Successfully Onboarded)
@@ -1646,14 +1525,9 @@ error_states:
   OTP_EXPIRED: retryable at SCREEN_1
   REGFEE_FAILED: retryable at SCREEN_4
   REGFEE_TIMEOUT: retryable at SCREEN_4
-  KYC_PAN_DEDUP: deferred, blocks at SCREEN_5
-  KYC_AADHAAR_DEDUP: deferred, blocks at SCREEN_5
-  KYC_GST_DEDUP: deferred, blocks at SCREEN_5
-  BANK_PENNYDROP_FAIL: deferred, bottom sheet at SCREEN_6 (Change Details / Upload Doc)
-  BANK_NAME_MISMATCH: deferred, bottom sheet at SCREEN_6 (Change Details / Upload Doc)
-  BANK_DEDUP: deferred, bottom sheet at SCREEN_6 (Change Details only)
+  BANK_DEDUP: bottom sheet at SCREEN_6 (Change Details only)
   VERIFICATION_REJECTED: blocks at SCREEN_9 (auto refund, no re-upload)
-  TECH_ASSESSMENT_REJECTED: blocks at SCREEN_11 (no refund, Talk to Us)
+  TECH_ASSESSMENT_REJECTED: blocks at SCREEN_10 (no refund, Talk to Us)
   ONBOARDFEE_FAILED: retryable at SCREEN_12
   ONBOARDFEE_TIMEOUT: retryable at SCREEN_12
   ACCOUNT_SETUP_FAILED: retryable at SCREEN_13
@@ -1744,7 +1618,7 @@ bank_ifsc: "SBIN0001234"
 ```yaml
 TC_HP_001:
   name: "Complete onboarding end-to-end"
-  steps: Pitch → Screen 0 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 (approved) → 10 → 11 (pass) → 12 → 13 → 14
+  steps: Pitch → Screen 0 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 (approved) → 10 (tech assessment, pass) → 11 (policy) → 12 → 13 → 14
   expected: Partner reaches Successfully Onboarded screen (Screen 14)
 
 TC_HP_002:
@@ -1768,9 +1642,9 @@ TC_HP_005:
   expected: All 3 sub-stages completed with progress bar, documents in green verified state
 
 TC_HP_006:
-  name: "Bank verification with penny drop"
-  steps: Enter account number → re-enter to confirm → enter IFSC → tap Verify → wait 2s
-  expected: Success delight shown, "Add ISP Agreement" CTA appears
+  name: "Bank details + mandatory document upload"
+  steps: Enter account number → re-enter to confirm → enter IFSC → tap "Add Bank Document" → dedup clear → upload bank document → proceed
+  expected: Bank document upload screen shown, after upload navigates to Screen 7
 
 TC_HP_007:
   name: "Account setup auto-progression"
@@ -1827,93 +1701,63 @@ TC_ERR_005:
   expected: Pending status with UPI ref, auto-refund info, refresh + support CTAs
 
 TC_ERR_006:
-  name: "PAN dedup detected"
-  scenario: kyc-pan-dedup
-  screen: 5
-  expected: Deferred error, PAN already registered message, progression blocked
-
-TC_ERR_007:
-  name: "Aadhaar dedup detected"
-  scenario: kyc-aadhaar-dedup
-  screen: 5
-  expected: Deferred error, Aadhaar already registered message, progression blocked
-
-TC_ERR_008:
-  name: "GST dedup detected"
-  scenario: kyc-gst-dedup
-  screen: 5
-  expected: Deferred error, GST already registered message, progression blocked
-
-TC_ERR_009:
-  name: "Penny drop verification failed"
-  scenario: bank-pennydrop-fail
-  screen: 6
-  expected: Bottom sheet with Change Bank Details + Upload Bank Document CTAs
-
-TC_ERR_010:
-  name: "Bank account name mismatch"
-  scenario: bank-name-mismatch
-  screen: 6
-  expected: Bottom sheet with name comparison, Change Bank Details + Upload Bank Document CTAs
-
-TC_ERR_011:
   name: "Bank account dedup"
   scenario: bank-dedup
   screen: 6
-  expected: Bottom sheet with Change Bank Details only (no upload option)
+  expected: Bottom sheet with Change Bank Details only after "Add Bank Document" tap
 
-TC_ERR_012:
+TC_ERR_007:
   name: "Verification rejected"
   scenario: verification-rejected
   screen: 9
   expected: Rejection shown, auto refund initiated, no re-upload option
 
-TC_ERR_013:
+TC_ERR_008:
   name: "Technical assessment rejected"
   scenario: tech-assessment-rejected
-  screen: 11
+  screen: 10
   expected: Assessment failed, no refund, Talk to Us CTA with phone 7836811111
 
-TC_ERR_014:
+TC_ERR_009:
   name: "Onboarding fee payment failed"
   scenario: onboardfee-failed
   screen: 12
   expected: Reassurance card, UPI limit info, retry + later CTAs
 
-TC_ERR_015:
+TC_ERR_010:
   name: "Onboarding fee payment timeout"
   scenario: onboardfee-timeout
   screen: 12
   expected: Pending status, auto-refund info, refresh + support CTAs
 
-TC_ERR_016:
+TC_ERR_011:
   name: "Account setup failed"
   scenario: account-setup-failed
   screen: 13
   expected: Failed message, Retry CTA
 
-TC_ERR_017:
+TC_ERR_012:
   name: "Account setup pending"
   scenario: account-setup-pending
   screen: 13
   expected: Pending message, Refresh CTA
 
-TC_ERR_018:
+TC_ERR_013:
   name: "No internet connection"
   scenario: no-internet
   expected: Generic offline error screen
 
-TC_ERR_019:
+TC_ERR_014:
   name: "Server error"
   scenario: server-error
   expected: Generic server error screen
 
-TC_ERR_020:
+TC_ERR_015:
   name: "KYC Day 1-4 reminders"
   scenarios: kyc-day1-reminder, kyc-day2-reminder, kyc-day3-reminder, kyc-day4-reminder
   expected: Reminder notifications shown for pending KYC completion
 
-TC_ERR_021:
+TC_ERR_016:
   name: "Refund scenarios"
   scenarios: refund-success, refund-in-progress, refund-failed
   expected: Appropriate refund status shown for each state
@@ -2009,67 +1853,49 @@ TC_EDGE_016:
 TC_UAT_001:
   name: "New partner completes full onboarding"
   persona: "Rajesh Kumar, Indore, Individual, first-time partner"
-  flow: Pitch → Phone → OTP → Personal(1/3) → Location(2/3) → ₹2K(3/3) → KYC(1/5) → Bank(2/5) → ISP(3/5) → Photos(4/5) → Verification(5/5, approved) → Policy(1/7) → Tech Assessment(2/7, pass) → ₹20K(3/7) → Account Setup(4/5) → Onboarded(5/5)
+  flow: Pitch → Phone → OTP → Personal(1/3) → Location(2/3) → ₹2K(3/3) → KYC(1/5) → Bank(2/5) → ISP(3/5) → Photos(4/5) → Verification(5/5, approved) → Tech Assessment(1/7, pass) → Policy(2/7) → ₹20K(3/7) → Account Setup(4/5) → Onboarded(5/5)
   acceptance: All 16 screens visited (Pitch + 0-14), partner successfully onboarded
 
 TC_UAT_002:
-  name: "Partner with KYC dedup issue"
-  persona: "Anil Verma, PAN already registered with another partner"
-  flow: Pitch → Phone → OTP → Personal → Location → ₹2K → KYC (PAN dedup detected)
-  acceptance: Clear deferred error message, progression blocked
-
-TC_UAT_003:
   name: "Partner verification rejected"
   persona: "Deepak Jain, QA rejects application"
   flow: ... → Verification (rejected) → Auto refund initiated
   acceptance: ₹2,000 refund initiated, no re-upload option, 5-6 working days timeline shown
 
-TC_UAT_004:
-  name: "Partner with bank penny drop failure"
-  persona: "Sunita Devi, wrong account number"
-  flow: ... → Bank (penny drop fail) → Change details or Upload bank document
-  acceptance: Bottom sheet shown with two options, supporting doc types listed
-
-TC_UAT_005:
-  name: "Partner with bank name mismatch"
-  persona: "Mohit Patel, bank name different from KYC"
-  flow: ... → Bank (name mismatch) → See comparison → Change details or Upload doc
-  acceptance: Name comparison shown in bottom sheet, two resolution options
-
-TC_UAT_006:
+TC_UAT_003:
   name: "Partner with bank dedup"
   persona: "Kavita Singh, bank account already registered"
-  flow: ... → Bank (dedup) → Change bank details only
+  flow: ... → Bank → tap "Add Bank Document" → dedup detected → Change bank details only
   acceptance: Bottom sheet with only Change Bank Details (no upload option)
 
-TC_UAT_007:
+TC_UAT_004:
   name: "Partner with payment issues"
   persona: "Mohit Patel, UPI limit exceeded for ₹20K"
   flow: ... → ₹20K (failed) → Switch to NEFT → ₹20K (success) → Continue
   acceptance: Helpful error message, alternative payment suggestion, no money lost
 
-TC_UAT_008:
+TC_UAT_005:
   name: "Partner tech assessment rejected"
   persona: "Ravi Kumar, infrastructure not ready"
   flow: ... → Tech Assessment (rejected) → No refund, Talk to Us
   acceptance: No refund info, Talk to Us CTA with phone 7836811111
 
-TC_UAT_009:
+TC_UAT_006:
   name: "Hindi-first UX verification"
   persona: Any partner, Hindi-speaking
   flow: Complete entire flow in Hindi
   acceptance: All text meaningful in Hindi, no English-only screens, culturally appropriate
 
-TC_UAT_010:
+TC_UAT_007:
   name: "QA Review Dashboard workflow"
   persona: QA team member using QA Review Dashboard
   flow: Open qa-review.html → Search partner → Review docs → Approve/Reject
   acceptance: Dashboard updates app in real-time, correct screen shown
 
-TC_UAT_011:
+TC_UAT_008:
   name: "Control Dashboard workflow"
   persona: Admin using Control Dashboard
-  flow: Open control.html → Navigate screens (16 tiles) → Trigger scenarios (28)
+  flow: Open control.html → Navigate screens (16 tiles) → Trigger scenarios (22)
   acceptance: All 16 screens navigable, all scenarios triggerable
 ```
 
@@ -2120,7 +1946,7 @@ dashboard:
       - id: trigger_scenario
         action: { action: "scenario", name: "SCENARIO_NAME" }
         intent: "com.wiom.csp.SCENARIO --es name SCENARIO_NAME"
-        scenarios: 28  # 9 categories (1 empty), 28 total scenarios
+        scenarios: 22  # 9 categories, 22 total scenarios
 
       - id: clear_scenario
         action: { action: "scenario", name: "NONE" }

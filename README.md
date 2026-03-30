@@ -35,7 +35,7 @@ This repo includes **two browser-based dashboards** that connect to the Android 
 - Navigate all 15 screens (Pitch through Successfully Onboarded)
 - Fill/empty all form data with one click
 - Switch Hindi/English language
-- Simulate 28 error scenarios across 8 categories
+- Simulate 22 error scenarios across 8 categories
 - Live app screenshot preview
 
 ### QA Review Dashboard (`dashboard/qa-review.html`)
@@ -69,7 +69,7 @@ Welcome screen with Wiom branding — "Wiom पार्टनर बनें".
 | # | Screen | Step | What happens |
 |---|--------|------|-------------|
 | 5 | **KYC Documents** | Step 1/5 | 3 sub-stages: PAN → Aadhaar (front+back) → GST upload with camera/gallery. CTA: "अब बैंक का विवरण दें" |
-| 6 | **Bank Details** | Step 2/5 | 3 fields: Account number, IFSC, Account holder name. CTA: "अब ISP अनुबंध अपलोड करें" |
+| 6 | **Bank Details** | Step 2/5 | 3 fields: Account number, Re-enter Account number, IFSC. CTA: "Add Bank Document" → mandatory bank document upload |
 | 7 | **ISP Agreement** | Step 3/5 | Multi-page ISP agreement upload. CTA: "आगे बढ़ें" |
 | 8 | **Shop & Equipment Photos** | Step 4/5 | Multi-photo: Shop front + router/equipment photos with helper hints. CTA: "सत्यापन के लिए जमा करें" |
 | 9 | **Verification** | Step 5/5 | Checklist of all submitted items. **Two paths:** Approved → Policy screen, Rejected → auto refund (no re-upload) |
@@ -78,13 +78,13 @@ Welcome screen with Wiom branding — "Wiom पार्टनर बनें".
 
 | # | Screen | Step | What happens |
 |---|--------|------|-------------|
-| 10 | **Policy & SLA** | Step 1/5 | "Important Terms" — Commission rates (₹300), SLA terms, compliance rules. CTA: "समझ गया, आगे बढ़ें" |
-| 11 | **Technical Assessment** | Step 2/5 | Device + infra check. **Two paths:** Pass → Onboarding Fee, Fail → retry |
+| 10 | **Technical Assessment** | Step 1/5 | Device + infra check. **Two paths:** Pass → Policy & SLA, Fail → no refund + Talk to Us |
+| 11 | **Policy & SLA** | Step 2/5 | "Important Terms" — Commission rates (₹300), SLA terms, compliance rules. CTA: "समझ गया, आगे बढ़ें" |
 | 12 | **Onboarding Fee ₹20K** | Step 3/5 | Fee breakdown, payment. CTA: "₹20,000 भुगतान करें" |
 | 13 | **Account Setup** | Step 4/5 | Auto-progress setup: ledger, payout, invoice, TDS config. Completes automatically. |
 | 14 | **Successfully Onboarded** | Step 5/5 | Celebration with completion chips, quick actions |
 
-## Error Scenarios (28 across 8 categories)
+## Error Scenarios (22 across 8 categories)
 
 | Category | Scenarios |
 |----------|-----------|
@@ -92,8 +92,7 @@ Welcome screen with Wiom branding — "Wiom पार्टनर बनें".
 | Registration & OTP | Phone Already Registered, Wrong OTP, OTP Expired |
 | Reg Fee | ₹2K Payment Failed, ₹2K Payment Timeout |
 | KYC Reminders | Day 1/2/3 Reminder, Day 4 Auto-Reject |
-| KYC Dedup | PAN Dedup, Aadhaar Dedup, GST Dedup |
-| Bank | Penny Drop Failed, Bank Name Mismatch, Bank Account Dedup |
+| Bank | Bank Account Dedup |
 | Verification | Verification Pending, Verification Rejected, Refund (Success/In-Progress/Failed) |
 | Onboarding & Setup | ₹20K Success/Failed/Timeout, Account Setup Failed/Pending |
 

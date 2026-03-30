@@ -1,6 +1,6 @@
 # Wiom CSP Onboarding — Developer Guide
 
-**Version:** 3.1 | **Last Updated:** 27 March 2026
+**Version:** 3.2 | **Last Updated:** 30 March 2026
 **Audience:** Production development team
 
 ---
@@ -50,7 +50,7 @@ Open: prototype/index.html in any browser
 
 This is the most complete version. It includes:
 - All **15 screens** (Pitch + Screens 0-14) with full visual fidelity
-- All **28 error scenarios** across 8 categories — triggerable via the Scenario Simulator panel
+- All **22 error scenarios** across 7 categories — triggerable via the Scenario Simulator panel
 - Interactive upload flows (camera/gallery simulation, preview, progress bar)
 - Bilingual toggle (Hindi/English) on every screen
 - Full happy path + all branch point views (approved/rejected)
@@ -82,21 +82,21 @@ The APK includes:
 
 ## 3. Dev Skip / Bypass Options
 
-The prototype has built-in shortcuts to skip waiting states. These exist because Screens 9 and 11 are branch points where the app normally waits for an external team decision.
+The prototype has built-in shortcuts to skip waiting states. These exist because Screens 9 and 10 are branch points where the app normally waits for an external team decision.
 
 ### Screen 9 (Verification) — "Dev: Skip to Stage 3"
 - This screen shows a "waiting for verification team" state
-- The dev skip button bypasses the wait and moves directly to Screen 10 (Policy & SLA)
+- The dev skip button bypasses the wait and moves directly to Screen 10 (Technical Assessment)
 - In production, this transition happens when the verification team approves via the admin panel
 
-### Screen 11 (Technical Assessment) — "Dev: Skip to Onboarding Fee"
+### Screen 10 (Technical Assessment) — "Dev: Skip to Policy & SLA"
 - This screen shows a "waiting for technical team" state
-- The dev skip button bypasses the wait and moves directly to Screen 12 (Onboarding Fee)
+- The dev skip button bypasses the wait and moves directly to Screen 11 (Policy & SLA)
 - In production, this transition happens when the technical team approves via the admin panel
 
 ### Scenario Simulator Panel
 - **Expanded by default** in the prototype
-- Use it to trigger any of the 28 error scenarios on any screen
+- Use it to trigger any of the 22 error scenarios on any screen
 - Each scenario maps to a specific screen — triggering it instantly shows that error state
 - Clear the scenario to return to the happy path
 
@@ -115,13 +115,13 @@ open dashboard/index.html
 The dashboard can:
 - Navigate the app to any screen
 - Trigger any error scenario
-- Approve/reject at branch points (Screens 9 and 11)
+- Approve/reject at branch points (Screens 9 and 10)
 - Pre-fill all form fields ("Filled Mode")
 - Control language toggle
 
 ---
 
-## 4. All 28 Error Scenarios (across 8 categories)
+## 4. All 22 Error Scenarios (across 7 categories)
 
 Reference: `PRD_HUMAN.md` Section 6 for full details including exact Hindi/English copy.
 
@@ -155,56 +155,51 @@ Reference: `PRD_HUMAN.md` Section 6 for full details including exact Hindi/Engli
 | 9 | `KYC_DAY2_REMINDER` | 5 (KYC) | 2 days after reg fee | Push notification: "दस्तावेज़ जमा करें — 1 दिन बाकी है" |
 | 10 | `KYC_DAY3_REMINDER` | 5 (KYC) | 3 days after reg fee | Push notification: "आखिरी दिन — आज दस्तावेज़ जमा करें" |
 | 11 | `KYC_DAY4_AUTOREJECT` | 5 (KYC) | 4 days after reg fee, no docs | Auto-rejection screen: "आवेदन रद्द हो गया" with auto-refund of ₹2,000. **Terminal.** |
-| 12 | `KYC_PAN_DEDUP` | 5 (KYC, PAN sub-stage) | PAN already linked to another Wiom account | "पैन पहले से जुड़ा हुआ है" — shows linked account ending ****4567. Options: login to existing or use different KYC. **Blocked.** |
-| 13 | `KYC_AADHAAR_DEDUP` | 5 (KYC, Aadhaar sub-stage) | Aadhaar already linked | "आधार पहले से जुड़ा हुआ है" — same pattern as PAN dedup. **Blocked.** |
-| 14 | `KYC_GST_DEDUP` | 5 (KYC, GST sub-stage) | GST already linked | "जीएसटी पहले से जुड़ा हुआ है" — same pattern. **Blocked.** |
 
-### Bank & Dedup Errors
+### Bank Errors
 
 | # | Scenario | Screen | Trigger | What User Sees |
 |---|----------|--------|---------|---------------|
-| 15 | `BANK_PENNYDROP_FAIL` | 6 (Bank Details) | ₹1 penny drop credit failed | Bottom sheet: "बैंक खाता सत्यापन विफल" with options: Change Bank Details or Upload Bank Document. **Retryable.** |
-| 16 | `BANK_NAME_MISMATCH` | 6 (Bank Details) | Bank account holder name differs from KYC name | Bottom sheet: "बैंक खाता नाम मेल नहीं खाता" with name comparison table. Options: Change or Upload Document. **Retryable.** |
-| 17 | `BANK_DEDUP` | 6 (Bank Details) | Bank account already linked to another Wiom account | Bottom sheet: "बैंक खाता पहले से जुड़ा है" — shows linked account ending ****4567. Only option: Change Bank Details. **Blocked.** |
+| 12 | `BANK_DEDUP` | 6 (Bank Details) | Bank account already linked to another Wiom account, triggers after "Add Bank Document" tap | Bottom sheet: "बैंक खाता पहले से जुड़ा है" — shows linked account ending ****4567. Only option: "बैंक विवरण बदलें" (Change Bank Details). **Blocked.** |
 
 ### Refund Status Screens
 
 | # | Scenario | Screen | Trigger | What User Sees |
 |---|----------|--------|---------|---------------|
-| 18 | `REFUND_SUCCESS` | Post-rejection | Refund completed | "रिफंड सफल" — ₹2,000 credited confirmation |
-| 19 | `REFUND_IN_PROGRESS` | Post-rejection | Refund being processed | "रिफंड प्रोसेस हो रहा है" — ₹2,000 with 5-6 working days estimate |
-| 20 | `REFUND_FAILED` | Post-rejection | Refund processing failed | "रिफंड विफल" — contact support |
+| 13 | `REFUND_SUCCESS` | Post-rejection | Refund completed | "रिफंड सफल" — ₹2,000 credited confirmation |
+| 14 | `REFUND_IN_PROGRESS` | Post-rejection | Refund being processed | "रिफंड प्रोसेस हो रहा है" — ₹2,000 with 5-6 working days estimate |
+| 15 | `REFUND_FAILED` | Post-rejection | Refund processing failed | "रिफंड विफल" — contact support |
 
 ### Branch Point Rejections
 
 | # | Scenario | Screen | Trigger | What User Sees |
 |---|----------|--------|---------|---------------|
-| 21 | `VERIFICATION_PENDING` | 9 (Verification) | Documents submitted, under review | "सत्यापन लंबित है" with completed checklist. "समीक्षा में 3 कार्य दिवस." |
-| 22 | `VERIFICATION_REJECTED` | 9 (Verification) | Verification team rejects application | "प्रोफ़ाइल अभी स्वीकृत नहीं हुई." "चिंता न करें — आपका पैसा सुरक्षित है." ₹2,000 refund in **5-6 working days**. **Terminal.** |
-| 23 | `TECH_ASSESSMENT_REJECTED` | 11 (Technical Assessment) | Technical team rejects setup | "प्रोफ़ाइल अभी स्वीकृत नहीं हुई." Reason: "इंफ्रास्ट्रक्चर तैयार नहीं." **No refund at this stage.** CTA: "हमसे बात करें" (Talk to Us). **Terminal.** |
+| 16 | `VERIFICATION_PENDING` | 9 (Verification) | Documents submitted, under review | "सत्यापन लंबित है" with completed checklist. "समीक्षा में 3 कार्य दिवस." |
+| 17 | `VERIFICATION_REJECTED` | 9 (Verification) | Verification team rejects application | "प्रोफ़ाइल अभी स्वीकृत नहीं हुई." "चिंता न करें — आपका पैसा सुरक्षित है." ₹2,000 refund in **5-6 working days**. **Terminal.** |
+| 18 | `TECH_ASSESSMENT_REJECTED` | 10 (Technical Assessment) | Technical team rejects setup | "प्रोफ़ाइल अभी स्वीकृत नहीं हुई." Reason: "इंफ्रास्ट्रक्चर तैयार नहीं." **No refund at this stage.** CTA: "हमसे बात करें" (Talk to Us). **Terminal.** |
 
 ### Onboarding Fee Errors
 
 | # | Scenario | Screen | Trigger | What User Sees |
 |---|----------|--------|---------|---------------|
-| 24 | `ONBOARDFEE_SUCCESS` | 12 (Onboarding Fee) | ₹20,000 payment successful | "भुगतान सफल!" celebration with auto-progress to next screen |
-| 25 | `ONBOARDFEE_FAILED` | 12 (Onboarding Fee) | ₹20,000 payment declined | "भुगतान नहीं हो पाया." Reassurance + Retry + Talk to Us. **Retryable.** |
-| 26 | `ONBOARDFEE_TIMEOUT` | 12 (Onboarding Fee) | ₹20,000 payment pending | "भुगतान लंबित है." UPI ref + Refresh + Talk to Us. **Retryable.** |
+| 19 | `ONBOARDFEE_SUCCESS` | 12 (Onboarding Fee) | ₹20,000 payment successful | "भुगतान सफल!" celebration with auto-progress to next screen |
+| 20 | `ONBOARDFEE_FAILED` | 12 (Onboarding Fee) | ₹20,000 payment declined | "भुगतान नहीं हो पाया." Reassurance + Retry + Talk to Us. **Retryable.** |
+| 21 | `ONBOARDFEE_TIMEOUT` | 12 (Onboarding Fee) | ₹20,000 payment pending | "भुगतान लंबित है." UPI ref + Refresh + Talk to Us. **Retryable.** |
 
 ### Account Setup Errors
 
 | # | Scenario | Screen | Trigger | What User Sees |
 |---|----------|--------|---------|---------------|
-| 27 | `ACCOUNT_SETUP_FAILED` | 13 (Account Setup) | Technical failure during setup | "खाता सेटअप विफल." Retry + Talk to Us. **Retryable.** |
-| 28 | `ACCOUNT_SETUP_PENDING` | 13 (Account Setup) | Setup taking longer than expected | "खाता सेटअप लंबित है." Refresh Status + Talk to Us. |
+| 22 | `ACCOUNT_SETUP_FAILED` | 13 (Account Setup) | Technical failure during setup | "खाता सेटअप विफल." Retry + Talk to Us. **Retryable.** |
+| 23 | `ACCOUNT_SETUP_PENDING` | 13 (Account Setup) | Setup taking longer than expected | "खाता सेटअप लंबित है." Refresh Status + Talk to Us. |
 
 ### Error Classification Summary
 
 | Type | Count | Behavior |
 |------|-------|----------|
-| **Blocking** | 5 | Cannot proceed — needs external resolution (PHONE_DUPLICATE, KYC_PAN_DEDUP, KYC_AADHAAR_DEDUP, KYC_GST_DEDUP, BANK_DEDUP) |
+| **Blocking** | 2 | Cannot proceed — needs external resolution (PHONE_DUPLICATE, BANK_DEDUP) |
 | **Terminal** | 3 | Cannot proceed — application ends (VERIFICATION_REJECTED with ₹2,000 refund, TECH_ASSESSMENT_REJECTED with no refund, KYC_DAY4_AUTOREJECT with ₹2,000 refund) |
-| **Retryable** | 12 | Can retry immediately or after fixing input |
+| **Retryable** | 10 | Can retry immediately or after fixing input |
 | **Informational** | 8 | Status updates, reminders, and confirmation screens |
 
 ---
@@ -272,9 +267,6 @@ Reference: `PRD_HUMAN.md` Section 6 for full details including exact Hindi/Engli
 |-------|-------------|
 | **Empty** | 3 sub-stages: PAN → Aadhaar → GST. Progress bar at top. Each sub-stage has number input + document upload. CTA disabled until both filled. |
 | **Happy Path** | Enter PAN number + upload PAN card → Enter Aadhaar number + upload front & back → Enter GST number (cross-validated with PAN) + upload certificate. Each sub-stage advances to next. After GST, navigates to Screen 6. |
-| **Error: KYC_PAN_DEDUP** | After entering valid PAN: "पैन पहले से जुड़ा हुआ है" — linked to account ****4567. CTA: "अलग पैन डालें." Blocked. |
-| **Error: KYC_AADHAAR_DEDUP** | After entering valid Aadhaar: "आधार पहले से जुड़ा हुआ है" — same pattern. CTA: "अलग आधार डालें." Blocked. |
-| **Error: KYC_GST_DEDUP** | After entering valid GST: "जीएसटी पहले से जुड़ा हुआ है" — same pattern. CTA: "अलग जीएसटी डालें." Blocked. |
 | **Validation** | PAN: `[A-Z]{5}[0-9]{4}[A-Z]`. Aadhaar: 12 digits. GST: 15 chars, positions 2-12 must match PAN. All 3 documents must be uploaded. "सैंपल दस्तावेज़ देखें" link on each sub-stage. |
 
 ### Screen 6: Bank Details
@@ -282,12 +274,9 @@ Reference: `PRD_HUMAN.md` Section 6 for full details including exact Hindi/Engli
 | State | Description |
 |-------|-------------|
 | **Empty** | 3 fields: Account Number, Re-enter Account Number, IFSC Code. Info box: "बैंक विवरण [name] या [trade] के नाम पर होने चाहिए." CTA disabled. |
-| **Happy Path** | All fields filled, verify tapped, 2s spinner ("बैंक विवरण सत्यापित हो रहे हैं..."), then green verified card with Account Holder, Bank, Status. CTA: "ISP अनुबंध जोड़ें." |
-| **Error: BANK_PENNYDROP_FAIL** | Bottom sheet: "बैंक खाता सत्यापन विफल." Two options: "बैंक विवरण बदलें" or "बैंक दस्तावेज़ अपलोड करें." Retryable. |
-| **Error: BANK_NAME_MISMATCH** | Bottom sheet: "बैंक खाता नाम मेल नहीं खाता." Name comparison table (Bank vs Personal vs Business). Two options: Change or Upload document. Retryable. |
-| **Error: BANK_DEDUP** | Bottom sheet: "बैंक खाता पहले से जुड़ा है" — linked to ****4567. Only option: "बैंक विवरण बदलें." Blocked. |
-| **Loading** | 2-second penny drop verification with spinner. |
-| **Validation** | Account Number: min 9, max 18 digits. Confirm must match. IFSC: `[A-Z]{4}0[A-Z0-9]{6}`. Account masking on blur. |
+| **Happy Path** | All fields filled, tap "Add Bank Document" → dedup check runs → if clear, proceeds to bank document upload (mandatory) → after upload, proceeds to Screen 7. |
+| **Error: BANK_DEDUP** | Bottom sheet (triggers after "Add Bank Document" tap): "बैंक खाता पहले से जुड़ा है" — linked to ****4567. Only option: "बैंक विवरण बदलें" (Change Bank Details). Blocked. |
+| **Validation** | Account Number: min 9, max 18 digits. Confirm must match. IFSC: `[A-Z]{4}0[A-Z0-9]{6}`. Account masking on blur. CTA is "Add Bank Document" (not "Verify Bank Details"). |
 
 ### Screen 7: ISP Agreement Upload
 
@@ -314,25 +303,25 @@ Reference: `PRD_HUMAN.md` Section 6 for full details including exact Hindi/Engli
 | State | Description |
 |-------|-------------|
 | **Pending (default)** | "सत्यापन लंबित है." Checklist of completed submissions (KYC, Bank, ISP, Shop & Equipment). "समीक्षा में 3 कार्य दिवस." No CTA. |
-| **Approved** | Transitions to Screen 10 (triggered by verification team via dashboard). |
+| **Approved** | Transitions to Screen 10 (Technical Assessment) (triggered by verification team via dashboard). |
 | **Rejected (VERIFICATION_REJECTED)** | "प्रोफ़ाइल अभी स्वीकृत नहीं हुई." "चिंता न करें — आपका पैसा सुरक्षित है." ₹2,000 refund in **5-6 working days**. CTA: "रिफंड स्टेटस देखें." Terminal. |
 | **Dev bypass** | "Dev: Skip to Stage 3" button skips to Screen 10. |
 
-### Screen 10: Policy, Payout & SLA
-
-| State | Description |
-|-------|-------------|
-| **Happy Path** | Shows commission (₹300/₹300), payout terms (weekly via RazorpayX), SLA (4hr, 95%+). CTA: "Understood, proceed." |
-| **Error** | None. |
-
-### Screen 11: Technical Assessment (Branch Point 2)
+### Screen 10: Technical Assessment (Branch Point 2)
 
 | State | Description |
 |-------|-------------|
 | **Pending (default)** | "तकनीकी मूल्यांकन जारी है." Checklist: Infrastructure Review, Network Readiness, Location Feasibility. "4-5 कार्य दिवस." No CTA. |
-| **Approved** | Transitions to Screen 12 (triggered by technical team via dashboard). |
+| **Approved** | Transitions to Screen 11 (Policy & SLA) (triggered by technical team via dashboard). |
 | **Rejected (TECH_ASSESSMENT_REJECTED)** | "प्रोफ़ाइल अभी स्वीकृत नहीं हुई." Reason: "इंफ्रास्ट्रक्चर तैयार नहीं." **No refund at this stage.** CTA: "हमसे बात करें." Terminal. |
-| **Dev bypass** | "Dev: Skip to Onboarding Fee" button skips to Screen 12. |
+| **Dev bypass** | "Dev: Skip to Policy & SLA" button skips to Screen 11. |
+
+### Screen 11: Policy, Payout & SLA
+
+| State | Description |
+|-------|-------------|
+| **Happy Path** | Shows commission (₹300/₹300), payout terms (weekly via RazorpayX), SLA (4hr, 95%+). CTA: "Understood, proceed." Proceeds to Screen 12. |
+| **Error** | None. |
 
 ### Screen 12: Onboarding Fee (Rs 20,000)
 
@@ -384,7 +373,7 @@ com.wiom.csp/
 │       ├── AuthRepository.kt     # OTP send/verify, phone check
 │       ├── KycRepository.kt      # Document upload, OCR, verification
 │       ├── PaymentRepository.kt  # Razorpay integration, fee payments
-│       ├── BankRepository.kt     # Penny drop, dedup check
+│       ├── BankRepository.kt     # Bank dedup check, document upload
 │       └── OnboardingRepository.kt  # Progress tracking, form data persistence
 │
 ├── domain/
@@ -627,7 +616,7 @@ But the core principle stays: **runtime toggle, no activity recreation, Hindi-fi
 
 ### Fees
 - Registration Fee: **Rs 2,000** (refundable if Verification rejects at Screen 9, refund in 5-6 working days)
-- Onboarding Fee: **Rs 20,000** (**no refund** if Tech Assessment rejects at Screen 11)
+- Onboarding Fee: **Rs 20,000** (**no refund** if Tech Assessment rejects at Screen 10)
 - Total Investment: **Rs 22,000**
 - Help Number: **7836811111** (shown on error screens)
 
@@ -655,10 +644,10 @@ Reference: `PRD_HUMAN.md` Section 15 for the full comparison table.
 | **ISP Agreement** | Simulated upload | Real document upload + DOT validation API |
 | **Payments (Rs 2K)** | 2-second delay simulation | Real Razorpay payment gateway integration |
 | **Payments (Rs 20K)** | 2-second delay simulation | Real Razorpay with multiple payment methods (UPI, NEFT, Card) |
-| **Penny Drop** | Simulated success | Real Rs 1 bank credit via banking API (RazorpayX or similar) |
-| **Dedup Check** | Simulated pass | Real database cross-reference against PAN, Aadhaar, GST, Bank A/C |
+| **Penny Drop** | Simulated success | Deferred to next version | Real Rs 1 bank credit via banking API (RazorpayX or similar) |
+| **Dedup Check** | Simulated pass | Real database cross-reference against Bank A/C (KYC dedup deferred to next version) |
 | **Verification (Screen 9)** | Dashboard approve/reject button | Backend queue + verification panel + push notification to partner |
-| **Tech Assessment (Screen 11)** | Dashboard approve/reject button | Backend queue + technical review panel + push notification |
+| **Tech Assessment (Screen 10)** | Dashboard approve/reject button | Backend queue + technical review panel + push notification |
 | **CSP Account Setup** | Animated checklist (cosmetic) | Real API calls: RazorpayX payout link, Zoho invoice setup, ledger creation, TDS/TCS config |
 | **Account Setup (Screen 13)** | Animated spinner (cosmetic) | Real API calls: RazorpayX payout link, Zoho invoice setup, ledger creation, TDS/TCS config |
 | **GPS** | Hardcoded coordinates (22.71 N, 75.85 E) | FusedLocationProvider API with runtime permission handling |
@@ -679,7 +668,7 @@ Reference: `PRD_HUMAN.md` Section 15 for the full comparison table.
 3. **Navigation + State persistence** — architectural foundation
 4. **Payment gateway** — two critical screens depend on it (4 and 12)
 5. **KYC + Document upload** — complex flow with OCR integration
-6. **Bank verification** — penny drop + dedup check APIs
+6. **Bank verification** — bank dedup check + mandatory document upload
 7. **Push notifications** — needed for branch point results
 8. **Analytics + Error reporting** — needed before launch
 9. **Security hardening** — certificate pinning, obfuscation, encryption
@@ -690,7 +679,7 @@ Reference: `PRD_HUMAN.md` Section 15 for the full comparison table.
 
 | File | What's In It |
 |------|-------------|
-| `PRD_HUMAN.md` | Full product spec — all 15 screens, 28 errors, business rules, validation, design system, QA/UAT cases |
+| `PRD_HUMAN.md` | Full product spec — all 15 screens, 22 errors, business rules, validation, design system, QA/UAT cases |
 | `PRD_AI_AGENT.md` | Machine-readable spec — structured for AI-assisted development |
 | `CLAUDE.md` | AI assistant context — architecture summary, UX rules, screen flow |
 | `prototype/index.html` | Complete HTML prototype — all screens + all errors + scenario simulator |
