@@ -228,17 +228,17 @@ fun WiomTextField(
     onFocusChanged: ((Boolean) -> Unit)? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
 ) {
-    Column {
+    Column(modifier = Modifier.padding(bottom = if (errorMessage != null) 4.dp else 12.dp)) {
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
             modifier = modifier
                 .fillMaxWidth()
-                .padding(bottom = if (errorMessage != null) 4.dp else 12.dp)
+                .height(56.dp)
                 .then(if (onFocusChanged != null) Modifier.onFocusChanged { onFocusChanged(it.isFocused) } else Modifier),
             readOnly = readOnly,
             visualTransformation = visualTransformation,
-            placeholder = { Text(placeholder, color = WiomHint) },
+            placeholder = { Text(placeholder, color = WiomHint, fontSize = 14.sp) },
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = when {
