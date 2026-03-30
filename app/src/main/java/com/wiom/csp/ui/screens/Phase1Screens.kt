@@ -877,8 +877,14 @@ private fun KycDedupScreen(docType: String, phone: String, onEnterDifferent: () 
 
 @Composable
 private fun KycUploadRow(icon: String, label: String, isUploaded: Boolean, onUpload: () -> Unit, onReset: () -> Unit) {
+    var showUploadSheet by remember { mutableStateOf(false) }
+    var showPreview by remember { mutableStateOf(false) }
+    var previewSource by remember { mutableStateOf("") }
+
     Surface(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = if (isUploaded) onReset else onUpload),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = {
+            if (isUploaded) onReset() else showUploadSheet = true
+        }),
         shape = RoundedCornerShape(12.dp),
         color = if (isUploaded) WiomPositive100 else Color.White,
         border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp),
@@ -892,7 +898,7 @@ private fun KycUploadRow(icon: String, label: String, isUploaded: Boolean, onUpl
                 )
             }
             OutlinedButton(
-                onClick = if (isUploaded) onReset else onUpload,
+                onClick = { if (isUploaded) onReset() else showUploadSheet = true },
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
             ) {
                 Text(if (isUploaded) t("बदलें", "Update") else t("अपलोड", "Upload"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
@@ -900,6 +906,32 @@ private fun KycUploadRow(icon: String, label: String, isUploaded: Boolean, onUpl
         }
     }
     Spacer(Modifier.height(8.dp))
+
+    // Upload bottom sheet
+    if (showUploadSheet) {
+        UploadBottomSheet(
+            title = "$label ${t("अपलोड करें", "Upload")}",
+            onCamera = { previewSource = t("कैमरा से ली गई फ़ोटो", "Photo from Camera"); showPreview = true },
+            onGallery = { previewSource = t("गैलरी से चुनी गई फ़ोटो", "Photo from Gallery"); showPreview = true },
+            onDismiss = { showUploadSheet = false },
+            proTips = listOf(
+                t("दस्तावेज़ साफ़ दिखना चाहिए", "Document should be clearly visible"),
+                t("सभी व्यापार विवरण मेल खाने चाहिए", "All business details should match"),
+                t("दस्तावेज़ की वैधता समाप्त नहीं होनी चाहिए", "Document should not be expired"),
+            ),
+        )
+    }
+
+    // Upload preview
+    if (showPreview) {
+        UploadPreviewOverlay(
+            docName = label,
+            docIcon = icon,
+            sourceLabel = previewSource,
+            onRetake = { showPreview = false; showUploadSheet = true },
+            onConfirm = { showPreview = false; onUpload() },
+        )
+    }
 }
 
 // Screen 4: Registration Fee ₹2,000
