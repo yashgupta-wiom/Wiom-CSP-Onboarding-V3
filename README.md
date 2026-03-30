@@ -72,15 +72,15 @@ Welcome screen with Wiom branding — "Wiom पार्टनर बनें".
 | 6 | **Bank Details** | Step 2/5 | 3 fields: Account number, Re-enter Account number, IFSC. CTA: "Add Bank Document" → mandatory bank document upload |
 | 7 | **ISP Agreement** | Step 3/5 | Multi-page ISP agreement upload. CTA: "आगे बढ़ें" |
 | 8 | **Shop & Equipment Photos** | Step 4/5 | Multi-photo: Shop front + router/equipment photos with helper hints. CTA: "सत्यापन के लिए जमा करें" |
-| 9 | **Verification** | Step 5/5 | Checklist of all submitted items. **Two paths:** Approved → Policy screen, Rejected → auto refund (no re-upload) |
+| 9 | **Verification** | Step 5/5 | Checklist of all submitted items. **Two paths:** Approved → Tech Assessment, Rejected → auto refund (no re-upload) |
 
 ### Phase 3 — Activation (Screens 10-14)
 
 | # | Screen | Step | What happens |
 |---|--------|------|-------------|
-| 10 | **Technical Assessment** | Step 1/5 | Device + infra check. **Two paths:** Pass → Policy & SLA, Fail → no refund + Talk to Us |
-| 11 | **Policy & SLA** | Step 2/5 | "Important Terms" — Commission rates (₹300), SLA terms, compliance rules. CTA: "समझ गया, आगे बढ़ें" |
-| 12 | **Onboarding Fee ₹20K** | Step 3/5 | Fee breakdown, payment. CTA: "₹20,000 भुगतान करें" |
+| 10 | **Technical Assessment** | Step 1/7 | Device + infra check. **Two paths:** Pass → Policy & SLA, Fail → no refund + Talk to Us |
+| 11 | **Policy & SLA** | Step 2/7 | "Important Terms" — Commission rates (₹300), SLA terms, compliance rules. CTA: "समझ गया, आगे बढ़ें" |
+| 12 | **Onboarding Fee ₹20K** | Step 3/7 | Fee breakdown, payment. CTA: "₹20,000 भुगतान करें" |
 | 13 | **Account Setup** | Step 4/5 | Auto-progress setup: ledger, payout, invoice, TDS config. Completes automatically. |
 | 14 | **Successfully Onboarded** | Step 5/5 | Celebration with completion chips, quick actions |
 

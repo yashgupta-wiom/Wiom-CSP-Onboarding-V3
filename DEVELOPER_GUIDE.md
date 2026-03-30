@@ -121,7 +121,7 @@ The dashboard can:
 
 ---
 
-## 4. All 22 Error Scenarios (across 7 categories)
+## 4. All 22 Error Scenarios (across 8 categories)
 
 Reference: `PRD_HUMAN.md` Section 6 for full details including exact Hindi/English copy.
 
@@ -151,56 +151,53 @@ Reference: `PRD_HUMAN.md` Section 6 for full details including exact Hindi/Engli
 
 | # | Scenario | Screen | Trigger | What User Sees |
 |---|----------|--------|---------|---------------|
-| 8 | `KYC_DAY1_REMINDER` | 5 (KYC) | 1 day after reg fee, docs not submitted | Push notification: "दस्तावेज़ जमा करें — 2 दिन बाकी हैं" |
-| 9 | `KYC_DAY2_REMINDER` | 5 (KYC) | 2 days after reg fee | Push notification: "दस्तावेज़ जमा करें — 1 दिन बाकी है" |
-| 10 | `KYC_DAY3_REMINDER` | 5 (KYC) | 3 days after reg fee | Push notification: "आखिरी दिन — आज दस्तावेज़ जमा करें" |
-| 11 | `KYC_DAY4_AUTOREJECT` | 5 (KYC) | 4 days after reg fee, no docs | Auto-rejection screen: "आवेदन रद्द हो गया" with auto-refund of ₹2,000. **Terminal.** |
+| 8 | `KYC_DAY1-4_NUDGES` | 5 (KYC) | 1-4 days after reg fee, docs not submitted | Day 1-3: Push notifications ("दस्तावेज़ जमा करें"). Day 4: Auto-rejection "आवेदन रद्द हो गया" with auto-refund of ₹2,000. **Informational (Day 1-3), Terminal (Day 4).** |
 
 ### Bank Errors
 
 | # | Scenario | Screen | Trigger | What User Sees |
 |---|----------|--------|---------|---------------|
-| 12 | `BANK_DEDUP` | 6 (Bank Details) | Bank account already linked to another Wiom account, triggers after "Add Bank Document" tap | Bottom sheet: "बैंक खाता पहले से जुड़ा है" — shows linked account ending ****4567. Only option: "बैंक विवरण बदलें" (Change Bank Details). **Blocked.** |
+| 9 | `BANK_DEDUP` | 6 (Bank Details) | Bank account already linked to another Wiom account, triggers after "Add Bank Document" tap | Bottom sheet: "बैंक खाता पहले से जुड़ा है" — shows linked account ending ****4567. Only option: "बैंक विवरण बदलें" (Change Bank Details). **Blocked.** |
 
 ### Refund Status Screens
 
 | # | Scenario | Screen | Trigger | What User Sees |
 |---|----------|--------|---------|---------------|
-| 13 | `REFUND_SUCCESS` | Post-rejection | Refund completed | "रिफंड सफल" — ₹2,000 credited confirmation |
-| 14 | `REFUND_IN_PROGRESS` | Post-rejection | Refund being processed | "रिफंड प्रोसेस हो रहा है" — ₹2,000 with 5-6 working days estimate |
-| 15 | `REFUND_FAILED` | Post-rejection | Refund processing failed | "रिफंड विफल" — contact support |
+| 10 | `REFUND_SUCCESS` | Post-rejection | Refund completed | "रिफंड सफल" — ₹2,000 credited confirmation |
+| 11 | `REFUND_IN_PROGRESS` | Post-rejection | Refund being processed | "रिफंड प्रोसेस हो रहा है" — ₹2,000 with 5-6 working days estimate |
+| 12 | `REFUND_FAILED` | Post-rejection | Refund processing failed | "रिफंड विफल" — contact support |
 
 ### Branch Point Rejections
 
 | # | Scenario | Screen | Trigger | What User Sees |
 |---|----------|--------|---------|---------------|
-| 16 | `VERIFICATION_PENDING` | 9 (Verification) | Documents submitted, under review | "सत्यापन लंबित है" with completed checklist. "समीक्षा में 3 कार्य दिवस." |
-| 17 | `VERIFICATION_REJECTED` | 9 (Verification) | Verification team rejects application | "प्रोफ़ाइल अभी स्वीकृत नहीं हुई." "चिंता न करें — आपका पैसा सुरक्षित है." ₹2,000 refund in **5-6 working days**. **Terminal.** |
-| 18 | `TECH_ASSESSMENT_REJECTED` | 10 (Technical Assessment) | Technical team rejects setup | "प्रोफ़ाइल अभी स्वीकृत नहीं हुई." Reason: "इंफ्रास्ट्रक्चर तैयार नहीं." **No refund at this stage.** CTA: "हमसे बात करें" (Talk to Us). **Terminal.** |
+| 13 | `VERIFICATION_PENDING` | 9 (Verification) | Documents submitted, under review | "सत्यापन लंबित है" with completed checklist. "समीक्षा में 3 कार्य दिवस." |
+| 14 | `VERIFICATION_REJECTED` | 9 (Verification) | Verification team rejects application | "प्रोफ़ाइल अभी स्वीकृत नहीं हुई." "चिंता न करें — आपका पैसा सुरक्षित है." ₹2,000 refund in **5-6 working days**. **Terminal.** |
+| 15 | `TECH_ASSESSMENT_REJECTED` | 10 (Technical Assessment) | Technical team rejects setup | "प्रोफ़ाइल अभी स्वीकृत नहीं हुई." Reason: "इंफ्रास्ट्रक्चर तैयार नहीं." **No refund at this stage.** CTA: "हमसे बात करें" (Talk to Us). **Terminal.** |
 
 ### Onboarding Fee Errors
 
 | # | Scenario | Screen | Trigger | What User Sees |
 |---|----------|--------|---------|---------------|
-| 19 | `ONBOARDFEE_SUCCESS` | 12 (Onboarding Fee) | ₹20,000 payment successful | "भुगतान सफल!" celebration with auto-progress to next screen |
-| 20 | `ONBOARDFEE_FAILED` | 12 (Onboarding Fee) | ₹20,000 payment declined | "भुगतान नहीं हो पाया." Reassurance + Retry + Talk to Us. **Retryable.** |
-| 21 | `ONBOARDFEE_TIMEOUT` | 12 (Onboarding Fee) | ₹20,000 payment pending | "भुगतान लंबित है." UPI ref + Refresh + Talk to Us. **Retryable.** |
+| 16 | `ONBOARDFEE_SUCCESS` | 12 (Onboarding Fee) | ₹20,000 payment successful | "भुगतान सफल!" celebration with auto-progress to next screen |
+| 17 | `ONBOARDFEE_FAILED` | 12 (Onboarding Fee) | ₹20,000 payment declined | "भुगतान नहीं हो पाया." Reassurance + Retry + Talk to Us. **Retryable.** |
+| 18 | `ONBOARDFEE_TIMEOUT` | 12 (Onboarding Fee) | ₹20,000 payment pending | "भुगतान लंबित है." UPI ref + Refresh + Talk to Us. **Retryable.** |
 
 ### Account Setup Errors
 
 | # | Scenario | Screen | Trigger | What User Sees |
 |---|----------|--------|---------|---------------|
-| 22 | `ACCOUNT_SETUP_FAILED` | 13 (Account Setup) | Technical failure during setup | "खाता सेटअप विफल." Retry + Talk to Us. **Retryable.** |
-| 23 | `ACCOUNT_SETUP_PENDING` | 13 (Account Setup) | Setup taking longer than expected | "खाता सेटअप लंबित है." Refresh Status + Talk to Us. |
+| 19 | `ACCOUNT_SETUP_FAILED` | 13 (Account Setup) | Technical failure during setup | "खाता सेटअप विफल." Retry + Talk to Us. **Retryable.** |
+| 20 | `ACCOUNT_SETUP_PENDING` | 13 (Account Setup) | Setup taking longer than expected | "खाता सेटअप लंबित है." Refresh Status + Talk to Us. |
 
 ### Error Classification Summary
 
 | Type | Count | Behavior |
 |------|-------|----------|
-| **Blocking** | 2 | Cannot proceed — needs external resolution (PHONE_DUPLICATE, BANK_DEDUP) |
-| **Terminal** | 3 | Cannot proceed — application ends (VERIFICATION_REJECTED with ₹2,000 refund, TECH_ASSESSMENT_REJECTED with no refund, KYC_DAY4_AUTOREJECT with ₹2,000 refund) |
-| **Retryable** | 10 | Can retry immediately or after fixing input |
-| **Informational** | 8 | Status updates, reminders, and confirmation screens |
+| **Blocking** | 3 | Cannot proceed — needs external resolution or "Talk to Us" (PHONE_DUPLICATE, BANK_DEDUP, TECH_ASSESSMENT_REJECTED) |
+| **Retryable** | 8 | Can retry immediately or after fixing input (OTP_WRONG, OTP_EXPIRED, REGFEE_FAILED, REGFEE_TIMEOUT, ONBOARDFEE_FAILED, ONBOARDFEE_TIMEOUT, ACCOUNT_SETUP_FAILED, ACCOUNT_SETUP_PENDING) |
+| **Terminal** | 1 | Application ends with refund (VERIFICATION_REJECTED — auto refund ₹2,000, no re-upload) |
+| **Informational** | 8 | Status updates, reminders, nudges, and confirmation screens (KYC_DAY1-4_NUDGES, REFUND_SUCCESS/IN_PROGRESS/FAILED, VERIFICATION_PENDING, ONBOARDFEE_SUCCESS, ACCOUNT_SETUP_PENDING) |
 
 ---
 

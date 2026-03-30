@@ -1946,7 +1946,7 @@ dashboard:
       - id: trigger_scenario
         action: { action: "scenario", name: "SCENARIO_NAME" }
         intent: "com.wiom.csp.SCENARIO --es name SCENARIO_NAME"
-        scenarios: 22  # 9 categories, 22 total scenarios
+        scenarios: 22  # 8 categories, 22 total scenarios
 
       - id: clear_scenario
         action: { action: "scenario", name: "NONE" }
