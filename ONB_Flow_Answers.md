@@ -2,7 +2,7 @@
 
 **Version:** V0 (Phase 1)
 **Date:** 2026-03-30
-**Author:** Yash Gupta, Director of Product
+**Author:** Yash Gupta
 **Source PRD:** Wiom CSP Onboarding App — Complete PRD V3.1
 
 ---
