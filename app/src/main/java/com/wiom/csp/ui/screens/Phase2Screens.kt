@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wiom.csp.R
 import com.wiom.csp.data.BankVerificationStatus
 import com.wiom.csp.data.OnboardingState
 import com.wiom.csp.data.Scenario
@@ -130,12 +131,16 @@ fun BankDetailsScreen(viewModel: BankViewModel, onNext: () -> Unit, onBack: () -
                             onUpload = { viewModel.onSupportDocUploaded() },
                         )
                         Spacer(Modifier.height(4.dp))
+                        var showSampleBank by remember { mutableStateOf(false) }
                         Text(
                             "\uD83D\uDCCB ${t("सैंपल दस्तावेज़ देखें", "View sample document")}",
                             fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary,
                             textDecoration = TextDecoration.Underline,
-                            modifier = Modifier.clickable { /* show sample doc */ },
+                            modifier = Modifier.clickable { showSampleBank = true },
                         )
+                        if (showSampleBank) {
+                            SampleDocViewer(title = t("सैंपल बैंक दस्तावेज़", "Sample Bank Document"), imageResId = R.drawable.sample_bank_doc, onDismiss = { showSampleBank = false })
+                        }
                     } else {
 
                     Text("\uD83C\uDFE6 ${t("बैंक विवरण", "Bank Details")}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = WiomText)
@@ -350,6 +355,7 @@ private fun FeeDetailRow(label: String, value: String, valueColor: Color = WiomT
 @Composable
 fun IspAgreementScreen(viewModel: IspAgreementViewModel, onNext: () -> Unit, onBack: () -> Unit) {
     val state by viewModel.uiState.collectAsState()
+    var showSampleIsp by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize().background(WiomSurface)) {
         AppHeader(
@@ -410,8 +416,12 @@ fun IspAgreementScreen(viewModel: IspAgreementViewModel, onNext: () -> Unit, onB
             Text(
                 "\uD83D\uDCCB ${t("सैंपल दस्तावेज़ देखें", "View sample document")}",
                 fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary,
-                modifier = Modifier.clickable { /* show sample doc */ },
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier.clickable { showSampleIsp = true },
             )
+            if (showSampleIsp) {
+                SampleDocViewer(title = t("सैंपल ISP अनुबंध", "Sample ISP Agreement"), imageResId = R.drawable.sample_isp, onDismiss = { showSampleIsp = false })
+            }
             Spacer(Modifier.height(12.dp))
 
             // Mandatory details
@@ -481,12 +491,16 @@ fun ShopPhotosScreen(viewModel: PhotosViewModel, onNext: () -> Unit, onBack: () 
                 onUpload = { if (state.shopPhotoUploaded) viewModel.resetShopPhoto() else showShopSheet = true },
             )
             Spacer(Modifier.height(4.dp))
+            var showSampleShop by remember { mutableStateOf(false) }
             Text(
                 "\uD83D\uDCCB ${t("सैंपल दस्तावेज़ देखें", "View sample document")}",
                 fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary,
                 textDecoration = TextDecoration.Underline,
-                modifier = Modifier.clickable { /* show sample */ },
+                modifier = Modifier.clickable { showSampleShop = true },
             )
+            if (showSampleShop) {
+                SampleDocViewer(title = t("सैंपल दुकान फ़ोटो", "Sample Shop Front Photo"), imageResId = R.drawable.sample_shop, onDismiss = { showSampleShop = false })
+            }
             Spacer(Modifier.height(12.dp))
 
             if (showShopSheet) {
@@ -525,12 +539,16 @@ fun ShopPhotosScreen(viewModel: PhotosViewModel, onNext: () -> Unit, onBack: () 
                 onUpload = { if (state.equipmentPhotoUploaded) viewModel.resetEquipmentPhotos() else showEquipSheet = true },
             )
             Spacer(Modifier.height(4.dp))
+            var showSampleEquip by remember { mutableStateOf(false) }
             Text(
                 "\uD83D\uDCCB ${t("सैंपल दस्तावेज़ देखें", "View sample document")}",
                 fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary,
                 textDecoration = TextDecoration.Underline,
-                modifier = Modifier.clickable { /* show sample */ },
+                modifier = Modifier.clickable { showSampleEquip = true },
             )
+            if (showSampleEquip) {
+                SampleDocViewer(title = t("सैंपल उपकरण फ़ोटो", "Sample Equipment Photo"), imageResId = R.drawable.sample_equip, onDismiss = { showSampleEquip = false })
+            }
 
             if (showEquipSheet) {
                 UploadBottomSheet(

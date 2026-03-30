@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wiom.csp.R
 import com.wiom.csp.data.OnboardingState
 import com.wiom.csp.data.Scenario
 import com.wiom.csp.ui.components.*
@@ -748,6 +749,7 @@ fun KycScreen(viewModel: KycViewModel, onNext: () -> Unit, onBack: () -> Unit) {
 @Composable
 private fun ColumnScope.KycPanSubStage(state: KycUiState, viewModel: KycViewModel, onMoveToAadhaar: () -> Unit) {
     val canProceed = state.isPanStageComplete
+    var showSamplePan by remember { mutableStateOf(false) }
     Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp)) {
         Text("🪪 ${t("पैन विवरण", "PAN Details")}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = WiomText)
         Spacer(Modifier.height(4.dp))
@@ -767,7 +769,10 @@ private fun ColumnScope.KycPanSubStage(state: KycUiState, viewModel: KycViewMode
         KycUploadRow("🪪", t("पैन कार्ड", "PAN Card"), state.panUploaded,
             onUpload = { viewModel.onPanUploaded() }, onReset = { viewModel.resetPanUpload() })
         Spacer(Modifier.height(8.dp))
-        Text("📋 ${t("सैंपल दस्तावेज़ देखें", "View sample document")}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary, textDecoration = TextDecoration.Underline, modifier = Modifier.clickable { })
+        Text("📋 ${t("सैंपल दस्तावेज़ देखें", "View sample document")}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary, textDecoration = TextDecoration.Underline, modifier = Modifier.clickable { showSamplePan = true })
+    if (showSamplePan) {
+        SampleDocViewer(title = t("सैंपल पैन कार्ड", "Sample PAN Card"), imageResId = R.drawable.sample_pan, onDismiss = { showSamplePan = false })
+    }
     }
     BottomBar {
         WiomButton(
@@ -780,6 +785,7 @@ private fun ColumnScope.KycPanSubStage(state: KycUiState, viewModel: KycViewMode
 @Composable
 private fun ColumnScope.KycAadhaarSubStage(state: KycUiState, viewModel: KycViewModel, onMoveToGst: () -> Unit) {
     val canProceed = state.isAadhaarStageComplete
+    var showSampleAadhaar by remember { mutableStateOf(false) }
     Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp)) {
         Text("📄 ${t("आधार विवरण", "Aadhaar Details")}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = WiomText)
         Spacer(Modifier.height(4.dp))
@@ -801,7 +807,10 @@ private fun ColumnScope.KycAadhaarSubStage(state: KycUiState, viewModel: KycView
         KycUploadRow("📄", t("आधार — पीछे", "Aadhaar — Back"), state.aadhaarBackUploaded,
             onUpload = { viewModel.onAadhaarBackUploaded() }, onReset = { viewModel.resetAadhaarBackUpload() })
         Spacer(Modifier.height(8.dp))
-        Text("📋 ${t("सैंपल दस्तावेज़ देखें", "View sample document")}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary, textDecoration = TextDecoration.Underline, modifier = Modifier.clickable { })
+        Text("📋 ${t("सैंपल दस्तावेज़ देखें", "View sample document")}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary, textDecoration = TextDecoration.Underline, modifier = Modifier.clickable { showSampleAadhaar = true })
+    if (showSampleAadhaar) {
+        SampleDocViewer(title = t("सैंपल आधार कार्ड", "Sample Aadhaar Card"), imageResId = R.drawable.sample_aadhaar, onDismiss = { showSampleAadhaar = false })
+    }
     }
     BottomBar {
         WiomButton(
@@ -814,6 +823,7 @@ private fun ColumnScope.KycAadhaarSubStage(state: KycUiState, viewModel: KycView
 @Composable
 private fun ColumnScope.KycGstSubStage(state: KycUiState, viewModel: KycViewModel, onComplete: () -> Unit) {
     val canProceed = state.isGstStageComplete
+    var showSampleGst by remember { mutableStateOf(false) }
     Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp)) {
         Text("📋 ${t("जीएसटी विवरण", "GST Details")}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = WiomText)
         Spacer(Modifier.height(4.dp))
@@ -833,7 +843,10 @@ private fun ColumnScope.KycGstSubStage(state: KycUiState, viewModel: KycViewMode
         KycUploadRow("📋", t("जीएसटी प्रमाणपत्र", "GST Certificate"), state.gstUploaded,
             onUpload = { viewModel.onGstUploaded() }, onReset = { viewModel.resetGstUpload() })
         Spacer(Modifier.height(8.dp))
-        Text("📋 ${t("सैंपल दस्तावेज़ देखें", "View sample document")}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary, textDecoration = TextDecoration.Underline, modifier = Modifier.clickable { })
+        Text("📋 ${t("सैंपल दस्तावेज़ देखें", "View sample document")}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary, textDecoration = TextDecoration.Underline, modifier = Modifier.clickable { showSampleGst = true })
+    if (showSampleGst) {
+        SampleDocViewer(title = t("सैंपल जीएसटी प्रमाणपत्र", "Sample GST Certificate"), imageResId = R.drawable.sample_gst, onDismiss = { showSampleGst = false })
+    }
     }
     BottomBar {
         WiomButton(
