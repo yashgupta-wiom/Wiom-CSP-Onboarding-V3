@@ -99,29 +99,33 @@ fun AppHeader(
         if (rightText != null) {
             Text(rightText, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = WiomSurface.copy(alpha = 0.5f))
         }
-        // Help button
+        // Help button (मदद) — pill shape matching prototype
         Spacer(Modifier.width(4.dp))
-        Text(
-            "📞",
-            fontSize = 14.sp,
+        Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(888.dp))
+                .background(WiomNeutral800)
                 .clickable {
                     val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:7836811111"))
                     context.startActivity(intent)
                 }
-                .padding(horizontal = 6.dp, vertical = 4.dp),
-        )
-        // Language toggle button
-        Spacer(Modifier.width(8.dp))
+                .padding(horizontal = 10.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text("📞", fontSize = 12.sp)
+            Text(t("मदद", "Help"), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = WiomSurface)
+        }
+        // Language toggle button — full text matching prototype
+        Spacer(Modifier.width(6.dp))
         Text(
-            if (com.wiom.csp.util.Lang.isHindi) "En" else "हि",
-            fontSize = 12.sp,
+            if (com.wiom.csp.util.Lang.isHindi) "English" else "हिंदी",
+            fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
-            color = WiomPrimary,
+            color = WiomSurface,
             modifier = Modifier
                 .clip(RoundedCornerShape(888.dp))
-                .background(WiomPrimaryLight)
+                .background(WiomNeutral800)
                 .clickable { com.wiom.csp.util.Lang.toggle() }
                 .padding(horizontal = 10.dp, vertical = 4.dp),
         )
@@ -144,17 +148,20 @@ fun WiomButton(
         enabled = enabled,
         modifier = modifier
             .fillMaxWidth()
-            .height(48.dp),
+            .height(48.dp)
+            .then(
+                if (!isSecondary && enabled)
+                    Modifier.shadow(12.dp, RoundedCornerShape(16.dp), ambientColor = WiomPrimary.copy(alpha = 0.3f), spotColor = WiomPrimary.copy(alpha = 0.3f))
+                else Modifier
+            ),
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = backgroundColor,
             contentColor = textColor,
-            disabledContainerColor = backgroundColor.copy(alpha = 0.4f),
-            disabledContentColor = textColor.copy(alpha = 0.4f),
+            disabledContainerColor = WiomHint,
+            disabledContentColor = WiomSurface,
         ),
-        elevation = if (!isSecondary && enabled) ButtonDefaults.buttonElevation(
-            defaultElevation = 4.dp
-        ) else ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
     ) {
         Text(text, fontWeight = FontWeight.Bold, fontSize = 16.sp)
     }

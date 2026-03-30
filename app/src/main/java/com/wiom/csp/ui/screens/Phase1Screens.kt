@@ -154,49 +154,66 @@ fun PhoneEntryScreen(viewModel: PhoneViewModel, onNext: () -> Unit) {
                     Spacer(Modifier.height(8.dp))
                 }
                 InfoBox("\uD83D\uDD12", t("OTP आपके नंबर पर भेजा जाएगा", "OTP will be sent to your number"))
-
-                Spacer(Modifier.height(16.dp))
-
-                // ─── T&C Checkbox Section ───
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(WiomBgSec)
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Checkbox(
-                        checked = tncAccepted,
-                        onCheckedChange = { tncAccepted = it },
-                        colors = CheckboxDefaults.colors(
-                            checkedColor = WiomPrimary,
-                            uncheckedColor = WiomBorderInput,
-                        ),
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Column {
-                        Text(
-                            t("आगे बढ़कर, मैं नियम व शर्तें स्वीकार करता/करती हूँ", "By Continuing, I accept the Terms and Conditions"),
-                            fontSize = 14.sp,
-                            color = WiomText,
-                        )
-                        Spacer(Modifier.height(2.dp))
-                        Text(
-                            t("नियम व शर्तें पढ़ें", "Read T&C"),
-                            fontSize = 12.sp,
-                            color = WiomPrimary,
-                            fontWeight = FontWeight.SemiBold,
-                            textDecoration = TextDecoration.Underline,
-                            modifier = Modifier.clickable {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wiom.in/terms"))
-                                context.startActivity(intent)
-                            },
-                        )
-                    }
-                }
             }
+            // ─── Bottom bar with T&C + CTA (pinned to bottom, matching prototype bbar) ───
             BottomBar {
+                // T&C row: small green checkbox + inline text with underlined link
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    // Custom small green checkbox (18dp, radius 4dp) matching prototype
+                    Box(
+                        modifier = Modifier
+                            .size(18.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(if (tncAccepted) WiomPositive else Color.Transparent)
+                            .border(
+                                2.dp,
+                                if (tncAccepted) WiomPositive else WiomBorderInput,
+                                RoundedCornerShape(4.dp)
+                            )
+                            .clickable { tncAccepted = !tncAccepted },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (tncAccepted) {
+                            Text("✓", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        }
+                    }
+                    // Inline text: "आगे बढ़कर, मैं [नियम व शर्तें] स्वीकार करता/करती हूँ"
+                    Text(
+                        buildString {
+                            append(t("आगे बढ़कर, मैं ", "By Continuing, I accept the "))
+                        },
+                        fontSize = 11.sp,
+                        color = WiomTextSec,
+                        lineHeight = 14.sp,
+                    )
+                }
+                // Inline T&C link on same row (simplified as separate clickable text)
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Spacer(Modifier.width(24.dp)) // align under text
+                    Text(
+                        t("नियम व शर्तें", "Terms and Conditions"),
+                        fontSize = 11.sp,
+                        color = WiomPrimary,
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier.clickable {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wiom.in/terms"))
+                            context.startActivity(intent)
+                        },
+                    )
+                    Text(
+                        t("स्वीकार करता/करती हूँ", ""),
+                        fontSize = 11.sp,
+                        color = WiomTextSec,
+                    )
+                }
                 WiomButton(
                     t("OTP भेजें", "Send OTP"),
                     onClick = onNext,
