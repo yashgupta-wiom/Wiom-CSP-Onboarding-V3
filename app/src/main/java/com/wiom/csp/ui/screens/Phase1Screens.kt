@@ -27,7 +27,12 @@ import com.wiom.csp.ui.theme.*
 import com.wiom.csp.util.t
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material3.LocalTextStyle
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
@@ -157,13 +162,13 @@ fun PhoneEntryScreen(viewModel: PhoneViewModel, onNext: () -> Unit) {
             }
             // ─── Bottom bar with T&C + CTA (pinned to bottom, matching prototype bbar) ───
             BottomBar {
-                // T&C row: small green checkbox + inline text with underlined link
+                // T&C: single row with checkbox + inline text (matching prototype exactly)
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    // Custom small green checkbox (18dp, radius 4dp) matching prototype
+                    // Custom small green checkbox (18x18dp, radius 4dp) matching prototype chk-box
                     Box(
                         modifier = Modifier
                             .size(18.dp)
@@ -181,37 +186,29 @@ fun PhoneEntryScreen(viewModel: PhoneViewModel, onNext: () -> Unit) {
                             Text("✓", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
-                    // Inline text: "आगे बढ़कर, मैं [नियम व शर्तें] स्वीकार करता/करती हूँ"
-                    Text(
-                        buildString {
+                    // Inline text with clickable link — wraps naturally like prototype's <span>
+                    val annotatedText = buildAnnotatedString {
+                        withStyle(SpanStyle(fontSize = 11.sp, color = WiomTextSec)) {
                             append(t("आगे बढ़कर, मैं ", "By Continuing, I accept the "))
+                        }
+                        pushStringAnnotation(tag = "TNC", annotation = "terms")
+                        withStyle(SpanStyle(fontSize = 11.sp, color = WiomPrimary, textDecoration = TextDecoration.Underline)) {
+                            append(t("नियम व शर्तें", "Terms and Conditions"))
+                        }
+                        pop()
+                        withStyle(SpanStyle(fontSize = 11.sp, color = WiomTextSec)) {
+                            append(t(" स्वीकार करता/करती हूँ", ""))
+                        }
+                    }
+                    ClickableText(
+                        text = annotatedText,
+                        style = LocalTextStyle.current.copy(lineHeight = 14.sp),
+                        onClick = { offset ->
+                            annotatedText.getStringAnnotations("TNC", offset, offset).firstOrNull()?.let {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wiom.in/terms"))
+                                context.startActivity(intent)
+                            }
                         },
-                        fontSize = 11.sp,
-                        color = WiomTextSec,
-                        lineHeight = 14.sp,
-                    )
-                }
-                // Inline T&C link on same row (simplified as separate clickable text)
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Spacer(Modifier.width(24.dp)) // align under text
-                    Text(
-                        t("नियम व शर्तें", "Terms and Conditions"),
-                        fontSize = 11.sp,
-                        color = WiomPrimary,
-                        textDecoration = TextDecoration.Underline,
-                        modifier = Modifier.clickable {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wiom.in/terms"))
-                            context.startActivity(intent)
-                        },
-                    )
-                    Text(
-                        t("स्वीकार करता/करती हूँ", ""),
-                        fontSize = 11.sp,
-                        color = WiomTextSec,
                     )
                 }
                 WiomButton(
