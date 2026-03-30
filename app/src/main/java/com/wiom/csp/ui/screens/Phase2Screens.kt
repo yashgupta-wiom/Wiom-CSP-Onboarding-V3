@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wiom.csp.data.BankVerificationStatus
@@ -132,6 +133,7 @@ fun BankDetailsScreen(viewModel: BankViewModel, onNext: () -> Unit, onBack: () -
                         Text(
                             "\uD83D\uDCCB ${t("सैंपल दस्तावेज़ देखें", "View sample document")}",
                             fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary,
+                            textDecoration = TextDecoration.Underline,
                             modifier = Modifier.clickable { /* show sample doc */ },
                         )
                     } else {

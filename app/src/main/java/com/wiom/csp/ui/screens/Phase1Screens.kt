@@ -767,7 +767,7 @@ private fun ColumnScope.KycPanSubStage(state: KycUiState, viewModel: KycViewMode
         KycUploadRow("🪪", t("पैन कार्ड", "PAN Card"), state.panUploaded,
             onUpload = { viewModel.onPanUploaded() }, onReset = { viewModel.resetPanUpload() })
         Spacer(Modifier.height(8.dp))
-        Text("📋 ${t("सैंपल दस्तावेज़ देखें", "View sample document")}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary, modifier = Modifier.clickable { })
+        Text("📋 ${t("सैंपल दस्तावेज़ देखें", "View sample document")}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary, textDecoration = TextDecoration.Underline, modifier = Modifier.clickable { })
     }
     BottomBar {
         WiomButton(
@@ -801,7 +801,7 @@ private fun ColumnScope.KycAadhaarSubStage(state: KycUiState, viewModel: KycView
         KycUploadRow("📄", t("आधार — पीछे", "Aadhaar — Back"), state.aadhaarBackUploaded,
             onUpload = { viewModel.onAadhaarBackUploaded() }, onReset = { viewModel.resetAadhaarBackUpload() })
         Spacer(Modifier.height(8.dp))
-        Text("📋 ${t("सैंपल दस्तावेज़ देखें", "View sample document")}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary, modifier = Modifier.clickable { })
+        Text("📋 ${t("सैंपल दस्तावेज़ देखें", "View sample document")}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary, textDecoration = TextDecoration.Underline, modifier = Modifier.clickable { })
     }
     BottomBar {
         WiomButton(
@@ -833,7 +833,7 @@ private fun ColumnScope.KycGstSubStage(state: KycUiState, viewModel: KycViewMode
         KycUploadRow("📋", t("जीएसटी प्रमाणपत्र", "GST Certificate"), state.gstUploaded,
             onUpload = { viewModel.onGstUploaded() }, onReset = { viewModel.resetGstUpload() })
         Spacer(Modifier.height(8.dp))
-        Text("📋 ${t("सैंपल दस्तावेज़ देखें", "View sample document")}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary, modifier = Modifier.clickable { })
+        Text("📋 ${t("सैंपल दस्तावेज़ देखें", "View sample document")}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomPrimary, textDecoration = TextDecoration.Underline, modifier = Modifier.clickable { })
     }
     BottomBar {
         WiomButton(
@@ -1027,7 +1027,7 @@ fun RegFeeScreen(viewModel: PaymentViewModel, onNext: () -> Unit, onBack: () -> 
                         ) {
                             Text(
                                 t("पंजीकरण शुल्क", "Registration Fee"),
-                                fontSize = 20.sp, fontWeight = FontWeight.Bold, color = WiomText,
+                                fontSize = 14.sp, color = WiomTextSec,
                             )
                             Spacer(Modifier.height(12.dp))
                             AmountBox("\u20B92,000", t("पंजीकरण शुल्क", "Registration Fee"))

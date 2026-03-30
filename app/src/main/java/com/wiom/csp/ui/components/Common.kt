@@ -1176,3 +1176,168 @@ fun PaymentSuccessOverlay(amountText: String, feeTypeHi: String = "भुगत�
         }
     }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Upload Bottom Sheet — matches prototype upload-sheet + upload-preview
+// ═══════════════════════════════════════════════════════════════════════════
+
+@Composable
+fun UploadBottomSheet(
+    title: String,
+    onCamera: () -> Unit,
+    onGallery: () -> Unit,
+    onPdf: (() -> Unit)? = null,
+    onDismiss: () -> Unit,
+    proTips: List<String> = emptyList(),
+) {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color.Black.copy(alpha = 0.5f),
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize().clickable(onClick = onDismiss),
+            contentAlignment = Alignment.BottomCenter,
+        ) {
+            Surface(
+                modifier = Modifier.clickable(enabled = false, onClick = {}),
+                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+                color = Color.White,
+            ) {
+                Column(modifier = Modifier.padding(20.dp, 20.dp, 20.dp, 24.dp)) {
+                    // Drag handle
+                    Box(
+                        Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Box(Modifier.width(40.dp).height(4.dp).clip(RoundedCornerShape(2.dp)).background(WiomBorderInput))
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    // Title
+                    Text(title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = WiomText, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                    Spacer(Modifier.height(16.dp))
+
+                    // PDF option (ISP only)
+                    if (onPdf != null) {
+                        UploadSheetOption("📎", t("PDF अपलोड करें", "Upload PDF"), t("PDF फ़ाइल चुनें", "Choose a PDF file"), onClick = { onPdf(); onDismiss() })
+                    }
+                    // Camera option
+                    UploadSheetOption("📸", t("कैमरा से फ़ोटो लें", "Take Photo from Camera"), t("अभी फ़ोटो खींचें", "Capture photo now"), onClick = { onCamera(); onDismiss() })
+                    // Gallery option
+                    UploadSheetOption("🖼️", t("गैलरी से अपलोड करें", "Upload from Gallery"), t("फ़ोन की गैलरी से चुनें", "Choose from phone gallery"), onClick = { onGallery(); onDismiss() })
+
+                    // Pro tips
+                    if (proTips.isNotEmpty()) {
+                        Spacer(Modifier.height(12.dp))
+                        Surface(shape = RoundedCornerShape(8.dp), color = WiomBgSec, modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.padding(10.dp, 12.dp)) {
+                                Text("💡 ${t("प्रो टिप्स", "Pro Tips")}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = WiomText)
+                                Spacer(Modifier.height(6.dp))
+                                proTips.forEach { tip ->
+                                    Row(modifier = Modifier.padding(bottom = 4.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        Text("✓", fontSize = 11.sp, color = WiomPositive)
+                                        Text(tip, fontSize = 11.sp, color = WiomTextSec, lineHeight = 16.sp)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Cancel button
+                    Spacer(Modifier.height(8.dp))
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        Text(
+                            t("रद्द करें", "Cancel"),
+                            fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomTextSec,
+                            modifier = Modifier.clickable(onClick = onDismiss).padding(10.dp),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun UploadSheetOption(icon: String, title: String, hint: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, WiomBorder, RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(14.dp, 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text(icon, fontSize = 24.sp)
+        Column {
+            Text(title, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = WiomText)
+            Text(hint, fontSize = 12.sp, color = WiomTextSec)
+        }
+    }
+    Spacer(Modifier.height(8.dp))
+}
+
+// Upload preview overlay — matches prototype upload-preview
+@Composable
+fun UploadPreviewOverlay(
+    docName: String,
+    docIcon: String,
+    sourceLabel: String,
+    onRetake: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color.White,
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth().height(48.dp).background(WiomText).padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("←", fontSize = 16.sp, color = Color.White, modifier = Modifier.clickable(onClick = onRetake))
+                Spacer(Modifier.width(8.dp))
+                Text(t("पुष्टि करें", "Confirm"), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+            // Preview area
+            Box(
+                modifier = Modifier.weight(1f).fillMaxWidth().padding(12.dp).clip(RoundedCornerShape(16.dp)).background(WiomBgSec),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(docIcon, fontSize = 36.sp)
+                    Spacer(Modifier.height(8.dp))
+                    Text(docName, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = WiomTextSec)
+                    Text(sourceLabel, fontSize = 11.sp, color = WiomHint)
+                }
+            }
+            // Info
+            InfoBox("👁️", t("कृपया जाँचें कि सभी जानकारी स्पष्ट दिख रही है", "Please verify all information is clearly visible"), modifier = Modifier.padding(horizontal = 16.dp))
+            Spacer(Modifier.height(4.dp))
+            // Action buttons
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(12.dp, 16.dp, 12.dp, 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Button(
+                    onClick = onRetake,
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = WiomBgSec, contentColor = WiomText),
+                ) {
+                    Text("🔄 ${t("दोबारा लें", "Retake")}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                }
+                Button(
+                    onClick = onConfirm,
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = WiomPrimary, contentColor = Color.White),
+                ) {
+                    Text("✓ ${t("पुष्टि करें", "Confirm")}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                }
+            }
+        }
+    }
+}
