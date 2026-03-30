@@ -53,7 +53,7 @@
 │  │  QA team reviews all docs via QA Review Dashboard    │           │
 │  │  TAT: up to 3 business days                          │           │
 │  │                                                      │           │
-│  │  APPROVED ──► proceed to Phase 3                     │           │
+│  │  APPROVED ──► proceed to Tech Assessment (Screen 10)  │           │
 │  │  REJECTED ──► auto-refund Rs.2,000 → flow ends       │           │
 │  │               (no re-upload in V0)                   │           │
 │  └──────────────────────────────────────────────────────┘           │
@@ -76,7 +76,8 @@
 │  │    "Talk to Us" (7836811111)     │                                │
 │  │    Flow ends.                    │                                │
 │  └───────────────┬──────────────────┘                                │
-│                                            │                        │
+│                  │                                                   │
+│                  ▼                                                   │
 │  Screen 12                  Screen 13            Screen 14          │
 │  Onboarding Fee ──────────► Account Setup ──────► Success!          │
 │  Rs.20,000                  (RazorpayX, Zoho,    "Congratulations"  │
@@ -318,8 +319,8 @@ CSP completes all Quiz modules
 4. ISP Agreement — uploaded
 5. Shop & Equipment photos — uploaded
 6. QA Review — approved
-7. Policy & SLA — accepted
-8. Tech Assessment — passed
+7. Tech Assessment — passed
+8. Policy & SLA — accepted
 9. Onboarding Fee (Rs.20,000) — paid
 10. Account Setup — successful (RazorpayX + Zoho + Ledger)
 11. Partner Plus App — downloaded and logged in
